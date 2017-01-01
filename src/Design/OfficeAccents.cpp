@@ -48,7 +48,7 @@ OfficeAccents::lighter(const QColor& accent)
 const QColor
 OfficeAccents::darker(const QColor& accent)
 {
-    return QColor::fromRgba(accent.rgba() - 0x210b0c);
+    return QColor::fromRgba(accent.rgba() - 0x231f1f);
 }
 
 
