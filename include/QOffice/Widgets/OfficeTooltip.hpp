@@ -34,6 +34,9 @@
 QOFFICE_BEGIN_NAMESPACE
 
 
+class OfficeWindow;
+
+
 /**
  * This is the description of the class.
  *
@@ -149,13 +152,14 @@ protected:
      *
      */
     void showEvent(QShowEvent* event) override;
+
     /**
-     * Resets the timer if the widget is entered again.
+     * Post-modifies the window.
      *
      * @param event Holds nothing we need.
      *
      */
-    void enterEvent(QEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
 
     /**
      * Hides the tooltip after some time when it was left.
@@ -173,6 +177,11 @@ signals:
      *
      */
     void helpRequested();
+
+
+public slots:
+
+    void beginHideTooltip();
 
 
 private slots:
@@ -197,14 +206,22 @@ private:
     QRect   m_HelpIconRect;
     QRect   m_HelpTextRect;
     QRect   m_SeparatorRect;
+    qreal   m_Opacity;
     bool    m_IsLinkHovered;
+
+    QPropertyAnimation* m_OpacAnim;
+    OfficeWindow*       m_ActiveWindow;
 
     // Helpers
     void updateRectangles();
     void generateDropShadow();
+    auto getOpacity() -> qreal { return m_Opacity; }
+    void setOpacity(qreal opc) { m_Opacity = opc;  }
+
 
     // Metadata
     Q_OBJECT
+    Q_PROPERTY(qreal Opacity READ getOpacity WRITE setOpacity)
 };
 
 

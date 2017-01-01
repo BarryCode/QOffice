@@ -22,6 +22,7 @@
 
 // QOffice headers
 #include <QOffice/Widgets/OfficeTooltip.hpp>
+#include <QOffice/Widgets/OfficeWindow.hpp>
 #include <QOffice/Widgets/Constants/OfficeTooltipConstants.hpp>
 #include <QOffice/Design/OfficePalette.hpp>
 
@@ -45,10 +46,15 @@ OfficeTooltip::OfficeTooltip(QWidget* parent)
 {
     setWindowFlags(Qt::ToolTip | Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
-    setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
 
-    connect(m_Timer, SIGNAL(timeout()), this, SLOT(hideTooltip()));
+    m_OpacAnim = new QPropertyAnimation(this);
+    m_OpacAnim->setTargetObject(this);
+    m_OpacAnim->setPropertyName(QByteArray("Opacity"));
+    m_OpacAnim->setDuration(200);
+
+    connect(m_OpacAnim, SIGNAL(valueChanged(QVariant)), this, SLOT(update()));
+    connect(m_Timer, SIGNAL(timeout()), this, SLOT(beginHideTooltip()));
     m_HelpIcon = QPixmap(":/qoffice/images/widgets/tooltip_help.png");
 }
 
@@ -109,6 +115,7 @@ OfficeTooltip::paintEvent(QPaintEvent*)
     const QColor& colorSepar = OfficePalette::get(OfficePalette::TooltipSeparator);
 
 
+    painter.setOpacity(m_Opacity);
     painter.drawPixmap(QPoint(), m_DropShadow);
 
     // Renders the background and the border of the tooltip.
@@ -210,15 +217,36 @@ OfficeTooltip::showEvent(QShowEvent*)
     m_Timer->setInterval(m_Duration);
     m_Timer->start();
     updateRectangles();
+
+    // Tells the active window that a tooltip was shown.
+    // This prevents the window to render incorrectly.
+    if (OfficeWindow::g_ActiveWindow != nullptr)
+    {
+        OfficeWindow::g_ActiveWindow->m_IsTooltipShown = true;
+        m_ActiveWindow = OfficeWindow::g_ActiveWindow;
+    }
+
     activateWindow();
     setFocus(Qt::PopupFocusReason);
+
+    // Fades in the tooltip.
+    m_Opacity = 0.0;
+    m_OpacAnim->setStartValue(0.0);
+    m_OpacAnim->setEndValue(1.0);
+    m_OpacAnim->start();
 }
 
 
 void
-OfficeTooltip::enterEvent(QEvent*)
+OfficeTooltip::hideEvent(QHideEvent*)
 {
-    showEvent(nullptr);
+    if (m_ActiveWindow != nullptr)
+        m_ActiveWindow->m_IsTooltipShown = false;
+
+    m_Timer->stop();
+    m_Opacity = 0.0;
+    m_IsLinkHovered = false;
+    disconnect(m_OpacAnim, SIGNAL(finished()), this, SLOT(hideTooltip()));
 }
 
 
@@ -231,10 +259,18 @@ OfficeTooltip::leaveEvent(QEvent*)
 
 
 void
+OfficeTooltip::beginHideTooltip()
+{
+    m_OpacAnim->setStartValue(1.0);
+    m_OpacAnim->setEndValue(0.0);
+    m_OpacAnim->start();
+    connect(m_OpacAnim, SIGNAL(finished()), this, SLOT(hideTooltip()));
+}
+
+
+void
 OfficeTooltip::hideTooltip()
 {
-    m_Timer->stop();
-    m_IsLinkHovered = false;
     hide();
 }
 

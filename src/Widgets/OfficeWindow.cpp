@@ -211,7 +211,7 @@ OfficeWindow::paintEvent(QPaintEvent*)
     const QColor& colorAccnt = OfficeAccents::get(accent());
 
     // Renders the drop shadow.
-    if (!isMaximized() && m_State != WindowState::Resizing && isActiveWindow())
+    if (!isMaximized() && m_State != WindowState::Resizing && isActive())
         painter.drawPixmap(QPoint(), m_DropShadow);
 
     // Renders the background.
@@ -219,7 +219,7 @@ OfficeWindow::paintEvent(QPaintEvent*)
     painter.fillRect(m_TitleRect, colorAccnt);
 
     // Renders the window border.
-    if (isActiveWindow())
+    if (isActive())
         painter.setPen(colorAccnt);
     else
         painter.setPen(OfficePalette::get(OfficePalette::DisabledText));
@@ -227,7 +227,7 @@ OfficeWindow::paintEvent(QPaintEvent*)
     painter.drawRect(borderRect);
 
     // Renders the title bar text.
-    if (!isActiveWindow())
+    if (!isActive())
         painter.setOpacity(0.5);
 
     painter.setFont(font());
@@ -356,6 +356,43 @@ OfficeWindow::mouseDoubleClickEvent(QMouseEvent* event)
         updateLayoutPadding();
         update();
     }
+}
+
+
+bool
+OfficeWindow::event(QEvent* event)
+{
+    switch (event->type())
+    {
+        case QEvent::WindowActivate:
+            focusInEvent(nullptr);
+            break;
+
+        case QEvent::WindowDeactivate:
+            focusOutEvent(nullptr);
+            break;
+
+        default:
+            break;
+    }
+
+    return QWidget::event(event);
+}
+
+
+void
+OfficeWindow::focusInEvent(QFocusEvent*)
+{
+    if (g_ActiveWindow != this)
+        g_ActiveWindow = this;
+}
+
+
+void
+OfficeWindow::focusOutEvent(QFocusEvent*)
+{
+    if (g_ActiveWindow == this)
+        g_ActiveWindow = nullptr;
 }
 
 
@@ -845,6 +882,13 @@ OfficeWindow::mouseReleaseAction(const QPoint& p)
 }
 
 
+bool
+OfficeWindow::isActive()
+{
+    return isActiveWindow() || m_IsTooltipShown;
+}
+
+
 WinResizeArea::WinResizeArea(OfficeWindow* window, WinResizeDirs dir)
     : QWidget(window)
     , m_Window(window)
@@ -945,3 +989,7 @@ WinResizeArea::mouseMoveEvent(QMouseEvent* event)
         m_Window->setGeometry(r);
     }
 }
+
+
+// Static variable definition
+OfficeWindow* OfficeWindow::g_ActiveWindow = nullptr;

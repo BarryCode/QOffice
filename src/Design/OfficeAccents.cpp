@@ -41,14 +41,14 @@ OfficeAccents::get(IOfficeWidget::Accent accent)
 const QColor
 OfficeAccents::lighter(const QColor& accent)
 {
-    return QColor::fromRgba(accent.rgba() + 0x231f1f);
+    return accent.lighter(125);
 }
 
 
 const QColor
 OfficeAccents::darker(const QColor& accent)
 {
-    return QColor::fromRgba(accent.rgba() - 0x231f1f);
+    return accent.darker(135);
 }
 
 

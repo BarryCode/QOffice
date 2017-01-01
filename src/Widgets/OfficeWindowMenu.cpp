@@ -106,14 +106,14 @@ OfficeWindowMenu::paintEvent(QPaintEvent*)
         QRect bounds = item->m_Bounds;
         QRect iconRect(bounds.x() + 4, bounds.y() + 4, 16, 16);
 
-        if (!m_Parent->isActiveWindow())
+        if (!m_Parent->isActive())
             painter.setOpacity(0.5);
         if (item->m_State == WinButtonState::Hovered)
             painter.fillRect(bounds, OfficeAccents::lighter(colorAccnt));
         else if (item->m_State == WinButtonState::Pressed)
             painter.fillRect(bounds, OfficeAccents::darker(colorAccnt));
 
-        if (item->isEnabled() && m_Parent->isActiveWindow())
+        if (item->isEnabled() && m_Parent->isActive())
             painter.setOpacity(1.0);
         else
             painter.setOpacity(0.5);
@@ -214,7 +214,7 @@ OfficeWindowMenu::leaveEvent(QEvent*)
         item->m_State = WinButtonState::None;
 
     if (!m_Tooltip->geometry().contains(QCursor::pos()))
-         m_Tooltip->hide();
+         m_Tooltip->beginHideTooltip();
 
     m_Timer->stop();
     update();

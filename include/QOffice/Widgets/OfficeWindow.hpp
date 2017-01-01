@@ -125,6 +125,14 @@ public:
     bool canResize() const;
 
     /**
+     * Determines whether this window is active.
+     *
+     * @returns true if it is active.
+     *
+     */
+    bool isActive();
+
+    /**
      * Retrieves a pointer to the window menu.
      *
      * @returns the window menu.
@@ -263,6 +271,30 @@ protected:
     virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
     /**
+     * Catches the WindowActive and WindowDeactive event.
+     *
+     * @param event Holds the event type.
+     *
+     */
+    virtual bool event(QEvent* event) override;
+
+    /**
+     * Sets this window to the active window upon focusing it.
+     *
+     * @param event Holds nothing we need.
+     *
+     */
+    virtual void focusInEvent(QFocusEvent* event) override;
+
+    /**
+     * Sets the active window to null pointer upon defocusing it.
+     *
+     * @param event Holds nothing we need.
+     *
+     */
+    virtual void focusOutEvent(QFocusEvent* event) override;
+
+    /**
      * Recursively changes the accent of all child widgets.
      *
      * @param event Holds nothing we need.
@@ -318,6 +350,7 @@ private:
     bool              m_HasMaximBtn;
     bool              m_HasMinimBtn;
     bool              m_CanResize;
+    bool              m_IsTooltipShown;
 
     // Helpers
     void generateDropShadow();
@@ -347,6 +380,10 @@ private:
 
     // Friends
     friend class WinResizeArea;
+    friend class OfficeTooltip;
+
+    // Static variables
+    static OfficeWindow* g_ActiveWindow;
 };
 
 
