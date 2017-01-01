@@ -21,8 +21,8 @@
 
 
 // QOffice headers
-#include <QOffice/Widgets/OfficeWindowMenu.hpp>
-#include <QOffice/Widgets/OfficeWindow.hpp>
+#include <QOffice/Widgets/Dialogs/OfficeWindowMenu.hpp>
+#include <QOffice/Widgets/Dialogs/OfficeWindow.hpp>
 #include <QOffice/Design/OfficeAccents.hpp>
 
 // Qt headers

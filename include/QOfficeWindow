@@ -1,1 +1,1 @@
-#include <QOffice/Widgets/OfficeWindow.hpp>
+#include <QOffice/Widgets/Dialogs/OfficeWindow.hpp>

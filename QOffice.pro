@@ -66,16 +66,16 @@ HEADERS             +=      include/QOffice/Config.hpp \
                             include/QOffice/Design/OfficeAccents.hpp \
                             include/QOffice/Design/Exceptions/InvalidAccentException.hpp \
                             include/QOffice/Widgets/OfficeWidget.hpp \
-                            include/QOffice/Widgets/OfficeWindow.hpp \
+                            include/QOffice/Widgets/Dialogs/OfficeWindow.hpp \
                             include/QOffice/Plugins/OfficeWidgetPlugin.hpp \
                             include/QOffice/Plugins/OfficeWindowPlugin.hpp \
                             include/QOffice/Plugins/OfficePluginCollection.hpp \
                             include/QOffice/Widgets/Enums/OfficeWindowEnums.hpp \
                             include/QOffice/Widgets/Constants/OfficeWindowConstants.hpp \
                             include/QOffice/Design/OfficePalette.hpp \
-    include/QOffice/Widgets/OfficeWindowMenu.hpp \
-    include/QOffice/Widgets/OfficeTooltip.hpp \
-    include/QOffice/Widgets/Constants/OfficeTooltipConstants.hpp
+                            include/QOffice/Widgets/Dialogs/OfficeWindowMenu.hpp \
+                            include/QOffice/Widgets/OfficeTooltip.hpp \
+                            include/QOffice/Widgets/Constants/OfficeTooltipConstants.hpp
 
 ###########################################################
 #
@@ -84,10 +84,10 @@ HEADERS             +=      include/QOffice/Config.hpp \
 SOURCES             +=      src/Design/Exceptions/InvalidAccentException.cpp \
                             src/Design/OfficeAccents.cpp \
                             src/Widgets/OfficeWidget.cpp \
-                            src/Widgets/OfficeWindow.cpp \
+                            src/Widgets/Dialogs/OfficeWindow.cpp \
                             src/Plugins/OfficeWidgetPlugin.cpp \
                             src/Plugins/OfficePluginCollection.cpp \
                             src/Plugins/OfficeWindowPlugin.cpp \
                             src/Design/OfficePalette.cpp \
-    src/Widgets/OfficeWindowMenu.cpp \
-    src/Widgets/OfficeTooltip.cpp
+                            src/Widgets/Dialogs/OfficeWindowMenu.cpp \
+                            src/Widgets/OfficeTooltip.cpp
