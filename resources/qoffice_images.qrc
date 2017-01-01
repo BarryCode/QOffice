@@ -4,5 +4,6 @@
         <file>qoffice/images/window/max.png</file>
         <file>qoffice/images/window/min.png</file>
         <file>qoffice/images/window/restore.png</file>
+        <file>qoffice/images/widgets/tooltip_help.png</file>
     </qresource>
 </RCC>

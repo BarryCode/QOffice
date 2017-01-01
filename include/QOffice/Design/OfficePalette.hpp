@@ -57,6 +57,11 @@ public:
         Background,
         Foreground,
         DisabledText,
+        TooltipBorder,
+        TooltipBackground,
+        TooltipSeparator,
+        TooltipText,
+        TooltipHelpText,
         Max
     };
 

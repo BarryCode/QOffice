@@ -20,32 +20,28 @@
  */
 
 
+#ifndef QOFFICE_OFFICETOOLTIPCONSTANTS_HPP
+#define QOFFICE_OFFICETOOLTIPCONSTANTS_HPP
+
+
 // QOffice headers
-#include <QOffice/Design/OfficePalette.hpp>
+#include <QOffice/Config.hpp>
 
 
-QOFFICE_USING_NAMESPACE
+QOFFICE_BEGIN_NAMESPACE
 
 
-const QColor&
-OfficePalette::get(PaletteRole role)
-{
-    if (role >= PaletteRole::Max)
-        throw "placeholder";
+#define TOOLTIP_MARGIN          14
+#define TOOLTIP_BODY_MARGIN     16
+#define TOOLTIP_SEPA_MARGIN     9
+#define TOOLTIP_HELP_MARGIN     7
+#define TOOLTIP_ICON_PADDING    8
+#define TOOLTIP_DROP_SHADOW     4
+#define TOOLTIP_DROP_SHADOW_P   TOOLTIP_DROP_SHADOW * 2
+#define TOOLTIP_DROP_SHADOW_B  -TOOLTIP_DROP_SHADOW / 4 + 1
 
-    return g_Colors[role];
-}
+
+QOFFICE_END_NAMESPACE
 
 
-// Specifies the predefined palette entries.
-std::vector<QColor> OfficePalette::g_Colors =
-{
-    QColor(0xf1f1f1),
-    QColor(0x666666),
-    QColor(0x989898),
-    QColor(0xbebebe),
-    QColor(0xffffff),
-    QColor(0xe1e1e1),
-    QColor(0x5c5c5c),
-    QColor(0x336699)
-};
+#endif // QOFFICE_OFFICETOOLTIPCONSTANTS_HPP

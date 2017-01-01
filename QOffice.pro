@@ -72,7 +72,10 @@ HEADERS             +=      include/QOffice/Config.hpp \
                             include/QOffice/Plugins/OfficePluginCollection.hpp \
                             include/QOffice/Widgets/Enums/OfficeWindowEnums.hpp \
                             include/QOffice/Widgets/Constants/OfficeWindowConstants.hpp \
-                            include/QOffice/Design/OfficePalette.hpp
+                            include/QOffice/Design/OfficePalette.hpp \
+    include/QOffice/Widgets/OfficeWindowMenu.hpp \
+    include/QOffice/Widgets/OfficeTooltip.hpp \
+    include/QOffice/Widgets/Constants/OfficeTooltipConstants.hpp
 
 ###########################################################
 #
@@ -85,4 +88,6 @@ SOURCES             +=      src/Design/Exceptions/InvalidAccentException.cpp \
                             src/Plugins/OfficeWidgetPlugin.cpp \
                             src/Plugins/OfficePluginCollection.cpp \
                             src/Plugins/OfficeWindowPlugin.cpp \
-                            src/Design/OfficePalette.cpp
+                            src/Design/OfficePalette.cpp \
+    src/Widgets/OfficeWindowMenu.cpp \
+    src/Widgets/OfficeTooltip.cpp
