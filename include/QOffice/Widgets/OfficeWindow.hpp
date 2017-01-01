@@ -26,6 +26,7 @@
 
 // QOffice headers
 #include <QOffice/Interfaces/IOfficeWidget.hpp>
+#include <QOffice/Widgets/OfficeWindowMenu.hpp>
 #include <QOffice/Widgets/Enums/OfficeWindowEnums.hpp>
 
 // Qt headers
@@ -68,6 +69,12 @@ public:
      *
      */
     OfficeWindow(QWidget* parent = nullptr);
+
+    /**
+     * Destructs this OfficeWindow instance.
+     *
+     */
+    virtual ~OfficeWindow();
 
 
     /**
@@ -116,6 +123,14 @@ public:
      * @returns true if it is.
      */
     bool canResize() const;
+
+    /**
+     * Retrieves a pointer to the window menu.
+     *
+     * @returns the window menu.
+     *
+     */
+    OfficeWindowMenu* menu() const;
 
 
    /**
@@ -174,6 +189,16 @@ public:
      *
      */
     void setResizable(bool resize);
+
+    /**
+     * Defines the menu items for this office window.
+     * This window will own the given menu items and
+     * dispose them properly on form close.
+     *
+     * @param items List of items.
+     *
+     */
+    void setMenuItems(const QList<OfficeWindowMenuItem*>& items);
 
 
 protected:
@@ -245,40 +270,54 @@ protected:
      */
     virtual void showEvent(QShowEvent* event) override;
 
+    /**
+     * Qt somehow has a high latency when forwarding calls to
+     * move(), which causes the dragging to lag horribly, plus
+     * dragging stops when the user moves it too rapidly due to
+     * the mouse pointer leaving this widget. This function now
+     * ensures that the window is always positioned correctly,
+     * even if the mouse pointer left the widget.
+     *
+     * @param event Holds nothing we need.
+     *
+     */
+    virtual void leaveEvent(QEvent* event) override;
+
 
 private:
 
     // Members
-    WinButtonState m_CloseState;
-    WinButtonState m_MaximState;
-    WinButtonState m_MinimState;
-    WindowState    m_State;
-    WinResizeArea* m_ResizeTopLeft;
-    WinResizeArea* m_ResizeTopRight;
-    WinResizeArea* m_ResizeBottomLeft;
-    WinResizeArea* m_ResizeBottomRight;
-    WinResizeArea* m_ResizeTop;
-    WinResizeArea* m_ResizeLeft;
-    WinResizeArea* m_ResizeBottom;
-    WinResizeArea* m_ResizeRight;
-    QPixmap        m_DropShadow;
-    QPixmap        m_CloseImage;
-    QPixmap        m_MaximImage;
-    QPixmap        m_MinimImage;
-    QPixmap        m_RestoreImage;
-    QTextOption    m_TitleOptions;
-    QString        m_VisibleTitle;
-    QPoint         m_InitialDragPos;
-    QRect          m_ClientRect;
-    QRect          m_TitleRect;
-    QRect          m_DragRect;
-    QRect          m_CloseRect;
-    QRect          m_MaximRect;
-    QRect          m_MinimRect;
-    bool           m_HasCloseBtn;
-    bool           m_HasMaximBtn;
-    bool           m_HasMinimBtn;
-    bool           m_CanResize;
+    WinButtonState    m_CloseState;
+    WinButtonState    m_MaximState;
+    WinButtonState    m_MinimState;
+    WindowState       m_State;
+    WinResizeArea*    m_ResizeTopLeft;
+    WinResizeArea*    m_ResizeTopRight;
+    WinResizeArea*    m_ResizeBottomLeft;
+    WinResizeArea*    m_ResizeBottomRight;
+    WinResizeArea*    m_ResizeTop;
+    WinResizeArea*    m_ResizeLeft;
+    WinResizeArea*    m_ResizeBottom;
+    WinResizeArea*    m_ResizeRight;
+    OfficeWindowMenu* m_Menu;
+    QPixmap           m_DropShadow;
+    QPixmap           m_CloseImage;
+    QPixmap           m_MaximImage;
+    QPixmap           m_MinimImage;
+    QPixmap           m_RestoreImage;
+    QTextOption       m_TitleOptions;
+    QString           m_VisibleTitle;
+    QPoint            m_InitialDragPos;
+    QRect             m_ClientRect;
+    QRect             m_TitleRect;
+    QRect             m_DragRect;
+    QRect             m_CloseRect;
+    QRect             m_MaximRect;
+    QRect             m_MinimRect;
+    bool              m_HasCloseBtn;
+    bool              m_HasMaximBtn;
+    bool              m_HasMinimBtn;
+    bool              m_CanResize;
 
     // Helpers
     void generateDropShadow();

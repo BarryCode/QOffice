@@ -70,12 +70,18 @@ OfficeWindow::OfficeWindow(QWidget* parent)
     m_ResizeLeft        = new WinResizeArea(this, RESIZE_L);
     m_ResizeBottom      = new WinResizeArea(this, RESIZE_B);
     m_ResizeRight       = new WinResizeArea(this, RESIZE_R);
+    m_Menu              = new OfficeWindowMenu(this);
 
     // Loads all the window button images.
     m_CloseImage = QPixmap(":/qoffice/images/window/close.png");
     m_MaximImage = QPixmap(":/qoffice/images/window/max.png");
     m_MinimImage = QPixmap(":/qoffice/images/window/min.png");
     m_RestoreImage = QPixmap(":/qoffice/images/window/restore.png");
+}
+
+
+OfficeWindow::~OfficeWindow()
+{
 }
 
 
@@ -118,6 +124,13 @@ bool
 OfficeWindow::canResize() const
 {
     return m_CanResize;
+}
+
+
+OfficeWindowMenu*
+OfficeWindow::menu() const
+{
+    return m_Menu;
 }
 
 
@@ -181,6 +194,13 @@ OfficeWindow::setResizable(bool resize)
 
 
 void
+OfficeWindow::setMenuItems(const QList<OfficeWindowMenuItem*>& items)
+{
+    m_Menu->setItems(items);
+}
+
+
+void
 OfficeWindow::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
@@ -191,16 +211,25 @@ OfficeWindow::paintEvent(QPaintEvent*)
     const QColor& colorAccnt = OfficeAccents::get(accent());
 
     // Renders the drop shadow.
-    if (!isMaximized() && m_State != WindowState::Resizing)
+    if (!isMaximized() && m_State != WindowState::Resizing && isActiveWindow())
         painter.drawPixmap(QPoint(), m_DropShadow);
 
-    // Renders the background and the border.
+    // Renders the background.
     painter.fillRect(m_ClientRect, colorBackg);
-    painter.setPen(colorAccnt);
+    painter.fillRect(m_TitleRect, colorAccnt);
+
+    // Renders the window border.
+    if (isActiveWindow())
+        painter.setPen(colorAccnt);
+    else
+        painter.setPen(OfficePalette::get(OfficePalette::DisabledText));
+
     painter.drawRect(borderRect);
 
-    // Renders the title bar background and text.
-    painter.fillRect(m_TitleRect, colorAccnt);
+    // Renders the title bar text.
+    if (!isActiveWindow())
+        painter.setOpacity(0.5);
+
     painter.setFont(font());
     painter.setPen(colorBackg);
     painter.drawText(m_TitleRect, m_VisibleTitle, m_TitleOptions);
@@ -338,6 +367,24 @@ OfficeWindow::showEvent(QShowEvent*)
 
 
 void
+OfficeWindow::leaveEvent(QEvent*)
+{
+    if (m_State == WindowState::Dragging)
+    {
+        move(QCursor::pos() - m_InitialDragPos);
+    }
+    else
+    {
+        // Dehovers any hovered window buttons.
+        m_CloseState = WinButtonState::None;
+        m_MaximState = WinButtonState::None;
+        m_MinimState = WinButtonState::None;
+        repaintTitleBar();
+    }
+}
+
+
+void
 OfficeWindow::generateDropShadow()
 {
     // Creates a new pixmap that fills the entire widget.
@@ -444,14 +491,19 @@ OfficeWindow::updateResizeRects()
 
     // Determines the padding caused by the drop shadow.
     int dsPadding = (isMaximized()) ? 0 : DROP_SHADOW_PADDING;
-    int dsAdjustm = (isMaximized()) ? DROP_SHADOW_PADDING : 0;
+    //int dsAdjustm = (isMaximized()) ? DROP_SHADOW_PADDING : 0;
     int buttonWid = m_CloseRect.width() + m_MaximRect.width() + m_MinimRect.width();
+
+    // Specifies the menu position.
+    m_Menu->setGeometry(QRect(
+                QPoint(dsPadding + 8, dsPadding + 4),
+                m_Menu->sizeHint()));
 
     // Specifies the title dragging rectangle.
     m_DragRect.setRect(
+                dsPadding + m_Menu->width() + 8,
                 dsPadding,
-                dsPadding,
-                width() - /*MENU*/ buttonWid - dsPadding * 2,
+                width() - m_Menu->width() - buttonWid - dsPadding * 2 - 8,
                 TITLE_HEIGHT);
 
     // Specifies the client rectangle.
@@ -467,8 +519,6 @@ OfficeWindow::updateResizeRects()
                 dsPadding,
                 width() - dsPadding * 2,
                 TITLE_HEIGHT);
-
-    // TODO: Menu
 }
 
 
@@ -568,7 +618,7 @@ OfficeWindow::centerRect(const QPixmap& img, const QRect& rc)
 bool
 OfficeWindow::mouseMoveDrag(const QPoint& p)
 {
-    if (m_State == WindowState::Dragging && m_DragRect.contains(p))
+    if (m_State == WindowState::Dragging /*&& m_DragRect.contains(p)*/)
     {
         auto g = mapToGlobal(p);
         if (isMaximized())
