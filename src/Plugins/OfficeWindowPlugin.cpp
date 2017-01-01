@@ -22,7 +22,7 @@
 
 // QOffice headers
 #include <QOffice/Plugins/OfficeWindowPlugin.hpp>
-#include <QOffice/Widgets/OfficeWindow.hpp>
+#include <QOffice/Widgets/Dialogs/OfficeWindow.hpp>
 
 // Qt headers
 #include <QtPlugin>

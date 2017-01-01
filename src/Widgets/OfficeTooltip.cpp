@@ -22,7 +22,7 @@
 
 // QOffice headers
 #include <QOffice/Widgets/OfficeTooltip.hpp>
-#include <QOffice/Widgets/OfficeWindow.hpp>
+#include <QOffice/Widgets/Dialogs/OfficeWindow.hpp>
 #include <QOffice/Widgets/Constants/OfficeTooltipConstants.hpp>
 #include <QOffice/Design/OfficePalette.hpp>
 
