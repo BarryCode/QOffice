@@ -36,7 +36,7 @@ QOFFICE_BEGIN_NAMESPACE
 
 
 /**
- * This is the description of the class.
+ * Encapsulates the OfficeWindow in a plugin.
  *
  * @class OfficeWindowPlugin
  * @author Nicolas Kogler

@@ -21,26 +21,37 @@
 
 
 // QOffice headers
-#include <QOffice/Plugins/OfficePluginCollection.hpp>
-#include <QOffice/Plugins/OfficeWidgetPlugin.hpp>
-#include <QOffice/Plugins/OfficeWindowPlugin.hpp>
-#include <QOffice/Plugins/OfficeMenuPlugin.hpp>
+#include <QOffice/Widgets/OfficeMenu.hpp>
+#include <QOffice/Design/OfficeAccents.hpp>
+
+// Qt headers
 
 
 QOFFICE_USING_NAMESPACE
 
 
-OfficePluginCollection::OfficePluginCollection(QObject* parent)
-    : QObject(parent)
+OfficeMenu::OfficeMenu(QWidget* parent)
+    : QMenuBar(parent)
 {
-    m_Plugins.append(new OfficeWidgetPlugin(this));
-    m_Plugins.append(new OfficeWindowPlugin(this));
-    m_Plugins.append(new OfficeMenuPlugin(this));
+
 }
 
 
-QList<QDesignerCustomWidgetInterface *>
-OfficePluginCollection::customWidgets() const
+OfficeMenu::~OfficeMenu()
 {
-    return m_Plugins;
+}
+
+
+IOfficeWidget::Accent
+OfficeMenu::accent() const
+{
+    return m_Accent;
+}
+
+
+void
+OfficeMenu::setAccent(Accent accent)
+{
+    m_Accent = accent;
+    update();
 }

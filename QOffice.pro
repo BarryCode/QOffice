@@ -48,14 +48,15 @@ INCLUDEPATH         +=      include \
 # RESOURCES & MISCELLANEOUS
 ###########################################################
 RESOURCES           +=      resources/qoffice_plugins.qrc \
-                            resources/qoffice_images.qrc
+                            resources/qoffice_images.qrc \
+                            resources/qoffice_editors.qrc
 DISTFILES           +=      resources/templates/class.txt \
                             resources/templates/enum.txt \
                             resources/templates/plugin.txt \
                             resources/templates/plugin_src.txt \
                             resources/templates/source.txt \
                             resources/templates/widget.txt \
-                            resources/templates/widget_src.txt
+                            resources/templates/widget_src.txt \
 
 ###########################################################
 #
@@ -75,7 +76,11 @@ HEADERS             +=      include/QOffice/Config.hpp \
                             include/QOffice/Design/OfficePalette.hpp \
                             include/QOffice/Widgets/Dialogs/OfficeWindowMenu.hpp \
                             include/QOffice/Widgets/OfficeTooltip.hpp \
-                            include/QOffice/Widgets/Constants/OfficeTooltipConstants.hpp
+                            include/QOffice/Widgets/Constants/OfficeTooltipConstants.hpp \
+                            include/QOffice/Widgets/OfficeMenu.hpp \
+                            include/QOffice/Plugins/OfficeMenuPlugin.hpp \
+                            include/QOffice/Plugins/Extensions/OfficeMenuTaskMenu.hpp \
+                            include/QOffice/Plugins/Extensions/OfficeMenuEditorDialog.hpp
 
 ###########################################################
 #
@@ -90,4 +95,8 @@ SOURCES             +=      src/Design/Exceptions/InvalidAccentException.cpp \
                             src/Plugins/OfficeWindowPlugin.cpp \
                             src/Design/OfficePalette.cpp \
                             src/Widgets/Dialogs/OfficeWindowMenu.cpp \
-                            src/Widgets/OfficeTooltip.cpp
+                            src/Widgets/OfficeTooltip.cpp \
+                            src/Widgets/OfficeMenu.cpp \
+                            src/Plugins/OfficeMenuPlugin.cpp \
+                            src/Plugins/Extensions/OfficeMenuTaskMenu.cpp \
+                            src/Plugins/Extensions/OfficeMenuEditorDialog.cpp

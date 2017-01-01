@@ -20,8 +20,8 @@
  */
 
 
-#ifndef QOFFICE_OFFICEWIDGETPLUGIN_HPP
-#define QOFFICE_OFFICEWIDGETPLUGIN_HPP
+#ifndef QOFFICE_OFFICEMENUPLUGIN_HPP
+#define QOFFICE_OFFICEMENUPLUGIN_HPP
 
 
 // QOffice headers
@@ -36,25 +36,24 @@ QOFFICE_BEGIN_NAMESPACE
 
 
 /**
- * Encapsulates the OfficeWidget in a plugin.
+ * Encapsulates the OfficeMenu in a plugin.
  *
- * @class OfficeWidgetPlugin
+ * @class OfficeMenuPlugin
  * @author Nicolas Kogler
- * @date December 28th, 2016
+ * @date January 1st, 2016
  *
  */
-class OfficeWidgetPlugin : public QObject,
-                           public QDesignerCustomWidgetInterface
+class OfficeMenuPlugin : public QObject, public QDesignerCustomWidgetInterface
 {
 public:
 
     /**
-     * Initializes a new instance of OfficeWidgetPlugin.
+     * Initializes a new instance of OfficeMenuPlugin.
      *
      * @param parent The qt designer as object.
      *
      */
-    explicit OfficeWidgetPlugin(QObject* parent = nullptr);
+    explicit OfficeMenuPlugin(QObject* parent = nullptr);
 
 
     /**
@@ -173,4 +172,4 @@ private:
 QOFFICE_END_NAMESPACE
 
 
-#endif // QOFFICE_OFFICEWIDGETPLUGIN_HPP
+#endif // QOFFICE_OFFICEMENUPLUGIN_HPP

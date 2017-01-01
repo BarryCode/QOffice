@@ -3,5 +3,6 @@
         <file>qoffice/plugins/officewidget.xml</file>
         <file>qoffice/plugins/officewidget.png</file>
         <file>qoffice/plugins/officewindow.xml</file>
+        <file>qoffice/plugins/officemenu.xml</file>
     </qresource>
 </RCC>

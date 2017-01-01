@@ -48,14 +48,6 @@ OfficeWidget::accent() const
 void
 OfficeWidget::setAccent(Accent accent)
 {
-    /*for (auto* widget : children())
-    {
-        // Determines whether this widget subclasses IOfficeWidget.
-        auto* officeWidget = dynamic_cast<IOfficeWidget*>(widget);
-        if (officeWidget != nullptr)
-            officeWidget->setAccent(accent);
-    }*/
-
     m_Accent = accent;
     update();
 }

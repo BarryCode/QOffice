@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qoffice/editors/menueditor.ui</file>
+    </qresource>
+</RCC>
