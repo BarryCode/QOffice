@@ -62,6 +62,7 @@ public:
         TooltipSeparator,
         TooltipText,
         TooltipHelpText,
+        MenuSeparator,
         Max
     };
 

@@ -28,6 +28,9 @@
    </property>
    <item row="0" column="0">
     <widget class="QTreeWidget" name="tvItems">
+     <property name="contextMenuPolicy">
+      <enum>Qt::CustomContextMenu</enum>
+     </property>
      <column>
       <property name="text">
        <string>Items</string>
@@ -98,7 +101,7 @@
       <number>0</number>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="swpButton">
       <layout class="QFormLayout" name="formLayout_2">
@@ -133,21 +136,41 @@
        <item row="2" column="0">
         <widget class="QLabel" name="lblButtonFunc">
          <property name="text">
-          <string>OnClick:</string>
+          <string>Identifier:</string>
          </property>
         </widget>
        </item>
        <item row="2" column="1">
         <widget class="QLineEdit" name="tbButtonFunc">
          <property name="toolTip">
-          <string>Put the name of the slot, which is executed when this item is clicked, here.</string>
+          <string>The unique identifier of the item. It is used to identify the item upon a click-event.
+
+e.g:
+void on_OfficeMenu_ItemClicked(QString itemId)
+{
+    if (itemId == &quot;MyButton&quot;) { ... }
+}</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="lblButtonTooltip">
+         <property name="text">
+          <string>Tooltip:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="tbButtonTooltip">
+         <property name="toolTip">
+          <string>Put the tooltip to show on mouse-overing the item here.</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="swpDropDownButton">
-      <layout class="QFormLayout" name="formLayout_3">
+      <layout class="QFormLayout" name="formLayout_12">
        <item row="0" column="0">
         <widget class="QLabel" name="lblDDButtonText">
          <property name="text">
@@ -176,14 +199,21 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
+       <item row="2" column="0">
+        <widget class="QLabel" name="lblDDButtonFunc">
+         <property name="text">
+          <string>Identifier:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
         <widget class="QLabel" name="lblDDItems">
          <property name="text">
           <string>Dropdown-Items:</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0" colspan="2">
+       <item row="7" column="0" colspan="2">
         <widget class="QListWidget" name="lvDDItems">
          <property name="showDropIndicator" stdset="0">
           <bool>true</bool>
@@ -199,7 +229,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0" colspan="2">
+       <item row="8" column="0" colspan="2">
         <layout class="QHBoxLayout" name="layoutDDItemButtons">
          <item>
           <widget class="QPushButton" name="btnDDDelItem">
@@ -240,7 +270,7 @@
          </item>
         </layout>
        </item>
-       <item row="6" column="0" colspan="2">
+       <item row="9" column="0" colspan="2">
         <widget class="QWidget" name="widgetDDItemEdit" native="true">
          <property name="styleSheet">
           <string notr="true">QWidget#widgetDDItemEdit
@@ -305,6 +335,33 @@
          </layout>
         </widget>
        </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="tbDDButtonFunc">
+         <property name="toolTip">
+          <string>The unique identifier of the item. It is used to identify the item upon a click-event.
+
+e.g:
+void on_OfficeMenu_ItemClicked(QString itemId)
+{
+    if (itemId == &quot;MyButton&quot;) { ... }
+}</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="tbDDButtonTooltip">
+         <property name="toolTip">
+          <string>Put the tooltip to show on mouse-overing the item here.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="lblDDButtonTooltip">
+         <property name="text">
+          <string>Tooltip:</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="swpSeparator">
@@ -337,17 +394,37 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item row="1" column="0">
+        <widget class="QLabel" name="lblTextboxFunc">
+         <property name="text">
+          <string>Identifier:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="tbTextboxFunc">
+         <property name="toolTip">
+          <string>The unique identifier of the item. It is used to identify the item upon a click-event.
+
+e.g:
+void on_OfficeMenu_ItemClicked(QString itemId)
+{
+    if (itemId == &quot;MyButton&quot;) { ... }
+}</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
         <widget class="QLabel" name="lblTextboxDropDown">
          <property name="text">
           <string>Drop-down items (optional):</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="3" column="0" colspan="2">
         <widget class="QListWidget" name="lvTextboxDropDown"/>
        </item>
-       <item row="3" column="0" colspan="2">
+       <item row="4" column="0" colspan="2">
         <layout class="QHBoxLayout" name="layoutTextboxDD">
          <item>
           <widget class="QPushButton" name="btnTextboxDDEditDelItem">
@@ -388,7 +465,7 @@
          </item>
         </layout>
        </item>
-       <item row="4" column="0" colspan="2">
+       <item row="5" column="0" colspan="2">
         <widget class="QWidget" name="widgetTextboxDDEdit" native="true">
          <property name="styleSheet">
           <string notr="true">QWidget#widgetTextboxDDEdit

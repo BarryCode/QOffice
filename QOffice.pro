@@ -80,7 +80,11 @@ HEADERS             +=      include/QOffice/Config.hpp \
                             include/QOffice/Widgets/OfficeMenu.hpp \
                             include/QOffice/Plugins/OfficeMenuPlugin.hpp \
                             include/QOffice/Plugins/Extensions/OfficeMenuTaskMenu.hpp \
-                            include/QOffice/Plugins/Extensions/OfficeMenuEditorDialog.hpp
+                            include/QOffice/Plugins/Extensions/OfficeMenuEditorDialog.hpp \
+                            include/QOffice/Widgets/OfficeMenuTopItem.hpp \
+                            include/QOffice/Widgets/OfficeMenuPanel.hpp \
+                            include/QOffice/Widgets/OfficeMenuItem.hpp \
+                            include/QOffice/Widgets/Enums/OfficeMenuEnums.hpp
 
 ###########################################################
 #
@@ -99,4 +103,7 @@ SOURCES             +=      src/Design/Exceptions/InvalidAccentException.cpp \
                             src/Widgets/OfficeMenu.cpp \
                             src/Plugins/OfficeMenuPlugin.cpp \
                             src/Plugins/Extensions/OfficeMenuTaskMenu.cpp \
-                            src/Plugins/Extensions/OfficeMenuEditorDialog.cpp
+                            src/Plugins/Extensions/OfficeMenuEditorDialog.cpp \
+                            src/Widgets/OfficeMenuTopItem.cpp \
+                            src/Widgets/OfficeMenuPanel.cpp \
+    src/Widgets/OfficeMenuItem.cpp

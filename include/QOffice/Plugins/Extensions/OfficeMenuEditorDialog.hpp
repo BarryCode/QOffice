@@ -31,6 +31,9 @@
 #include <QDialog>
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormWindowCursorInterface>
+#include <QTreeWidget>
+#include <QListWidget>
+#include <QStackedWidget>
 
 
 QOFFICE_BEGIN_NAMESPACE
@@ -73,25 +76,50 @@ public:
     QSize sizeHint() const;
 
 
-    /**
-     * Clears all menu items.
-     *
-     */
-    void clearAllItems();
+private slots:
 
-    /**
-     * Saves all menu items (generates the XML).
-     *
-     */
+    void clearAllItems();
     void saveAllItems();
+    void addTopMenuItem();
+    void addPanel();
+    void addItem(QAction*);
+    void removePanel();
+    void removeTopMenuItem();
+    void removeItem();
+    void saveCurrentItem();
+    void addDropDownItem();
+    void addTextboxDropDownItem();
+    void removeDropDownItem();
+    void removeTextboxDropDownItem();
+    void putDropDownItemUp();
+    void putTextboxDropDownItemUp();
+    void putDropDownItemDown();
+    void putTextboxDropDownItemDown();
+    void saveDropDownItem();
+    void saveTextboxDropDownItem();
+    void onTreeViewItemChange();
+    void onDropDownItemChange(QListWidgetItem*);
+    void onTextboxDropDownItemChange(QListWidgetItem*);
+    void showTreeViewContextMenu(QPoint pos);
+    int determineTreeWidgetItemType();
 
 
 private:
 
     // Members
-    OfficeMenu* m_OldMenu;
-    OfficeMenu* m_NewMenu;
-    QWidget*    m_Form;
+    OfficeMenu*  m_OldMenu;
+    OfficeMenu*  m_NewMenu;
+    QWidget*     m_Form;
+    QTreeWidget* m_Tree;
+    QListWidget* m_List;
+    QListWidget* m_TbList;
+    QStackedWidget* m_Stack;
+
+    // Selected items
+    QTreeWidgetItem *m_SelectedTreeItem;
+    QListWidgetItem *m_SelectedDropDownItem;
+    QListWidgetItem *m_SelectedTextboxDropDownItem;
+    QList<QAction*>  m_CurrentMenuActions;
 
     // Metadata
     Q_OBJECT

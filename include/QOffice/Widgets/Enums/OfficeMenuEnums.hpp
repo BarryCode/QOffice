@@ -20,33 +20,38 @@
  */
 
 
+#ifndef QOFFICE_OFFICEWINDOWENUMS_HPP
+#define QOFFICE_OFFICEWINDOWENUMS_HPP
+
+
 // QOffice headers
-#include <QOffice/Design/OfficePalette.hpp>
+#include <QOffice/Config.hpp>
 
 
-QOFFICE_USING_NAMESPACE
+QOFFICE_BEGIN_NAMESPACE
 
 
-const QColor&
-OfficePalette::get(PaletteRole role)
+/**
+ * Holds the dirty regions for the menu top item.
+ *
+ * @enum TopItemDirtyRegion
+ * @author Nicolas Kogler
+ * @date January 2nd, 2016
+ *
+ */
+enum class TopItemDirtyRegion
 {
-    if (role >= PaletteRole::Max)
-        throw "placeholder";
-
-    return g_Colors[role];
-}
-
-
-// Specifies the predefined palette entries.
-std::vector<QColor> OfficePalette::g_Colors =
-{
-    QColor(0xf1f1f1),
-    QColor(0x666666),
-    QColor(0x989898),
-    QColor(0xbebebe),
-    QColor(0xffffff),
-    QColor(0xe1e1e1),
-    QColor(0x5c5c5c),
-    QColor(0x336699),
-    QColor(0xd5d5d5)
+    None    = 0x0000,
+    Text    = 0x0001,
+    Bar     = 0x0002
 };
+
+
+Q_DECLARE_FLAGS(TI_DirtyRegions, TopItemDirtyRegion)
+
+QOFFICE_END_NAMESPACE
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(off::TI_DirtyRegions)
+
+
+#endif // QOFFICE_OFFICEWINDOWENUMS_HPP

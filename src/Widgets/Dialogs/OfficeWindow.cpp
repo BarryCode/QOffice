@@ -47,6 +47,7 @@ OfficeWindow::OfficeWindow(QWidget* parent)
     , m_HasMaximBtn(true)
     , m_HasMinimBtn(true)
     , m_CanResize(true)
+    , m_IsTooltipShown(false)
 
 {
     // Manipulates the widget attributes and flags
