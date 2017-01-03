@@ -20,8 +20,8 @@
  */
 
 
-#ifndef QOFFICE_OFFICEWINDOWENUMS_HPP
-#define QOFFICE_OFFICEWINDOWENUMS_HPP
+#ifndef QOFFICE_OFFICEMENUENUMS_HPP
+#define QOFFICE_OFFICEMENUENUMS_HPP
 
 
 // QOffice headers
@@ -31,27 +31,31 @@
 QOFFICE_BEGIN_NAMESPACE
 
 
+enum class PanelLayoutType
+{
+    Vertical,
+    Horizontal,
+    Form,
+    Grid
+};
+
 /**
- * Holds the dirty regions for the menu top item.
+ * Holds all the possible states of a menu item button.
  *
- * @enum TopItemDirtyRegion
+ * @enum MenuButtonState
  * @author Nicolas Kogler
  * @date January 2nd, 2016
  *
  */
-enum class TopItemDirtyRegion
+enum class MenuButtonState
 {
-    None    = 0x0000,
-    Text    = 0x0001,
-    Bar     = 0x0002
+    None,
+    Hovered,
+    Pressed
 };
 
 
-Q_DECLARE_FLAGS(TI_DirtyRegions, TopItemDirtyRegion)
-
 QOFFICE_END_NAMESPACE
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(off::TI_DirtyRegions)
 
-
-#endif // QOFFICE_OFFICEWINDOWENUMS_HPP
+#endif // QOFFICE_OFFICEMENUENUMS_HPP

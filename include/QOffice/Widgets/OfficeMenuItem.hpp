@@ -26,6 +26,7 @@
 
 // QOffice headers
 #include <QOffice/Widgets/OfficeTooltip.hpp>
+#include <QOffice/Widgets/Enums/OfficeMenuEnums.hpp>
 
 // Qt headers
 #include <QWidget>
@@ -62,7 +63,7 @@ public:
      * Frees all resources used by this menu item.
      *
      */
-    virtual OfficeMenuItem();
+    virtual ~OfficeMenuItem();
 
 
     /**
@@ -71,7 +72,17 @@ public:
      * @returns the perfect item size.
      *
      */
-    virtual QSize sizeHint() const = 0;
+    QSize sizeHint() const;
+
+
+    /**
+     * Retrieves the bounding rectangle of this item.
+     * The height is the same for all menu items.
+     *
+     * @returns the bounding rectangle.
+     *
+     */
+    const QRect& bounds() const;
 
     /**
      * Retrieves the unique ID of this item.
@@ -162,6 +173,13 @@ protected:
     virtual void leaveEvent(QEvent* event) override;
 
 
+    // Protected members
+    QRect m_Bounds;
+    QRect m_TightBounds;
+    QString m_Identifier;
+    QString  m_Text;
+
+
 private slots:
 
     void onHelpRequested();
@@ -175,11 +193,115 @@ private:
     OfficeMenuPanel*    m_ParentPanel;
     OfficeTooltip*      m_Tooltip;
     QString             m_TooltipText;
-    QString             m_Identifier;
-    QString             m_Text;
 
     // Metadata
     Q_OBJECT
+
+    // Friends
+    friend class OfficeMenuPanel;
+};
+
+
+/**
+ * This class defines a simple, clickable button.
+ *
+ * @class OfficeMenuButtonItem
+ * @author Nicolas Kogler
+ * @date January 2nd, 2016
+ *
+ */
+class QOFFICE_EXPORT OfficeMenuButtonItem : public OfficeMenuItem
+{
+public:
+
+    /**
+     * Initializes a new instance of OfficeMenuPanel.
+     *
+     * @param parent The parent as menu panel.
+     *
+     */
+    OfficeMenuButtonItem(OfficeMenuPanel* parent = nullptr);
+
+    /**
+     * Frees all resources used by this menu item.
+     *
+     */
+    ~OfficeMenuButtonItem();
+
+
+    /**
+     * Retrieves the button icon.
+     *
+     * @returns the button icon.
+     *
+     */
+    const QPixmap& icon() const;
+
+    /**
+     * Specifies the button icon.
+     *
+     * @param pm The button icon.
+     *
+     */
+    void setIcon(const QPixmap& pm);
+
+
+protected:
+
+    /**
+     * Paints the button icon and text.
+     *
+     * @param event Holds nothing we need.
+     *
+     */
+    void paintEvent(QPaintEvent* event) override;
+
+    /**
+     * Hovers the item on entering the widget.
+     *
+     * @param event Holds nothing we need.
+     *
+     */
+    void enterEvent(QEvent* event) override;
+
+    /**
+     * Dehovers the item on leaving the widget.
+     *
+     * @param event Holds nothing we need.
+     *
+     */
+    void leaveEvent(QEvent* event) override;
+
+    /**
+     * Puts the item into pressed state.
+     *
+     * @param event Holds the pressed button.
+     *
+     */
+    void mousePressEvent(QMouseEvent* event) override;
+
+    /**
+     * Puts the item into hovered state, or no state
+     * if the mouse pointer does not hover the item.
+     *
+     * @param event Holds the released button.
+     *
+     */
+    void mouseReleaseEvent(QMouseEvent* event) override;
+
+
+private:
+
+    // Members
+    QPixmap m_Icon;
+    MenuButtonState m_State;
+
+
+    // Metadata
+    Q_OBJECT
+
+    // Friends
+    friend class OfficeMenuPanel;
 };
 
 

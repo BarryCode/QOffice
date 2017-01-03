@@ -22,6 +22,13 @@
 
 // QOffice headers
 #include <QOffice/Widgets/OfficeMenuItem.hpp>
+#include <QOffice/Widgets/OfficeMenuPanel.hpp>
+#include <QOffice/Design/OfficePalette.hpp>
+
+// Qt headers
+#include <QPainter>
+#include <QTextOption>
+#include <QMouseEvent>
 
 
 QOFFICE_USING_NAMESPACE
@@ -46,6 +53,19 @@ OfficeMenuItem::~OfficeMenuItem()
 {
 }
 
+
+QSize
+OfficeMenuItem::sizeHint() const
+{
+    return m_Bounds.size();
+}
+
+
+const QRect&
+OfficeMenuItem::bounds() const
+{
+    return m_Bounds;
+}
 
 const QString&
 OfficeMenuItem::identifier() const
@@ -122,4 +142,118 @@ OfficeMenuItem::showTooltip()
     m_Tooltip->setText(m_TooltipText);
     m_Tooltip->show();
     m_Timer->stop();
+}
+
+
+OfficeMenuButtonItem::OfficeMenuButtonItem(OfficeMenuPanel* parent)
+    : OfficeMenuItem(parent)
+    , m_State(MenuButtonState::None)
+{
+}
+
+
+OfficeMenuButtonItem::~OfficeMenuButtonItem()
+{
+}
+
+
+const QPixmap&
+OfficeMenuButtonItem::icon() const
+{
+    return m_Icon;
+}
+
+
+void
+OfficeMenuButtonItem::setIcon(const QPixmap& pm)
+{
+    m_Icon = pm;
+}
+
+
+void
+OfficeMenuButtonItem::paintEvent(QPaintEvent*)
+{
+    QPainter painter(this);
+    QTextOption opText(Qt::AlignVCenter | Qt::AlignBottom);
+
+    // Gathers all the needed colors for rendering.
+    const QColor& colorHover = OfficePalette::get(OfficePalette::MenuItemHover);
+    const QColor& colorPress = OfficePalette::get(OfficePalette::MenuItemPress);
+    const QColor& colorTextE = OfficePalette::get(OfficePalette::Foreground);
+    const QColor& colorTextD = OfficePalette::get(OfficePalette::DisabledText);
+
+    // Renders the background, if either hovered or pressed.
+    if (m_State == MenuButtonState::Hovered)
+        painter.fillRect(m_Bounds, colorHover);
+    else if (m_State == MenuButtonState::Pressed)
+        painter.fillRect(m_Bounds, colorPress);
+
+    // Renders the text.
+    if (isEnabled())
+        painter.setPen(colorTextE);
+    else
+        painter.setPen(colorTextD);
+
+    painter.drawText(m_TightBounds, m_Text, opText);
+
+    // Renders the icon.
+    QRect iconRect((m_Bounds.width() - m_Icon.width()) / 2,
+                   (m_Bounds.height() - m_Icon.height()) / 2,
+                    m_Icon.width(),
+                    m_Icon.height());
+
+    painter.drawPixmap(iconRect, m_Icon);
+}
+
+
+void
+OfficeMenuButtonItem::enterEvent(QEvent* event)
+{
+    if (isEnabled())
+    {
+        m_State = MenuButtonState::Hovered;
+        update();
+
+        OfficeMenuItem::enterEvent(event);
+    }
+}
+
+
+void
+OfficeMenuButtonItem::leaveEvent(QEvent* event)
+{
+    if (isEnabled())
+    {
+        m_State = MenuButtonState::None;
+        update();
+
+        OfficeMenuItem::leaveEvent(event);
+    }
+}
+
+
+void
+OfficeMenuButtonItem::mousePressEvent(QMouseEvent* event)
+{
+    if (isEnabled() && event->button() == Qt::LeftButton)
+    {
+        m_State = MenuButtonState::Pressed;
+        update();
+    }
+}
+
+
+void
+OfficeMenuButtonItem::mouseReleaseEvent(QMouseEvent* event)
+{
+    if (isEnabled() && event->button() == Qt::LeftButton)
+    {
+        if (m_Bounds.contains(event->pos()))
+            m_State = MenuButtonState::Hovered;
+        else
+            m_State = MenuButtonState::None;
+
+        update();
+    }
 }
