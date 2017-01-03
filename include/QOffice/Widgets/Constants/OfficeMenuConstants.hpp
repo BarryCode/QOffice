@@ -20,35 +20,23 @@
  */
 
 
+#ifndef QOFFICE_OFFICEMENUCONSTANTS_HPP
+#define QOFFICE_OFFICEMENUCONSTANTS_HPP
+
+
 // QOffice headers
-#include <QOffice/Design/OfficePalette.hpp>
+#include <QOffice/Config.hpp>
 
 
-QOFFICE_USING_NAMESPACE
+QOFFICE_BEGIN_NAMESPACE
 
 
-const QColor&
-OfficePalette::get(PaletteRole role)
-{
-    if (role >= PaletteRole::Max)
-        throw "placeholder";
-
-    return g_Colors[role];
-}
+#define MENU_COLLAPSED_HEIGHT   30
+#define MENU_EXPANDED_HEIGHT    120
+#define MENU_ITEM_PADDING       30
 
 
-// Specifies the predefined palette entries.
-std::vector<QColor> OfficePalette::g_Colors =
-{
-    QColor(0xf1f1f1),
-    QColor(0x666666),
-    QColor(0x989898),
-    QColor(0xbebebe),
-    QColor(0xffffff),
-    QColor(0xe1e1e1),
-    QColor(0x5c5c5c),
-    QColor(0x336699),
-    QColor(0xd5d5d5),
-    QColor(0xc5c5c5),
-    QColor(0xaeaeae)
-};
+QOFFICE_END_NAMESPACE
+
+
+#endif // QOFFICE_OFFICEMENUCONSTANTS_HPP

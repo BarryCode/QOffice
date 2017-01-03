@@ -26,9 +26,10 @@
 
 // QOffice headers
 #include <QOffice/Interfaces/IOfficeWidget.hpp>
+#include <QOffice/Widgets/OfficeMenuTopItem.hpp>
 
 // Qt headers
-#include <QMenuBar>
+#include <QWidget>
 
 
 QOFFICE_BEGIN_NAMESPACE
@@ -42,7 +43,7 @@ QOFFICE_BEGIN_NAMESPACE
  * @date January 1st, 2016
  *
  */
-class QOFFICE_EXPORT OfficeMenu : public QMenuBar, public IOfficeWidget
+class QOFFICE_EXPORT OfficeMenu : public QWidget, public IOfficeWidget
 {
 public:
 
@@ -59,6 +60,22 @@ public:
      *
      */
     ~OfficeMenu();
+
+
+    QSize sizeHint() const override;
+
+
+    /**
+     * Expands the menu and increases its height.
+     *
+     */
+    void expand(OfficeMenuTopItem* itemToExpand);
+
+    /**
+     * Collapses the menu and decreases its height.
+     *
+     */
+    void collapse();
 
 
     /**
@@ -82,12 +99,58 @@ public:
     void setAccent(Accent accent) override;
 
 
+    /**
+     * Adds one item to the menu items.
+     *
+     * @param item Item to append.
+     *
+     */
+    void addItem(OfficeMenuTopItem* item);
+
+    /**
+     * Inserts one item at the given position.
+     *
+     * @param pos Position to insert item to.
+     * @param item Item to insert.
+     *
+     */
+    void insertItem(int pos, OfficeMenuTopItem* item);
+
+    /**
+     * Removes the item at the given index.
+     *
+     * @param index Index of the item to remove.
+     *
+     */
+    void removeItem(int index);
+
+    /**
+     * Removes the given item.
+     *
+     * @param item Item to remove.
+     *
+     */
+    void removeItem(OfficeMenuTopItem* item);
+
+
 protected:
+
+    /**
+     * Renders the menu bar background in the accent color.
+     *
+     * @param event Holds nothing we need.
+     *
+     */
+    void paintEvent(QPaintEvent* event) override;
+
+    void resizeEvent(QResizeEvent* event) override;
 
 
 private:
 
     // Members
+    QList<OfficeMenuTopItem*> m_Items;
+    bool m_IsExpanded;
 
     // Metadata
     Q_OBJECT

@@ -84,7 +84,8 @@ HEADERS             +=      include/QOffice/Config.hpp \
                             include/QOffice/Widgets/OfficeMenuTopItem.hpp \
                             include/QOffice/Widgets/OfficeMenuPanel.hpp \
                             include/QOffice/Widgets/OfficeMenuItem.hpp \
-                            include/QOffice/Widgets/Enums/OfficeMenuEnums.hpp
+                            include/QOffice/Widgets/Enums/OfficeMenuEnums.hpp \
+    include/QOffice/Widgets/Constants/OfficeMenuConstants.hpp
 
 ###########################################################
 #

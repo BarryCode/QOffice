@@ -54,14 +54,18 @@ public:
      * Initializes a new instance of OfficeMenuTopItem.
      *
      * @param parent The parent office menu.
+     *
      */
-    OfficeMenuTopItem(OfficeMenu* parent);
+    OfficeMenuTopItem(OfficeMenu* parent = nullptr);
 
     /**
      * Disposes of all panels.
      *
      */
     ~OfficeMenuTopItem();
+
+
+    QSize sizeHint() const;
 
 
     /**
@@ -128,7 +132,7 @@ public:
      * Collapses this menu item.
      *
      */
-    void collapse();
+    void collapse(bool collapseMenu = true);
 
     /**
      * Specifies the displayed text.
@@ -230,6 +234,12 @@ protected:
      */
     virtual void mousePressEvent(QMouseEvent* event) override;
 
+    /**
+     * @brief leaveEvent
+     * @param event
+     */
+    virtual void leaveEvent(QEvent* event) override;
+
 
 private:
 
@@ -240,7 +250,6 @@ private:
     bool        m_IsSelected;
     bool        m_IsHovered;
 
-    TI_DirtyRegions m_DirtyRegions;
     QList<OfficeMenuPanel*> m_Panels;
 
     // Metadata

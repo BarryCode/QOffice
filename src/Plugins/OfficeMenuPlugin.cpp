@@ -66,7 +66,7 @@ OfficeMenuPlugin::name() const
 QString
 OfficeMenuPlugin::group() const
 {
-    return "QOffice Widgets";
+    return "QOffice Base Widgets";
 }
 
 

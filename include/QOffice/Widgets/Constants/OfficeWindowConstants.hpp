@@ -59,17 +59,4 @@ QOFFICE_BEGIN_NAMESPACE
 QOFFICE_END_NAMESPACE
 
 
-/**
- * @ingroup Base
- *
- * Usage example:
- * @code
- *     // code
- * @endcode
- *
- * @sa
- *
- */
-
-
 #endif // QOFFICE_OFFICEWINDOWCONSTANTS_HPP

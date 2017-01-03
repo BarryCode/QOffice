@@ -39,8 +39,6 @@ OfficeMenuTopItem::OfficeMenuTopItem(OfficeMenu* parent)
     , m_ParentMenu(parent)
     , m_IsSelected(false)
     , m_IsHovered(false)
-    , m_DirtyRegion(TopItemDirtyRegion::Text |
-                    TopItemDirtyRegion::Bar)
 {
     setAttribute(Qt::WA_TranslucentBackground);
     setMouseTracking(true);
@@ -49,6 +47,13 @@ OfficeMenuTopItem::OfficeMenuTopItem(OfficeMenu* parent)
 
 OfficeMenuTopItem::~OfficeMenuTopItem()
 {
+}
+
+
+QSize
+OfficeMenuTopItem::sizeHint() const
+{
+    return m_Bounds.size();
 }
 
 
@@ -110,9 +115,9 @@ OfficeMenuTopItem::select()
     if (m_IsSelected)
         return;
 
-    //m_ParentMenu->expand();
+    m_ParentMenu->expand(this);
     m_IsSelected = true;
-    m_DirtyRegions |= TopItemDirtyRegion::Bar;
+    setGeometry(m_ParentMenu->rect());
     update();
 
     for (auto* panel : m_Panels)
@@ -123,14 +128,17 @@ OfficeMenuTopItem::select()
 
 
 void
-OfficeMenuTopItem::collapse()
+OfficeMenuTopItem::collapse(bool collapseMenu)
 {
     if (!m_IsSelected)
         return;
+    if (collapseMenu)
+        m_ParentMenu->collapse();
 
-    //m_ParentMenu->collapse();
     m_IsSelected = false;
-    m_DirtyRegions &= ~TopItemDirtyRegion::Bar;
+    m_IsHovered = true;
+    setGeometry(m_Bounds);
+    update();
 
     for (auto* panel : m_Panels)
         panel->hide();
@@ -143,7 +151,6 @@ void
 OfficeMenuTopItem::setText(const QString& text)
 {
     m_Text = text;
-    m_DirtyRegions |= TopItemDirtyRegion::Text;
     update();
 }
 
@@ -168,6 +175,7 @@ OfficeMenuTopItem::insertPanel(int pos, OfficeMenuPanel* panel)
     if (panel != nullptr)
     {
         m_Panels.insert(pos, panel);
+        panel->m_ParentItem = this;
         panel->setParent(this);
         panel->update();
     }
@@ -215,44 +223,39 @@ OfficeMenuTopItem::paintEvent(QPaintEvent*)
     const QColor& colorAccnt = OfficeAccents::get(m_ParentMenu->accent());
     const QColor& colorBackg = OfficePalette::get(OfficePalette::Background);
 
-    // If the text is dirty, redraw the tab.
-    if ((m_DirtyRegions & TopItemDirtyRegion::Text) != 0)
-    {
-        if (m_IsSelected)
-        {
-            painter.fillRect(m_Bounds, colorBackg);
-            painter.setPen(colorAccnt);
-        }
-        else if (m_IsHovered)
-        {
-            painter.fillRect(m_Bounds, OfficeAccents::lighter(colorAccnt));
-            painter.setPen(colorBackg);
-        }
-        else
-        {
-            painter.fillRect(m_Bounds, colorAccnt);
-            painter.setPen(colorBackg);
-        }
-
-        painter.drawText(m_Bounds, m_Text, QTextOption(Qt::AlignCenter));
-        m_DirtyRegions &= ~TopItemDirtyRegion::Text;
-    }
-
-    // If the actual menu bar is dirty, redraw it.
-    if ((m_DirtyRegions & TopItemDirtyRegion::Bar) != 0 && m_IsSelected)
+    // If the menu item is selected, draw the panels.
+    if (m_IsSelected)
     {
         const QColor& colorSepar = OfficePalette::get(OfficePalette::MenuSeparator);
         const QPoint pLineS = rect().bottomLeft();
         const QPoint pLineE = rect().bottomRight();
         const QRect rectBar = rect().adjusted(
-                    0,  m_Bounds.bottom(),
+                    0,  m_Bounds.bottom() + 1,
                     0, -m_Bounds.bottom() - 1);
 
         painter.fillRect(rectBar, colorBackg);
         painter.setPen(colorSepar);
         painter.drawLine(pLineS, pLineE);
-        m_DirtyRegions &= ~TopItemDirtyRegion::Bar;
     }
+
+    // Renders the text.
+    if (m_IsSelected)
+    {
+        painter.fillRect(m_Bounds, colorBackg);
+        painter.setPen(colorAccnt);
+    }
+    else if (m_IsHovered)
+    {
+        painter.fillRect(m_Bounds, OfficeAccents::lighter(colorAccnt));
+        painter.setPen(colorBackg);
+    }
+    else
+    {
+        painter.fillRect(m_Bounds, colorAccnt);
+        painter.setPen(colorBackg);
+    }
+
+    painter.drawText(m_Bounds, m_Text, QTextOption(Qt::AlignCenter));
 }
 
 
@@ -266,10 +269,7 @@ OfficeMenuTopItem::mouseMoveEvent(QMouseEvent* event)
         m_IsHovered = false;
 
     if (oldState != m_IsHovered)
-    {
-        m_DirtyRegions |= TopItemDirtyRegion::Text;
         update();
-    }
 }
 
 
@@ -285,5 +285,16 @@ OfficeMenuTopItem::mousePressEvent(QMouseEvent* event)
             else
                 collapse();
         }
+    }
+}
+
+
+void
+OfficeMenuTopItem::leaveEvent(QEvent*)
+{
+    if (m_IsHovered)
+    {
+        m_IsHovered = false;
+        update();
     }
 }

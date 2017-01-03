@@ -26,6 +26,7 @@
 
 // QOffice headers
 #include <QOffice/Widgets/OfficeMenuItem.hpp>
+#include <QOffice/Widgets/Enums/OfficeMenuEnums.hpp>
 
 // Qt headers
 #include <QWidget>
@@ -54,8 +55,18 @@ public:
      * Initializes a new instance of OfficeMenuPanel.
      *
      * @param parent The parent menu item.
+     *
      */
-    OfficeMenuPanel(OfficeMenuTopItem* parent);
+    OfficeMenuPanel(OfficeMenuTopItem* parent = nullptr,
+                    PanelLayoutType type = PanelLayoutType::Grid);
+
+    /**
+     * Constructs a panel from a name.
+     *
+     * @param name Name of the panel.
+     *
+     */
+    OfficeMenuPanel(const QString& name);
 
     /**
      * Disposes of all sub items.
@@ -63,6 +74,8 @@ public:
      */
     ~OfficeMenuPanel();
 
+
+    QSize sizeHint() const;
 
     /**
      * Retrieves the text of the panel.
@@ -154,8 +167,10 @@ private:
 
     // Members
     OfficeMenuTopItem* m_ParentItem;
+    QLayout*           m_Layout;
     QString            m_Text;
     QRect              m_Bounds;
+    PanelLayoutType    m_Type;
 
     QList<OfficeMenuItem*> m_Items;
 

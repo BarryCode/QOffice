@@ -23,26 +23,58 @@
 // QOffice headers
 #include <QOffice/Widgets/OfficeMenuPanel.hpp>
 #include <QOffice/Design/OfficePalette.hpp>
+#include <QOffice/Widgets/OfficeMenuTopItem.hpp>
 
 // Qt headers
 #include <QPainter>
 #include <QTextOption>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QFormLayout>
+#include <QGridLayout>
 
 
 QOFFICE_USING_NAMESPACE
 
 
-OfficeMenuPanel::OfficeMenuPanel(OfficeMenuTopItem* parent)
+OfficeMenuPanel::OfficeMenuPanel(OfficeMenuTopItem* parent,
+                                 PanelLayoutType type)
     : QWidget(parent)
     , m_ParentItem(parent)
+    , m_Type(type)
 {
     setAttribute(Qt::WA_TranslucentBackground);
     setMouseTracking(true);
+
+    if (type == PanelLayoutType::Vertical)
+        m_Layout = new QVBoxLayout;
+    else if (type == PanelLayoutType::Horizontal)
+        m_Layout = new QHBoxLayout;
+    else if (type == PanelLayoutType::Form)
+        m_Layout = new QFormLayout;
+    else
+        m_Layout = new QGridLayout;
+
+    setLayout(m_Layout);
+}
+
+
+OfficeMenuPanel::OfficeMenuPanel(const QString& name)
+    : OfficeMenuPanel(nullptr)
+{
+    setText(name);
 }
 
 
 OfficeMenuPanel::~OfficeMenuPanel()
 {
+}
+
+
+QSize
+OfficeMenuPanel::sizeHint() const
+{
+    return m_Bounds.size() + QSize(0, 8); // padding
 }
 
 
@@ -71,6 +103,7 @@ void
 OfficeMenuPanel::setText(const QString& text)
 {
     m_Text = text;
+    update();
 }
 
 
@@ -78,6 +111,7 @@ void
 OfficeMenuPanel::addItem(OfficeMenuItem* item)
 {
     m_Items.append(item);
+    m_Layout->addWidget(item);
 }
 
 
@@ -85,6 +119,7 @@ void
 OfficeMenuPanel::insertItem(int pos, OfficeMenuItem* item)
 {
     m_Items.insert(pos, item);
+    m_Layout->addWidget(item);
 }
 
 
@@ -92,14 +127,19 @@ void
 OfficeMenuPanel::removeItem(int index)
 {
     if (index >= 0 || index < m_Items.size())
-        m_Items.removeAt(index);
+        removeItem(m_Items[index]);
 }
 
 
 void
 OfficeMenuPanel::removeItem(OfficeMenuItem* item)
 {
-    removeItem(m_Items.indexOf(item));
+    if (item != nullptr)
+    {
+        m_Items.removeOne(item);
+        m_Layout->removeWidget(item);
+        delete item;
+    }
 }
 
 
