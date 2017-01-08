@@ -456,7 +456,7 @@ private:
  * @date January 8th, 2016
  *
  */
-class QOFFICE_EXPORT OfficeMenuDropDownButtonItem : public OfficeMenuItem
+class QOFFICE_EXPORT OfficeMenuDropDownButtonItem : public OfficeMenuButtonItem
 {
 public:
 
@@ -472,25 +472,7 @@ public:
      * Frees all resources used by this menu item.
      *
      */
-    ~OfficeMenuSeparatorItem();
-
-
-    /**
-     * Retrieves the perfect size for this widget.
-     *
-     * @returns the perfect item size.
-     *
-     */
-    QSize sizeHint() const override;
-
-    /**
-     * Retrieves the optimal height for this widget,
-     * but not the perfect one.
-     *
-     * @returns the optimal height for this item.
-     *
-     */
-    int heightHint() const override;
+    ~OfficeMenuDropDownButtonItem();
 
 
     /**

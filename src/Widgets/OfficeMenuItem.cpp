@@ -418,8 +418,86 @@ OfficeMenuSeparatorItem::paintEvent(QPaintEvent*)
 
 OfficeMenuDropDownButtonItem::
 OfficeMenuDropDownButtonItem(OfficeMenuPanel* parent)
-    : OfficeMenuItem(parent)
+    : OfficeMenuButtonItem(parent)
     , m_DropDown(new OfficeDropDown)
 {
     m_DropDown->setParent(this);
+}
+
+
+OfficeMenuDropDownButtonItem::~OfficeMenuDropDownButtonItem()
+{
+}
+
+
+QSize
+OfficeMenuDropDownButtonItem::sizeHint() const
+{
+    return OfficeMenuButtonItem::sizeHint();
+}
+
+
+int
+OfficeMenuDropDownButtonItem::heightHint() const
+{
+    return OfficeMenuButtonItem::heightHint();
+}
+
+
+void
+OfficeMenuDropDownButtonItem::addItem(const QString& str)
+{
+    m_DropDown->addItem(str);
+}
+
+
+void
+OfficeMenuDropDownButtonItem::removeItem(const QString& str)
+{
+    m_DropDown->removeItem(str);
+}
+
+
+void
+OfficeMenuDropDownButtonItem::removeAll()
+{
+    m_DropDown->removeAll();
+}
+
+
+void
+OfficeMenuDropDownButtonItem::paintEvent(QPaintEvent* event)
+{
+    OfficeMenuButtonItem::paintEvent(event);
+}
+
+
+void
+OfficeMenuDropDownButtonItem::enterEvent(QEvent* event)
+{
+    if (!m_DropDown->popup()->isVisible())
+        OfficeMenuButtonItem::enterEvent(event);
+}
+
+
+void
+OfficeMenuDropDownButtonItem::leaveEvent(QEvent* event)
+{
+    if (!m_DropDown->popup()->isVisible())
+        OfficeMenuButtonItem::leaveEvent(event);
+}
+
+
+void
+OfficeMenuDropDownButtonItem::mousePressEvent(QMouseEvent* event)
+{
+    OfficeMenuButtonItem::mousePressEvent(event);
+    m_DropDown->complete();
+}
+
+
+void
+OfficeMenuDropDownButtonItem::mouseReleaseEvent(QMouseEvent* event)
+{
+    OfficeMenuButtonItem::mouseReleaseEvent(event);
 }
