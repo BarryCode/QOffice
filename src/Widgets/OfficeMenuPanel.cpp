@@ -22,8 +22,9 @@
 
 // QOffice headers
 #include <QOffice/Widgets/OfficeMenuPanel.hpp>
-#include <QOffice/Design/OfficePalette.hpp>
 #include <QOffice/Widgets/OfficeMenuTopItem.hpp>
+#include <QOffice/Widgets/Constants/OfficeMenuConstants.hpp>
+#include <QOffice/Design/OfficePalette.hpp>
 
 // Qt headers
 #include <QPainter>
@@ -37,25 +38,12 @@
 QOFFICE_USING_NAMESPACE
 
 
-OfficeMenuPanel::OfficeMenuPanel(OfficeMenuTopItem* parent,
-                                 PanelLayoutType type)
+OfficeMenuPanel::OfficeMenuPanel(OfficeMenuTopItem* parent)
     : QWidget(parent)
     , m_ParentItem(parent)
-    , m_Type(type)
 {
     setAttribute(Qt::WA_TranslucentBackground);
     setMouseTracking(true);
-
-    if (type == PanelLayoutType::Vertical)
-        m_Layout = new QVBoxLayout;
-    else if (type == PanelLayoutType::Horizontal)
-        m_Layout = new QHBoxLayout;
-    else if (type == PanelLayoutType::Form)
-        m_Layout = new QFormLayout;
-    else
-        m_Layout = new QGridLayout;
-
-    setLayout(m_Layout);
 }
 
 
@@ -74,7 +62,26 @@ OfficeMenuPanel::~OfficeMenuPanel()
 QSize
 OfficeMenuPanel::sizeHint() const
 {
-    return m_Bounds.size() + QSize(0, 8); // padding
+    // Calculates the total width of all items.
+    int currentX = 0;
+    for (auto* item : m_Items)
+    {
+        currentX += item->sizeHint().width();
+        currentX += MENU_ITEM_SPACING;
+    }
+    if (m_Items.size() != 0)
+    {
+        currentX += MENU_PANEL_PADDING;
+    }
+
+    return QSize(currentX, MENU_PANEL_HEIGHT);
+}
+
+
+OfficeMenuTopItem*
+OfficeMenuPanel::parentItem() const
+{
+    return m_ParentItem;
 }
 
 
@@ -110,16 +117,21 @@ OfficeMenuPanel::setText(const QString& text)
 void
 OfficeMenuPanel::addItem(OfficeMenuItem* item)
 {
-    m_Items.append(item);
-    m_Layout->addWidget(item);
+    insertItem(m_Items.size(), item);
 }
 
 
 void
 OfficeMenuPanel::insertItem(int pos, OfficeMenuItem* item)
 {
-    m_Items.insert(pos, item);
-    m_Layout->addWidget(item);
+    if (item != nullptr)
+    {
+        // Inserts the new item.
+        m_Items.insert(pos++, item);
+        item->setParent(this);
+        item->m_ParentPanel = this;
+        recalculateItem(item);
+    }
 }
 
 
@@ -137,7 +149,6 @@ OfficeMenuPanel::removeItem(OfficeMenuItem* item)
     if (item != nullptr)
     {
         m_Items.removeOne(item);
-        m_Layout->removeWidget(item);
         delete item;
     }
 }
@@ -158,7 +169,7 @@ OfficeMenuPanel::paintEvent(QPaintEvent*)
     QPainter painter(this);
     QRect rectText = m_Bounds.adjusted(0, 0, 0, -4);
     QPoint ptSepa1 = m_Bounds.topRight() + QPoint(0, 4);
-    QPoint ptSepa2 = m_Bounds.bottomRight() - QPoint(0, 4);
+    QPoint ptSepa2 = m_Bounds.bottomRight() - QPoint(0, 8);
     QTextOption opText(Qt::AlignHCenter | Qt::AlignBottom);
 
     // Gathers all the colors needed for rendering.
@@ -170,4 +181,73 @@ OfficeMenuPanel::paintEvent(QPaintEvent*)
     painter.drawText(rectText, m_Text, opText);
     painter.setPen(colorSepar);
     painter.drawLine(ptSepa1, ptSepa2);
+}
+
+
+void
+OfficeMenuPanel::recalculateItem(OfficeMenuItem* item)
+{
+    QRect bounds;
+    QSize newSize;
+
+    // Calculates the width of all previous items.
+    int currentX = MENU_PANEL_PADDING;
+    int pos = m_Items.indexOf(item);
+    int itemWidth = item->sizeHint().width();
+    for (int i = 0; i < pos && i < m_Items.size(); i++)
+        currentX += (m_Items.at(i)->sizeHint().width() + MENU_ITEM_SPACING);
+
+    // Calculates the new bounds for the item.
+    bounds.setRect(0, 0, itemWidth, item->heightHint());
+    item->m_Bounds = bounds;
+    item->m_TightBounds.setRect(0, 0, itemWidth, item->sizeHint().height());
+    item->setGeometry(currentX, MENU_PANEL_PADDING,
+                      itemWidth, item->heightHint());
+
+    currentX += (itemWidth + MENU_ITEM_SPACING);
+    pos++;
+
+    // Increases the X-position of all items after the new item.
+    for (int i = pos; i < m_Items.size(); i++)
+    {
+        auto* item = m_Items[i];
+        item->move(item->x() + itemWidth + MENU_ITEM_SPACING, item->y());
+        currentX += item->width();
+    }
+
+    currentX += MENU_PANEL_PADDING;
+
+    // If the size is different from before, resize panel.
+    if ((newSize = QSize(currentX, MENU_PANEL_HEIGHT)) != size())
+    {
+        resize(newSize);
+        m_Bounds.setSize(newSize);
+
+        emit requestResize(this);
+    }
+}
+
+
+void
+OfficeMenuPanel::recalculateAllItems()
+{
+    int currentX = (m_Items.size() != 0) ? MENU_PANEL_PADDING : 0;
+    for (auto* item : m_Items)
+    {
+        // Specifies all the new boundaries.
+        QSize itemSize = item->sizeHint();
+        item->m_Bounds.setRect(0, 0, itemSize.width(), MENU_ITEM_HEIGHT);
+        item->m_TightBounds.setRect(0, 0, itemSize.width(), itemSize.height());
+        item->setGeometry(currentX, MENU_PANEL_PADDING,
+                          itemSize.width(), MENU_ITEM_HEIGHT);
+
+        // Advances the position (+ padding).
+        currentX += (itemSize.width() + MENU_ITEM_SPACING);
+    }
+
+    currentX += MENU_PANEL_PADDING;
+    resize(currentX, MENU_PANEL_HEIGHT);
+    m_Bounds.setSize(size());
+
+    emit requestResize(this);
 }

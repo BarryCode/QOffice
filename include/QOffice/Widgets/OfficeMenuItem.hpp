@@ -26,6 +26,7 @@
 
 // QOffice headers
 #include <QOffice/Widgets/OfficeTooltip.hpp>
+#include <QOffice/Widgets/OfficeDropDown.hpp>
 #include <QOffice/Widgets/Enums/OfficeMenuEnums.hpp>
 
 // Qt headers
@@ -36,7 +37,9 @@
 QOFFICE_BEGIN_NAMESPACE
 
 
+class OfficeMenu;
 class OfficeMenuPanel;
+class OfficeMenuItemGroup;
 
 
 /**
@@ -52,18 +55,18 @@ class QOFFICE_EXPORT OfficeMenuItem : public QWidget
 public:
 
     /**
-     * Initializes a new instance of OfficeMenuPanel.
+     * Initializes a new instance of OfficeMenuItem.
      *
      * @param parent The parent as menu panel.
      *
      */
-    OfficeMenuItem(OfficeMenuPanel* parent);
+    OfficeMenuItem(OfficeMenuPanel* parent = nullptr);
 
     /**
      * Frees all resources used by this menu item.
      *
      */
-    virtual ~OfficeMenuItem();
+    virtual ~OfficeMenuItem() = 0;
 
 
     /**
@@ -72,7 +75,35 @@ public:
      * @returns the perfect item size.
      *
      */
-    QSize sizeHint() const;
+    virtual QSize sizeHint() const = 0;
+
+    /**
+     * Retrieves the optimal height for this widget,
+     * but not the perfect one. The item group or the
+     * textbox for example do not fill the entire panel
+     * height-wise.
+     *
+     * @returns the optimal height for this item.
+     *
+     */
+    virtual int heightHint() const = 0;
+
+
+    /**
+     * Retrieves the parent office menu.
+     *
+     * @returns the parent office menu.
+     *
+     */
+    OfficeMenu* parentMenu();
+
+    /**
+     * Retrieves the parent menu panel.
+     *
+     * @returns the parent menu panel.
+     *
+     */
+    OfficeMenuPanel* parentPanel();
 
 
     /**
@@ -108,6 +139,13 @@ public:
      */
     const QString& tooltipText() const;
 
+    /**
+     * Retrieves the tooltip help text.
+     *
+     * @returns the tooltip help text.
+     */
+    const QString& tooltipHelpText() const;
+
 
     /**
      * Specifies the unique identifier.
@@ -133,6 +171,13 @@ public:
      */
     void setTooltipText(const QString& text);
 
+    /**
+     * Specifies the tooltip help text.
+     *
+     * @param text The tooltip help text.
+     */
+    void setTooltipHelpText(const QString& text);
+
 
 signals:
 
@@ -142,6 +187,13 @@ signals:
      *
      */
     void helpRequested();
+
+    /**
+     * A visible property of the item changed and thus
+     * requests a resize to its parent panel.
+     *
+     */
+    void requestResize(OfficeMenuItem* item);
 
 
 protected:
@@ -174,10 +226,15 @@ protected:
 
 
     // Protected members
-    QRect m_Bounds;
-    QRect m_TightBounds;
-    QString m_Identifier;
-    QString  m_Text;
+    QRect               m_Bounds;
+    QRect               m_TightBounds;
+    QString             m_Identifier;
+    QString             m_Text;
+    QTimer*             m_Timer;
+    OfficeTooltip*      m_Tooltip;
+    OfficeMenuPanel*    m_ParentPanel;
+    QString             m_TooltipText;
+    QString             m_TooltipHelpText;
 
 
 private slots:
@@ -188,16 +245,11 @@ private slots:
 
 private:
 
-    // Members
-    QTimer*             m_Timer;
-    OfficeMenuPanel*    m_ParentPanel;
-    OfficeTooltip*      m_Tooltip;
-    QString             m_TooltipText;
-
     // Metadata
     Q_OBJECT
 
     // Friends
+    friend class OfficeMenu;
     friend class OfficeMenuPanel;
 };
 
@@ -215,7 +267,7 @@ class QOFFICE_EXPORT OfficeMenuButtonItem : public OfficeMenuItem
 public:
 
     /**
-     * Initializes a new instance of OfficeMenuPanel.
+     * Initializes a new instance of OfficeMenuButtonItem.
      *
      * @param parent The parent as menu panel.
      *
@@ -227,6 +279,23 @@ public:
      *
      */
     ~OfficeMenuButtonItem();
+
+
+    /**
+     * Retrieves the perfect size for this widget.
+     *
+     * @returns the perfect item size.
+     *
+     */
+    QSize sizeHint() const;
+
+    /**
+     * Returns the optimal height for this button item.
+     *
+     * @returns merely the MENU_ITEM_HEIGHT.
+     *
+     */
+    int heightHint() const;
 
 
     /**
@@ -245,6 +314,19 @@ public:
      */
     void setIcon(const QPixmap& pm);
 
+    /**
+     * Specifies the parental group or nullptr.
+     *
+     * @param group The parent group.
+     *
+     */
+    void setGroup(OfficeMenuItemGroup* group);
+
+
+signals:
+
+    void clicked();
+
 
 protected:
 
@@ -254,7 +336,7 @@ protected:
      * @param event Holds nothing we need.
      *
      */
-    void paintEvent(QPaintEvent* event) override;
+    virtual void paintEvent(QPaintEvent* event) override;
 
     /**
      * Hovers the item on entering the widget.
@@ -262,7 +344,7 @@ protected:
      * @param event Holds nothing we need.
      *
      */
-    void enterEvent(QEvent* event) override;
+    virtual void enterEvent(QEvent* event) override;
 
     /**
      * Dehovers the item on leaving the widget.
@@ -270,7 +352,7 @@ protected:
      * @param event Holds nothing we need.
      *
      */
-    void leaveEvent(QEvent* event) override;
+    virtual void leaveEvent(QEvent* event) override;
 
     /**
      * Puts the item into pressed state.
@@ -278,7 +360,7 @@ protected:
      * @param event Holds the pressed button.
      *
      */
-    void mousePressEvent(QMouseEvent* event) override;
+    virtual void mousePressEvent(QMouseEvent* event) override;
 
     /**
      * Puts the item into hovered state, or no state
@@ -287,21 +369,205 @@ protected:
      * @param event Holds the released button.
      *
      */
-    void mouseReleaseEvent(QMouseEvent* event) override;
+    virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
 
 private:
 
     // Members
     QPixmap m_Icon;
+    QPixmap m_DisabledIcon;
     MenuButtonState m_State;
-
+    OfficeMenuItemGroup* m_ParentGroup; ///< Can be also part of a group.
 
     // Metadata
     Q_OBJECT
+};
 
-    // Friends
-    friend class OfficeMenuPanel;
+
+/**
+ * This class defines a separator between items.
+ *
+ * @class OfficeMenuSeparatorItem
+ * @author Nicolas Kogler
+ * @date January 4th, 2016
+ *
+ */
+class QOFFICE_EXPORT OfficeMenuSeparatorItem : public OfficeMenuItem
+{
+public:
+
+    /**
+     * Initializes a new instance of OfficeMenuSeparatorItem.
+     *
+     * @param parent The parent as menu panel.
+     *
+     */
+    OfficeMenuSeparatorItem(OfficeMenuPanel* parent = nullptr);
+
+    /**
+     * Frees all resources used by this menu item.
+     *
+     */
+    ~OfficeMenuSeparatorItem();
+
+
+    /**
+     * Retrieves the perfect size for this widget.
+     *
+     * @returns the perfect item size.
+     *
+     */
+    QSize sizeHint() const override;
+
+    /**
+     * Retrieves the optimal height for this widget,
+     * but not the perfect one.
+     *
+     * @returns the optimal height for this item.
+     *
+     */
+    int heightHint() const override;
+
+
+protected:
+
+    /**
+     * Paints the button icon and text.
+     *
+     * @param event Holds nothing we need.
+     *
+     */
+    virtual void paintEvent(QPaintEvent* event) override;
+
+
+private:
+
+    // Metadata
+    Q_OBJECT
+};
+
+
+/**
+ * This class defines a button with drop-down items.
+ *
+ * @class OfficeMenuDropDownButtonItem
+ * @author Nicolas Kogler
+ * @date January 8th, 2016
+ *
+ */
+class QOFFICE_EXPORT OfficeMenuDropDownButtonItem : public OfficeMenuItem
+{
+public:
+
+    /**
+     * Initializes a new instance of OfficeMenuDropDownButtonItem.
+     *
+     * @param parent The parent as menu panel.
+     *
+     */
+    OfficeMenuDropDownButtonItem(OfficeMenuPanel* parent = nullptr);
+
+    /**
+     * Frees all resources used by this menu item.
+     *
+     */
+    ~OfficeMenuSeparatorItem();
+
+
+    /**
+     * Retrieves the perfect size for this widget.
+     *
+     * @returns the perfect item size.
+     *
+     */
+    QSize sizeHint() const override;
+
+    /**
+     * Retrieves the optimal height for this widget,
+     * but not the perfect one.
+     *
+     * @returns the optimal height for this item.
+     *
+     */
+    int heightHint() const override;
+
+
+    /**
+     * Adds one drop-down menu entry.
+     *
+     * @param str Text of the entry.
+     *
+     */
+    void addItem(const QString& str);
+
+    /**
+     * Removes one drop-down menu entry.
+     *
+     * @param str Text entry to remove.
+     *
+     */
+    void removeItem(const QString& str);
+
+    /**
+     * Removes all drop-down menu entries.
+     *
+     */
+    void removeAll();
+
+
+protected:
+
+    /**
+     * Paints the button icon and text.
+     *
+     * @param event Holds nothing we need.
+     *
+     */
+    virtual void paintEvent(QPaintEvent* event) override;
+
+    /**
+     * Hovers the item on entering the widget.
+     *
+     * @param event Holds nothing we need.
+     *
+     */
+    virtual void enterEvent(QEvent* event) override;
+
+    /**
+     * Dehovers the item on leaving the widget.
+     *
+     * @param event Holds nothing we need.
+     *
+     */
+    virtual void leaveEvent(QEvent* event) override;
+
+    /**
+     * Puts the item into pressed state and shows the drop-down menu.
+     *
+     * @param event Holds the pressed button.
+     *
+     */
+    virtual void mousePressEvent(QMouseEvent* event) override;
+
+    /**
+     * Puts the item into hovered state, or no state
+     * if the mouse pointer does not hover the item.
+     * Also hides the drop-down menu if previously shown.
+     *
+     * @param event Holds the released button.
+     *
+     */
+    virtual void mouseReleaseEvent(QMouseEvent* event) override;
+
+
+private:
+
+    // Members
+    OfficeDropDown* m_DropDown;
+
+    // Metadata
+    Q_OBJECT
 };
 
 

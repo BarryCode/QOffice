@@ -20,34 +20,69 @@
  */
 
 
-#ifndef QOFFICE_OFFICEMENUENUMS_HPP
-#define QOFFICE_OFFICEMENUENUMS_HPP
+#ifndef QOFFICE_OFFICEMENUSUBMENU_HPP
+#define QOFFICE_OFFICEMENUSUBMENU_HPP
 
 
 // QOffice headers
 #include <QOffice/Config.hpp>
 
+// Qt headers
+#include <QWidget>
+
 
 QOFFICE_BEGIN_NAMESPACE
 
 
+class OfficeMenu;
+
+
 /**
- * Holds all the possible states of a menu item button.
+ * Defines the menu bar underneath the top menu items.
  *
- * @enum MenuButtonState
+ * @class OfficeMenuSubMenu
  * @author Nicolas Kogler
- * @date January 2nd, 2016
+ * @date January 3rd, 2016
  *
  */
-enum class MenuButtonState
+class QOFFICE_EXPORT OfficeMenuSubMenu : public QWidget
 {
-    None,
-    Hovered,
-    Pressed
+public:
+
+    /**
+     * Initializes a new instance of OfficeMenuSubMenu
+     *
+     * @param parent The parent office menu.
+     *
+     */
+    OfficeMenuSubMenu(OfficeMenu* parent = nullptr);
+
+    /**
+     * Frees all resources used by OfficeMenuSubMenu.
+     *
+     */
+    virtual ~OfficeMenuSubMenu();
+
+
+protected:
+
+    /**
+     * Renders the sub-menu.
+     *
+     * @param event Holds nothing we need.
+     *
+     */
+    virtual void paintEvent(QPaintEvent* event) override;
+
+
+private:
+
+    // Metadata
+    Q_OBJECT
 };
 
 
 QOFFICE_END_NAMESPACE
 
 
-#endif // QOFFICE_OFFICEMENUENUMS_HPP
+#endif // QOFFICE_OFFICEMENUSUBMENU_HPP

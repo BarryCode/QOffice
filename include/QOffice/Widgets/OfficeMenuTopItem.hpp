@@ -36,6 +36,7 @@ QOFFICE_BEGIN_NAMESPACE
 
 
 class OfficeMenu;
+class OfficeMenuSubMenu;
 
 
 /**
@@ -65,7 +66,21 @@ public:
     ~OfficeMenuTopItem();
 
 
+    /**
+     * Returns the perfect top menu item size.
+     *
+     * @returns the perfect item size.
+     *
+     */
     QSize sizeHint() const;
+
+    /**
+     * Retrieves the parent menu.
+     *
+     * @returns the parent menu.
+     *
+     */
+    OfficeMenu* parentMenu() const;
 
 
     /**
@@ -241,6 +256,12 @@ protected:
     virtual void leaveEvent(QEvent* event) override;
 
 
+private slots:
+
+    void recalculateAllPanels();
+    void recalculatePanel(OfficeMenuPanel* panel);
+
+
 private:
 
     // Members
@@ -250,6 +271,7 @@ private:
     bool        m_IsSelected;
     bool        m_IsHovered;
 
+    OfficeMenuSubMenu* m_SubMenu;
     QList<OfficeMenuPanel*> m_Panels;
 
     // Metadata

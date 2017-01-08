@@ -57,8 +57,7 @@ public:
      * @param parent The parent menu item.
      *
      */
-    OfficeMenuPanel(OfficeMenuTopItem* parent = nullptr,
-                    PanelLayoutType type = PanelLayoutType::Grid);
+    OfficeMenuPanel(OfficeMenuTopItem* parent = nullptr);
 
     /**
      * Constructs a panel from a name.
@@ -75,7 +74,22 @@ public:
     ~OfficeMenuPanel();
 
 
+    /**
+     * Returns the perfect panel size.
+     *
+     * @returns the perfect panel size.
+     *
+     */
     QSize sizeHint() const;
+
+    /**
+     * Retrieves the parent top menu item.
+     *
+     * @returns the parent item.
+     *
+     */
+    OfficeMenuTopItem* parentItem() const;
+
 
     /**
      * Retrieves the text of the panel.
@@ -151,6 +165,16 @@ public:
     void removeAll();
 
 
+signals:
+
+    /**
+     * A visible property of the panel changed and thus
+     * requests a resize to its parent menu item.
+     *
+     */
+    void requestResize(OfficeMenuPanel* panel);
+
+
 protected:
 
     /**
@@ -163,14 +187,18 @@ protected:
     virtual void paintEvent(QPaintEvent* event) override;
 
 
+private slots:
+
+    void recalculateAllItems();
+    void recalculateItem(OfficeMenuItem* item);
+
+
 private:
 
     // Members
     OfficeMenuTopItem* m_ParentItem;
-    QLayout*           m_Layout;
     QString            m_Text;
     QRect              m_Bounds;
-    PanelLayoutType    m_Type;
 
     QList<OfficeMenuItem*> m_Items;
 
@@ -178,6 +206,7 @@ private:
     Q_OBJECT
 
     // Friends
+    friend class OfficeMenu;
     friend class OfficeMenuTopItem;
 };
 

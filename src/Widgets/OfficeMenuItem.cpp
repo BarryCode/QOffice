@@ -21,9 +21,12 @@
 
 
 // QOffice headers
+#include <QOffice/Widgets/OfficeMenu.hpp>
 #include <QOffice/Widgets/OfficeMenuItem.hpp>
 #include <QOffice/Widgets/OfficeMenuPanel.hpp>
+#include <QOffice/Widgets/Constants/OfficeMenuConstants.hpp>
 #include <QOffice/Design/OfficePalette.hpp>
+#include <QOffice/Design/OfficeImaging.hpp>
 
 // Qt headers
 #include <QPainter>
@@ -37,10 +40,11 @@ QOFFICE_USING_NAMESPACE
 OfficeMenuItem::OfficeMenuItem(OfficeMenuPanel *parent)
     : QWidget(parent)
     , m_Timer(new QTimer(this))
-    , m_ParentPanel(parent)
     , m_Tooltip(new OfficeTooltip(this))
+    , m_ParentPanel(parent)
 {
     setAttribute(Qt::WA_TranslucentBackground);
+    setToolTipDuration(3000);
     setMouseTracking(true);
 
     m_Timer->setInterval(1000);
@@ -54,10 +58,17 @@ OfficeMenuItem::~OfficeMenuItem()
 }
 
 
-QSize
-OfficeMenuItem::sizeHint() const
+OfficeMenu*
+OfficeMenuItem::parentMenu()
 {
-    return m_Bounds.size();
+    return m_ParentPanel->parentItem()->parentMenu();
+}
+
+
+OfficeMenuPanel*
+OfficeMenuItem::parentPanel()
+{
+    return m_ParentPanel;
 }
 
 
@@ -88,6 +99,13 @@ OfficeMenuItem::tooltipText() const
 }
 
 
+const QString&
+OfficeMenuItem::tooltipHelpText() const
+{
+    return m_TooltipHelpText;
+}
+
+
 void
 OfficeMenuItem::setIdentifier(const QString& id)
 {
@@ -99,6 +117,9 @@ void
 OfficeMenuItem::setText(const QString& text)
 {
     m_Text = text;
+    update();
+
+    emit requestResize(this);
 }
 
 
@@ -110,17 +131,29 @@ OfficeMenuItem::setTooltipText(const QString& text)
 
 
 void
+OfficeMenuItem::setTooltipHelpText(const QString& text)
+{
+    m_TooltipHelpText = text;
+}
+
+
+void
 OfficeMenuItem::enterEvent(QEvent*)
 {
-    m_Timer->start();
+    if (!m_TooltipText.isEmpty())
+         m_Timer->start();
 }
 
 
 void
 OfficeMenuItem::leaveEvent(QEvent*)
 {
-    m_Timer->stop();
-    m_Tooltip->hide();
+    if (!m_TooltipHelpText.isEmpty() &&
+        !m_Tooltip->geometry().contains(QCursor::pos()))
+    {
+        m_Timer->stop();
+        m_Tooltip->hide();
+    }
 }
 
 
@@ -134,12 +167,14 @@ OfficeMenuItem::onHelpRequested()
 void
 OfficeMenuItem::showTooltip()
 {
-    QPoint pos = mapToGlobal(QCursor::pos());
+    QPoint pos = QCursor::pos();
     QSize size(200, 200);
 
     m_Tooltip->setGeometry(QRect(pos, size));
     m_Tooltip->setHeading(m_Text);
     m_Tooltip->setText(m_TooltipText);
+    m_Tooltip->setHelpText(m_TooltipHelpText);
+    m_Tooltip->setDisplayDuration(toolTipDuration());
     m_Tooltip->show();
     m_Timer->stop();
 }
@@ -148,12 +183,65 @@ OfficeMenuItem::showTooltip()
 OfficeMenuButtonItem::OfficeMenuButtonItem(OfficeMenuPanel* parent)
     : OfficeMenuItem(parent)
     , m_State(MenuButtonState::None)
+    , m_ParentGroup(nullptr)
 {
 }
 
 
 OfficeMenuButtonItem::~OfficeMenuButtonItem()
 {
+}
+
+
+QSize
+OfficeMenuButtonItem::sizeHint() const
+{
+    // Calculates the estimated size of the item.
+    if (m_ParentGroup == nullptr)
+    {
+        int width = 0, height = 0;
+        if (!m_Icon.isNull())
+        {
+            width = m_Icon.width();
+            height += m_Icon.height();
+            height += MENU_BUTTON_IMAGE_PAD;
+        }
+
+        // Calculates the width and height of the text, if any.
+        if (!m_Text.isEmpty())
+        {
+            width = qMax(width, fontMetrics().boundingRect(m_Text).width());
+            width += MENU_BUTTON_PADDING;
+            height += fontMetrics().tightBoundingRect(m_Text).height();
+        }
+
+        return QSize(width, height);
+    }
+    else
+    {
+        int width = MENU_BUTTON_GROUP_PADDING, height = MENU_BUTTON_GROUP_HEIGHT;
+        if (!m_Icon.isNull())
+        {
+            width += 16;
+            width += MENU_BUTTON_GROUP_IMAGE_PAD;
+        }
+
+        // Calculates the width of the text.
+        if (!m_Text.isEmpty())
+        {
+            width += fontMetrics().boundingRect(m_Text).width();
+            width += MENU_BUTTON_GROUP_PADDING;
+        }
+
+        return QSize(width, height);
+    }
+}
+
+
+int
+OfficeMenuButtonItem::heightHint() const
+{
+    return MENU_ITEM_HEIGHT;
 }
 
 
@@ -168,6 +256,18 @@ void
 OfficeMenuButtonItem::setIcon(const QPixmap& pm)
 {
     m_Icon = pm;
+    m_DisabledIcon = OfficeImaging::toGrayscale(m_Icon);
+    update();
+
+    emit requestResize(this);
+}
+
+
+void
+OfficeMenuButtonItem::setGroup(OfficeMenuItemGroup* group)
+{
+    m_ParentGroup = group;
+    //setParent(group);
 }
 
 
@@ -175,7 +275,9 @@ void
 OfficeMenuButtonItem::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
-    QTextOption opText(Qt::AlignVCenter | Qt::AlignBottom);
+    QTextOption opText((m_ParentGroup)
+                ? Qt::AlignVCenter | Qt::AlignRight
+                : Qt::AlignHCenter | Qt::AlignBottom);
 
     // Gathers all the needed colors for rendering.
     const QColor& colorHover = OfficePalette::get(OfficePalette::MenuItemHover);
@@ -198,12 +300,23 @@ OfficeMenuButtonItem::paintEvent(QPaintEvent*)
     painter.drawText(m_TightBounds, m_Text, opText);
 
     // Renders the icon.
-    QRect iconRect((m_Bounds.width() - m_Icon.width()) / 2,
-                   (m_Bounds.height() - m_Icon.height()) / 2,
-                    m_Icon.width(),
-                    m_Icon.height());
+    QRect iconRect;
+    if (!m_ParentGroup)
+    {
+        iconRect.setRect((m_Bounds.width() - m_Icon.width()) / 2,
+                          0,
+                          m_Icon.width(),
+                          m_Icon.height());
+    }
+    else
+    {
+        iconRect.setRect(MENU_BUTTON_GROUP_IMAGE_PAD, 0, 16, 16);
+    }
 
-    painter.drawPixmap(iconRect, m_Icon);
+    if (isEnabled())
+        painter.drawPixmap(iconRect, m_Icon);
+    else
+        painter.drawPixmap(iconRect, m_DisabledIcon);
 }
 
 
@@ -239,6 +352,8 @@ OfficeMenuButtonItem::mousePressEvent(QMouseEvent* event)
     if (isEnabled() && event->button() == Qt::LeftButton)
     {
         m_State = MenuButtonState::Pressed;
+        m_Tooltip->hide();
+        m_Timer->stop();
         update();
     }
 }
@@ -254,6 +369,57 @@ OfficeMenuButtonItem::mouseReleaseEvent(QMouseEvent* event)
         else
             m_State = MenuButtonState::None;
 
+
+        OfficeMenuEventArgs eventArgs(
+                    identifier(),
+                    QString(),
+                    OfficeMenuEventArgs::ButtonClick);
+
+        emit parentMenu()->itemEvent(&eventArgs);
+        emit clicked();
+
         update();
     }
+}
+
+
+OfficeMenuSeparatorItem::OfficeMenuSeparatorItem(OfficeMenuPanel* parent)
+    : OfficeMenuItem(parent)
+{
+
+}
+
+OfficeMenuSeparatorItem::~OfficeMenuSeparatorItem()
+{
+}
+
+
+QSize
+OfficeMenuSeparatorItem::sizeHint() const
+{
+    return QSize(1, MENU_ITEM_HEIGHT);
+}
+
+
+int
+OfficeMenuSeparatorItem::heightHint() const
+{
+    return MENU_ITEM_HEIGHT;
+}
+
+
+void
+OfficeMenuSeparatorItem::paintEvent(QPaintEvent*)
+{
+    QPainter painter(this);
+    painter.fillRect(rect(), OfficePalette::get(OfficePalette::MenuSeparator));
+}
+
+
+OfficeMenuDropDownButtonItem::
+OfficeMenuDropDownButtonItem(OfficeMenuPanel* parent)
+    : OfficeMenuItem(parent)
+    , m_DropDown(new OfficeDropDown)
+{
+    m_DropDown->setParent(this);
 }

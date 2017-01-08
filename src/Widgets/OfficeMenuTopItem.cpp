@@ -22,13 +22,16 @@
 
 // QOffice headers
 #include <QOffice/Widgets/OfficeMenuTopItem.hpp>
+#include <QOffice/Widgets/OfficeMenuSubMenu.hpp>
 #include <QOffice/Widgets/OfficeMenu.hpp>
+#include <QOffice/Widgets/Constants/OfficeMenuConstants.hpp>
 #include <QOffice/Design/OfficeAccents.hpp>
 #include <QOffice/Design/OfficePalette.hpp>
 
 // Qt headers
 #include <QPainter>
 #include <QtEvents>
+#include <QLayout>
 
 
 QOFFICE_USING_NAMESPACE
@@ -42,6 +45,9 @@ OfficeMenuTopItem::OfficeMenuTopItem(OfficeMenu* parent)
 {
     setAttribute(Qt::WA_TranslucentBackground);
     setMouseTracking(true);
+
+    m_SubMenu = new OfficeMenuSubMenu;
+    m_SubMenu->hide();
 }
 
 
@@ -54,6 +60,13 @@ QSize
 OfficeMenuTopItem::sizeHint() const
 {
     return m_Bounds.size();
+}
+
+
+OfficeMenu*
+OfficeMenuTopItem::parentMenu() const
+{
+    return m_ParentMenu;
 }
 
 
@@ -116,12 +129,9 @@ OfficeMenuTopItem::select()
         return;
 
     m_ParentMenu->expand(this);
+    m_SubMenu->show();
     m_IsSelected = true;
-    setGeometry(m_ParentMenu->rect());
     update();
-
-    for (auto* panel : m_Panels)
-        panel->show();
 
     emit itemExpanded();
 }
@@ -132,16 +142,13 @@ OfficeMenuTopItem::collapse(bool collapseMenu)
 {
     if (!m_IsSelected)
         return;
+
     if (collapseMenu)
         m_ParentMenu->collapse();
 
+    m_SubMenu->hide();
     m_IsSelected = false;
-    m_IsHovered = true;
-    setGeometry(m_Bounds);
     update();
-
-    for (auto* panel : m_Panels)
-        panel->hide();
 
     emit itemCollapsed();
 }
@@ -175,9 +182,12 @@ OfficeMenuTopItem::insertPanel(int pos, OfficeMenuPanel* panel)
     if (panel != nullptr)
     {
         m_Panels.insert(pos, panel);
-        panel->m_ParentItem = this;
-        panel->setParent(this);
-        panel->update();
+        panel->m_ParentItem = this;  // internal parent
+        panel->setParent(m_SubMenu); // visual parent
+
+        // Makes sure that the menu is informed about panel resize events.
+        connect(panel, SIGNAL(requestResize(OfficeMenuPanel*)),
+                this,  SLOT(recalculatePanel(OfficeMenuPanel*)));
     }
 }
 
@@ -222,21 +232,6 @@ OfficeMenuTopItem::paintEvent(QPaintEvent*)
     // Gets the background and accent color.
     const QColor& colorAccnt = OfficeAccents::get(m_ParentMenu->accent());
     const QColor& colorBackg = OfficePalette::get(OfficePalette::Background);
-
-    // If the menu item is selected, draw the panels.
-    if (m_IsSelected)
-    {
-        const QColor& colorSepar = OfficePalette::get(OfficePalette::MenuSeparator);
-        const QPoint pLineS = rect().bottomLeft();
-        const QPoint pLineE = rect().bottomRight();
-        const QRect rectBar = rect().adjusted(
-                    0,  m_Bounds.bottom() + 1,
-                    0, -m_Bounds.bottom() - 1);
-
-        painter.fillRect(rectBar, colorBackg);
-        painter.setPen(colorSepar);
-        painter.drawLine(pLineS, pLineE);
-    }
 
     // Renders the text.
     if (m_IsSelected)
@@ -298,3 +293,54 @@ OfficeMenuTopItem::leaveEvent(QEvent*)
         update();
     }
 }
+
+
+void
+OfficeMenuTopItem::recalculatePanel(OfficeMenuPanel* panel)
+{
+    QRect bounds;
+
+    // Calculates the width of all previous items.
+    int currentX = 0;
+    int pos = m_Panels.indexOf(panel);
+    int panelWidth = panel->sizeHint().width();
+    for (int i = 0; i < pos && i < m_Panels.size(); i++)
+        currentX += m_Panels.at(i)->sizeHint().width();
+
+    // Calculates the new bounds for the item.
+    bounds.setRect(0, 0, panelWidth, MENU_PANEL_HEIGHT - 4);
+    panel->m_Bounds = bounds;
+    panel->setGeometry(currentX, 0,
+                      panelWidth, MENU_PANEL_HEIGHT);
+
+    currentX += panelWidth;
+
+    // Increases the X-position of all items after the new item.
+    for (int i = pos; i < m_Panels.size(); i++)
+    {
+        auto* panel = m_Panels[i];
+        panel->move(panel->x() + panelWidth, panel->y());
+        //currentX += panel->width(); may need this for overflow arrow later
+    }
+}
+
+
+void
+OfficeMenuTopItem::recalculateAllPanels()
+{
+    int currentX = 0;
+    for (auto* panel : m_Panels)
+    {
+        panel->recalculateAllItems();
+
+        // Specifies all the new boundaries.
+        QSize panelSize = panel->sizeHint();
+        panel->m_Bounds.setRect(0, 0, panelSize.width(), MENU_PANEL_HEIGHT - 4);
+        panel->setGeometry(currentX, MENU_PANEL_PADDING,
+                          panelSize.width(), MENU_PANEL_HEIGHT);
+
+        // Advances the position.
+        currentX += panelSize.width();
+    }
+}
+

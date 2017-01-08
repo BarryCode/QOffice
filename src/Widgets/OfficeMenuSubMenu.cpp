@@ -20,34 +20,38 @@
  */
 
 
-#ifndef QOFFICE_OFFICEMENUENUMS_HPP
-#define QOFFICE_OFFICEMENUENUMS_HPP
-
-
 // QOffice headers
-#include <QOffice/Config.hpp>
+#include <QOffice/Widgets/OfficeMenu.hpp>
+#include <QOffice/Widgets/OfficeMenuSubMenu.hpp>
+#include <QOffice/Design/OfficePalette.hpp>
+
+// Qt headers
+#include <QPainter>
 
 
-QOFFICE_BEGIN_NAMESPACE
+QOFFICE_USING_NAMESPACE
 
 
-/**
- * Holds all the possible states of a menu item button.
- *
- * @enum MenuButtonState
- * @author Nicolas Kogler
- * @date January 2nd, 2016
- *
- */
-enum class MenuButtonState
+OfficeMenuSubMenu::OfficeMenuSubMenu(OfficeMenu* parent)
+    : QWidget(parent)
 {
-    None,
-    Hovered,
-    Pressed
-};
+}
 
 
-QOFFICE_END_NAMESPACE
+OfficeMenuSubMenu::~OfficeMenuSubMenu()
+{
+}
 
 
-#endif // QOFFICE_OFFICEMENUENUMS_HPP
+void
+OfficeMenuSubMenu::paintEvent(QPaintEvent*)
+{
+    QPainter painter(this);
+
+    const QColor& colorBackg = OfficePalette::get(OfficePalette::Background);
+    const QColor& colorSepar = OfficePalette::get(OfficePalette::MenuSeparator);
+
+    painter.fillRect(rect(), colorBackg);
+    painter.setPen(colorSepar);
+    painter.drawLine(rect().bottomLeft(), rect().bottomRight());
+}
