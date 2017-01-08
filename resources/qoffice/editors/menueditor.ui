@@ -101,7 +101,7 @@
       <number>0</number>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="swpButton">
       <layout class="QFormLayout" name="formLayout_2">
@@ -551,40 +551,6 @@ void on_OfficeMenu_ItemClicked(QString itemId)
          <property name="toolTip">
           <string>The text that is written (in center)  underneath all items of the panel.</string>
          </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>LayoutType:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="comboBox">
-         <property name="currentText">
-          <string>Grid</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>Vertical</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Horizontal</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Form</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Grid</string>
-          </property>
-         </item>
         </widget>
        </item>
       </layout>

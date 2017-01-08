@@ -82,6 +82,7 @@ private slots:
     void saveAllItems();
     void addTopMenuItem();
     void addPanel();
+    void addMenuItem();
     void addItem(QAction*);
     void removePanel();
     void removeTopMenuItem();

@@ -22,6 +22,7 @@
 
 // QOffice headers
 #include <QOffice/Plugins/Extensions/OfficeMenuEditorDialog.hpp>
+#include <QOffice/Widgets/OfficeMenu.hpp>
 #include <QtUiTools>
 #include <iostream>
 
@@ -133,7 +134,7 @@ OfficeMenuEditorDialog::saveAllItems()
     if (QDesignerFormWindowInterface *formWindow
       = QDesignerFormWindowInterface::findFormWindow(m_OldMenu))
     {
-        //formWindow->cursor()->setProperty("ItemXml", m_NewMenu->itemXml());
+        formWindow->cursor()->setProperty("ItemXml", m_NewMenu->itemXml());
     }
 
     accept();
@@ -143,12 +144,78 @@ OfficeMenuEditorDialog::saveAllItems()
 void
 OfficeMenuEditorDialog::addTopMenuItem()
 {
+    // Add top-menu-item to menu.
+    auto* i = new OfficeMenuTopItem;
+    m_NewMenu->addItem(i);
+
+    // Add an item to the tree.
+    QTreeWidgetItem* item = new QTreeWidgetItem;
+    item->setText(0, tr("New top item"));
+    m_Tree->addTopLevelItem(item);
+    item->setData(0, Qt::UserRole, 0);
+    item->setData(2, Qt::UserRole, (qulonglong) i);
+    item->setSelected(true);
+    m_SelectedTreeItem = item;
+}
+
+
+void
+OfficeMenuEditorDialog::addMenuItem()
+{
+    bool ok;
+    auto text = QInputDialog::getItem(
+                this, tr("Choose item type"), tr("Type: "),
+                { "Button", "Separator", "DropDownButton",
+                  "Textbox", "ItemGroup" }, 0, false, &ok);
+
+    if (ok)
+    {
+        QTreeWidgetItem* item = new QTreeWidgetItem;
+        item->setText(0, "New " + text);
+        item->setData(0, Qt::UserRole, 2);
+        item->setData(1, Qt::UserRole, text);
+        m_SelectedTreeItem->addChild(item);
+
+        // Determines the item type.
+        OfficeMenuItem* mi;
+        if (text == "Button")
+            mi = new OfficeMenuButtonItem;
+        else if (text == "Separator")
+            mi = new OfficeMenuSeparatorItem;
+        //else if (text == "DropDownButton")
+            //mi = new OfficeMenuDropDownButton;
+        //else if (text == "Textbox")
+            //mi = new OfficeMenuTextboxItem;
+        //else if (text == "ItemGroup")
+            //mi = new OfficeMenuItemGroup;
+
+        // Adds it to the panel.
+        auto* p = reinterpret_cast<OfficeMenuPanel*>(m_SelectedTreeItem->
+                            data(2, Qt::UserRole).toULongLong());
+
+        item->setData(2, Qt::UserRole, (qulonglong) mi);
+        p->addItem(mi);
+    }
 }
 
 
 void
 OfficeMenuEditorDialog::addPanel()
 {
+    // Retrieve top-menu-item from user data
+    auto* i = reinterpret_cast<OfficeMenuTopItem*>(m_SelectedTreeItem->
+                        data(2, Qt::UserRole).toULongLong());
+
+    // Add panel
+    auto* p = new OfficeMenuPanel;
+    i->addPanel(p);
+
+    // Add the item to the tree view item.
+    QTreeWidgetItem* item = new QTreeWidgetItem;
+    item->setText(0, tr("New panel"));
+    item->setData(0, Qt::UserRole, 1);
+    item->setData(2, Qt::UserRole, (qulonglong) p);
+    m_SelectedTreeItem->addChild(item);
 }
 
 
@@ -158,49 +225,23 @@ OfficeMenuEditorDialog::addItem(QAction* item)
     if (item != nullptr)
     {
         if (item->data().toInt() == 0)
-        {
-            // Add top-menu-item to menu
-
-            QTreeWidgetItem* item = new QTreeWidgetItem;
-            item->setText(0, tr("New top item"));
-            m_Tree->addTopLevelItem(item);
-            item->setData(0, Qt::UserRole, 0);
-            item->setSelected(true);
-            m_SelectedTreeItem = item;
-        }
+            addTopMenuItem();
         else if (item->data().toInt() == 1)
-        {
-            // Retrieve top-menu-item from user data
-            // Add panel
-
-            QTreeWidgetItem* item = new QTreeWidgetItem;
-            item->setText(0, tr("New panel"));
-            item->setData(0, Qt::UserRole, 1);
-            m_SelectedTreeItem->addChild(item);
-        }
+            addPanel();
         else if (item->data().toInt() == 2)
-        {
-            // Add top-menu-item
-
-            bool ok;
-            auto text = QInputDialog::getItem(
-                        this, tr("Choose item type"), tr("Type: "),
-                        { "Button", "Separator", "DropDownButton",
-                          "Textbox", "ItemGroup" }, 0, false, &ok);
-
-            if (ok)
-            {
-                QTreeWidgetItem* item = new QTreeWidgetItem;
-                item->setText(0, "New " + text);
-                item->setData(0, Qt::UserRole, 2);
-                item->setData(1, Qt::UserRole, text);
-                m_SelectedTreeItem->addChild(item);
-            }
-        }
+            addMenuItem();
         else if (item->data().toInt() == 3)
         {
-            // Remove selected item.
+            // Remove item from the menu.
+            int type = m_SelectedTreeItem->data(0, Qt::UserRole).toInt();
+            if (type == 0)
+                removeTopMenuItem();
+            else if (type == 1)
+                removePanel();
+            else if (type == 2)
+                removeItem();
 
+            // Remove item from the tree.
             delete m_SelectedTreeItem;
             m_SelectedTreeItem = nullptr;
         }
@@ -211,18 +252,30 @@ OfficeMenuEditorDialog::addItem(QAction* item)
 void
 OfficeMenuEditorDialog::removePanel()
 {
+    auto* p = reinterpret_cast<OfficeMenuPanel*>(m_SelectedTreeItem->
+                        data(2, Qt::UserRole).toULongLong());
+
+    p->parentItem()->removePanel(p);
 }
 
 
 void
 OfficeMenuEditorDialog::removeTopMenuItem()
 {
+    auto* i = reinterpret_cast<OfficeMenuTopItem*>(m_SelectedTreeItem->
+                        data(2, Qt::UserRole).toULongLong());
+
+    i->parentMenu()->removeItem(i);
 }
 
 
 void
 OfficeMenuEditorDialog::removeItem()
 {
+    auto* mi = reinterpret_cast<OfficeMenuItem*>(m_SelectedTreeItem->
+                    data(2, Qt::UserRole).toULongLong());
+
+    mi->parentPanel()->removeItem(mi);
 }
 
 
