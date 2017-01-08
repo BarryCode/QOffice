@@ -176,9 +176,15 @@ OfficeTooltip::mouseMoveEvent(QMouseEvent* event)
 
     // Determines whether the cursor hovers the link.
     if (m_HelpTextRect.contains(event->pos()))
+    {
         m_IsLinkHovered = true;
+        setCursor(Qt::PointingHandCursor);
+    }
     else
+    {
         m_IsLinkHovered = false;
+        unsetCursor();
+    }
 
     if (m_IsLinkHovered != oldState)
         update();
@@ -255,6 +261,7 @@ OfficeTooltip::leaveEvent(QEvent*)
 {
     m_Timer->setInterval(400);
     m_Timer->start();
+    unsetCursor();
 }
 
 
@@ -272,6 +279,7 @@ void
 OfficeTooltip::hideTooltip()
 {
     hide();
+    m_Timer->stop();
 }
 
 

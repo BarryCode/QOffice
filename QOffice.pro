@@ -85,7 +85,10 @@ HEADERS             +=      include/QOffice/Config.hpp \
                             include/QOffice/Widgets/OfficeMenuPanel.hpp \
                             include/QOffice/Widgets/OfficeMenuItem.hpp \
                             include/QOffice/Widgets/Enums/OfficeMenuEnums.hpp \
-    include/QOffice/Widgets/Constants/OfficeMenuConstants.hpp
+    include/QOffice/Widgets/Constants/OfficeMenuConstants.hpp \
+    include/QOffice/Widgets/OfficeMenuSubMenu.hpp \
+    include/QOffice/Widgets/OfficeDropDown.hpp \
+    include/QOffice/Design/OfficeImaging.hpp
 
 ###########################################################
 #
@@ -107,4 +110,7 @@ SOURCES             +=      src/Design/Exceptions/InvalidAccentException.cpp \
                             src/Plugins/Extensions/OfficeMenuEditorDialog.cpp \
                             src/Widgets/OfficeMenuTopItem.cpp \
                             src/Widgets/OfficeMenuPanel.cpp \
-    src/Widgets/OfficeMenuItem.cpp
+    src/Widgets/OfficeMenuItem.cpp \
+    src/Widgets/OfficeMenuSubMenu.cpp \
+    src/Design/OfficeImaging.cpp \
+    src/Widgets/OfficeDropDown.cpp

@@ -20,28 +20,55 @@
  */
 
 
-#ifndef QOFFICE_OFFICEWINDOWCONSTANTS_HPP
-#define QOFFICE_OFFICEWINDOWCONSTANTS_HPP
+#ifndef QOFFICE_OFFICEIMAGING_HPP
+#define QOFFICE_OFFICEIMAGING_HPP
 
 
 // QOffice headers
 #include <QOffice/Config.hpp>
 
+// Qt headers
+#include <QImage>
+#include <QPixmap>
+
 
 QOFFICE_BEGIN_NAMESPACE
 
 
-#define TOOLTIP_MARGIN          14
-#define TOOLTIP_BODY_MARGIN     10
-#define TOOLTIP_SEPA_MARGIN     9
-#define TOOLTIP_HELP_MARGIN     7
-#define TOOLTIP_ICON_PADDING    8
-#define TOOLTIP_DROP_SHADOW     4
-#define TOOLTIP_DROP_SHADOW_P   TOOLTIP_DROP_SHADOW * 2
-#define TOOLTIP_DROP_SHADOW_B -TOOLTIP_DROP_SHADOW / 4 + 1
+/**
+ * Provides functions for manipulating images.
+ *
+ * @class OfficeImaging
+ * @author Nicolas Kogler
+ * @date January 6th, 2016
+ *
+ */
+class QOFFICE_EXPORT OfficeImaging
+{
+public:
+
+    /**
+     * Converts the given image to a grayscale image.
+     * Does not change the format of the image, but
+     * converts all pixels to gray ones.
+     *
+     * @param img Image to convert to grayscale.
+     *
+     */
+    static QImage toGrayscale(QImage& img);
+
+    /**
+     * Converts the given pixmap to a grayscale pixmap.
+     * Uses the OfficeImaging::toGrayscale(QImage&) function.
+     *
+     * @param pm Pixmap to convert to grayscale.
+     *
+     */
+    static QPixmap toGrayscale(QPixmap& pm);
+};
 
 
 QOFFICE_END_NAMESPACE
 
 
-#endif // QOFFICE_OFFICEWINDOWCONSTANTS_HPP
+#endif // QOFFICE_OFFICEIMAGING_HPP
