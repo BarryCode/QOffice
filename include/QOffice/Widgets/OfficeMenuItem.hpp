@@ -372,12 +372,15 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
 
+    // Protected members
+    MenuButtonState m_State;
+
+
 private:
 
     // Members
     QPixmap m_Icon;
     QPixmap m_DisabledIcon;
-    MenuButtonState m_State;
     OfficeMenuItemGroup* m_ParentGroup; ///< Can be also part of a group.
 
     // Metadata
@@ -543,10 +546,16 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
 
+private slots:
+
+    void resetAfterComplete();
+
+
 private:
 
     // Members
     OfficeDropDown* m_DropDown;
+    bool m_IsDropDownVisible;
 
     // Metadata
     Q_OBJECT

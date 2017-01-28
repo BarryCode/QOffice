@@ -420,27 +420,16 @@ OfficeMenuDropDownButtonItem::
 OfficeMenuDropDownButtonItem(OfficeMenuPanel* parent)
     : OfficeMenuButtonItem(parent)
     , m_DropDown(new OfficeDropDown)
+    , m_IsDropDownVisible(false)
 {
     m_DropDown->setParent(this);
+    m_DropDown->setWidget(this);
+    connect(m_DropDown, SIGNAL(closed()), SLOT(resetAfterComplete()));
 }
 
 
 OfficeMenuDropDownButtonItem::~OfficeMenuDropDownButtonItem()
 {
-}
-
-
-QSize
-OfficeMenuDropDownButtonItem::sizeHint() const
-{
-    return OfficeMenuButtonItem::sizeHint();
-}
-
-
-int
-OfficeMenuDropDownButtonItem::heightHint() const
-{
-    return OfficeMenuButtonItem::heightHint();
 }
 
 
@@ -492,7 +481,17 @@ void
 OfficeMenuDropDownButtonItem::mousePressEvent(QMouseEvent* event)
 {
     OfficeMenuButtonItem::mousePressEvent(event);
-    m_DropDown->complete();
+
+    if (m_IsDropDownVisible)
+    {
+        m_DropDown->popup()->hide();
+        m_IsDropDownVisible = false;
+    }
+    else
+    {
+        m_DropDown->complete();
+        m_IsDropDownVisible = true;
+    }
 }
 
 
@@ -500,4 +499,17 @@ void
 OfficeMenuDropDownButtonItem::mouseReleaseEvent(QMouseEvent* event)
 {
     OfficeMenuButtonItem::mouseReleaseEvent(event);
+}
+
+
+void
+OfficeMenuDropDownButtonItem::resetAfterComplete()
+{
+    if (geometry().contains(QCursor::pos()))
+        m_State = MenuButtonState::Hovered;
+    else
+        m_State = MenuButtonState::None;
+
+    m_IsDropDownVisible = false;
+    update();
 }

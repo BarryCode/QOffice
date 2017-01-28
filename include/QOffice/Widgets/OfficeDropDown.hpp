@@ -36,7 +36,7 @@
 QOFFICE_BEGIN_NAMESPACE
 
 
-class OfficeDropDownItemView;
+class OfficeListView;
 
 
 /**
@@ -81,14 +81,48 @@ public:
     void removeAll();
 
 
+signals:
+
+    /**
+     * Is emitted when the drop-down is made invisible.
+     *
+     */
+    void closed();
+
+
+private slots:
+
+    void hid();
+
+
 private:
 
     // Members
-    QListView*          m_View;
+    OfficeListView*     m_View;
     QStringListModel*   m_Model;
     QStringList         m_Items;
 
     // Metadata
+    Q_OBJECT
+};
+
+
+class OfficeListView : public QListView
+{
+public:
+
+    OfficeListView();
+
+protected:
+
+    void hideEvent(QHideEvent* event) override;
+
+signals:
+
+    void closed();
+
+private:
+
     Q_OBJECT
 };
 

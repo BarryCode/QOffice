@@ -29,11 +29,12 @@ QOFFICE_USING_NAMESPACE
 
 OfficeDropDown::OfficeDropDown()
     : QCompleter()
-    , m_View(new QListView)
+    , m_View(new OfficeListView)
     , m_Model(new QStringListModel)
 {
     setPopup(m_View);
     setModel(m_Model);
+    connect(m_View, SIGNAL(closed()), this, SLOT(hid()));
 }
 
 
@@ -60,4 +61,24 @@ void
 OfficeDropDown::removeAll()
 {
     m_Items.clear();
+}
+
+
+void
+OfficeDropDown::hid()
+{
+    emit closed();
+}
+
+
+OfficeListView::OfficeListView()
+    : QListView()
+{
+}
+
+
+void
+OfficeListView::hideEvent(QHideEvent*)
+{
+    emit closed();
 }

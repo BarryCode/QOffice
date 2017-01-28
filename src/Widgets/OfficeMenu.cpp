@@ -327,19 +327,19 @@ OfficeMenu::xmlGetItem(QDomElement* itemElem)
     }
     else if (type == "DropDownButton")
     {
-        /*auto i = new OfficeMenuDropDownButtonItem;
+        auto i = new OfficeMenuDropDownButtonItem;
         auto children = itemElem->childNodes();
         for (int j = 0; j < children.size(); j++)
         {
             auto ddNode = children.at(j);
             if (ddNode.nodeName() == "text")
-                i->setText(ddNode.nodeValue());
+                i->setText(ddNode.firstChild().nodeValue());
             else if (ddNode.nodeName() == "icon")
-                i->setIcon(QPixmap(ddNode.nodeValue()));
+                i->setIcon(QPixmap(ddNode.firstChild().nodeValue()));
             else if (ddNode.nodeName() == "identifier")
-                i->setIdentifier(ddNode.nodeValue());
+                i->setIdentifier(ddNode.firstChild().nodeValue());
             else if (ddNode.nodeName() == "dditem")
-                i->addItem(ddNode.nodeValue());
+                i->addItem(ddNode.firstChild().nodeValue());
             else
             {
                 qDebug() << "OfficeMenu: Unknown node name "
@@ -348,8 +348,7 @@ OfficeMenu::xmlGetItem(QDomElement* itemElem)
             }
         }
 
-        return i;*/
-        return nullptr;
+        return i;
     }
     else if (type == "Textbox")
     {
