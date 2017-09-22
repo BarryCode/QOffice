@@ -106,7 +106,7 @@ inline QString QOfficeGetFunc(const QString& func)
         whitespace = output.indexOf('(');
         output.remove(whitespace, -1);
         whitespace = output.indexOf(' ');
-        output.erase(0, whitespace + 1);
+        output.remove(0, whitespace + 1);
     }
 
     return output;
@@ -130,6 +130,8 @@ inline QString QOfficeGetClass(const QString& func)
 #endif
 
 #define OffCurrentClass QOfficeGetClass(OffCurrentFunc)
+
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \def OffEnumOperators

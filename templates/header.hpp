@@ -41,10 +41,10 @@ class QOFFICE_$MODULE_API $Class
 {
 public:
 
-    OffDeclareCtor($Class);
-    OffDeclareDtor($Class);
-    OffDeclareCopy($Class);
-    OffDeclareMove($Class);
+    OffDeclareCtor($Class)
+    OffDeclareDtor($Class)
+    OffDeclareCopy($Class)
+    OffDeclareMove($Class)
 
     // <getters>
     ////////////////////////////////////////////////////////////////////////////
