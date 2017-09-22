@@ -14,7 +14,7 @@ TARGET          =       QOffice
 TEMPLATE        =       lib
 QT             +=       widgets uiplugin designer uitools
 CONFIG         +=       plugin c++11
-DEFINES        +=       QOFFICE_BUILD
+DEFINES        +=       QOFFICE_BUILD_SHARED
 
 ###########################################################
 #
@@ -50,13 +50,6 @@ INCLUDEPATH         +=      include \
 RESOURCES           +=      resources/qoffice_plugins.qrc \
                             resources/qoffice_images.qrc \
                             resources/qoffice_editors.qrc
-DISTFILES           +=      resources/templates/class.txt \
-                            resources/templates/enum.txt \
-                            resources/templates/plugin.txt \
-                            resources/templates/plugin_src.txt \
-                            resources/templates/source.txt \
-                            resources/templates/widget.txt \
-                            resources/templates/widget_src.txt \
 
 ###########################################################
 #
@@ -85,10 +78,10 @@ HEADERS             +=      include/QOffice/Config.hpp \
                             include/QOffice/Widgets/OfficeMenuPanel.hpp \
                             include/QOffice/Widgets/OfficeMenuItem.hpp \
                             include/QOffice/Widgets/Enums/OfficeMenuEnums.hpp \
-    include/QOffice/Widgets/Constants/OfficeMenuConstants.hpp \
-    include/QOffice/Widgets/OfficeMenuSubMenu.hpp \
-    include/QOffice/Widgets/OfficeDropDown.hpp \
-    include/QOffice/Design/OfficeImaging.hpp
+                            include/QOffice/Widgets/Constants/OfficeMenuConstants.hpp \
+                            include/QOffice/Widgets/OfficeMenuSubMenu.hpp \
+                            include/QOffice/Widgets/OfficeDropDown.hpp \
+                            include/QOffice/Design/OfficeImaging.hpp
 
 ###########################################################
 #
@@ -110,7 +103,7 @@ SOURCES             +=      src/Design/Exceptions/InvalidAccentException.cpp \
                             src/Plugins/Extensions/OfficeMenuEditorDialog.cpp \
                             src/Widgets/OfficeMenuTopItem.cpp \
                             src/Widgets/OfficeMenuPanel.cpp \
-    src/Widgets/OfficeMenuItem.cpp \
-    src/Widgets/OfficeMenuSubMenu.cpp \
-    src/Design/OfficeImaging.cpp \
-    src/Widgets/OfficeDropDown.cpp
+                            src/Widgets/OfficeMenuItem.cpp \
+                            src/Widgets/OfficeMenuSubMenu.cpp \
+                            src/Design/OfficeImaging.cpp \
+                            src/Widgets/OfficeDropDown.cpp
