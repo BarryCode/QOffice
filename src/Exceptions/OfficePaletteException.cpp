@@ -3,6 +3,8 @@
 // QOffice - The office framework for Qt
 // Copyright (C) 2016-2018 Nicolas Kogler
 //
+// This file is part of the Core module.
+//
 // QOffice is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -18,11 +20,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+
 #include <QOffice/Exceptions/OfficePaletteException.hpp>
 
 OfficePaletteException::OfficePaletteException(
     const QString& func,
-    const uint value
+    const int value
     ) QOFFICE_NOEXCEPT : std::exception()
 {
     m_reason = std::string(

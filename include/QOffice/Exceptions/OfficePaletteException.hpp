@@ -3,6 +3,8 @@
 // QOffice - The office framework for Qt
 // Copyright (C) 2016-2018 Nicolas Kogler
 //
+// This file is part of the Core module.
+//
 // QOffice is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -47,7 +49,7 @@ public:
     /// \throw This function does not throw exceptions.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    OfficePaletteException(const QString& func, const uint value) QOFFICE_NOEXCEPT;
+    OfficePaletteException(const QString& func, const int value) QOFFICE_NOEXCEPT;
 
     ////////////////////////////////////////////////////////////////////////////
     /// Retrieves the cause of this exception.

@@ -3,6 +3,8 @@
 // QOffice - The office framework for Qt
 // Copyright (C) 2016-2018 Nicolas Kogler
 //
+// This file is part of the Core module.
+//
 // QOffice is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -47,7 +49,7 @@ public:
     /// \throw This function does not throw exceptions.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    OfficeAccentException(const QString& func, const uint value) QOFFICE_NOEXCEPT;
+    OfficeAccentException(const QString& func, const int value) QOFFICE_NOEXCEPT;
 
     ////////////////////////////////////////////////////////////////////////////
     /// Retrieves the cause of this exception.
@@ -76,13 +78,13 @@ private:
 /// \ingroup Core
 ///
 /// This exception is thrown when an invalid accent enum value was provided.
-/// Always make sure that your value is between 0 and IOfficeWidget::MaxAccent.
+/// Always make sure your value is between 0 and OfficeWidget::CustomAccent+1.
 ///
 /// \code
 /// try
 /// {
 ///     // This code will never actually throw, since RedAccent is valid.
-///     OfficeAccent::get(IOfficeWidget::RedAccent);
+///     OfficeAccent::color(OfficeWidget::RedAccent);
 /// }
 /// catch (const OfficeAccentException& e)
 /// {
@@ -94,12 +96,12 @@ private:
 /// through the user of the QOffice-application.
 ///
 /// \code
-/// OfficeAccent::set(QColor(...));
+/// OfficeAccent::setCustomColor(QColor(...));
 ///
-/// m_officeWindow->setAccent(IOfficeWidget::CustomAccent);
+/// m_officeWindow->setAccent(OfficeWidget::CustomAccent);
 /// \endcode
 ///
-/// The call to IOfficeWidget::setAccent will populate all child widgets with
-/// the custom accent color. In this case, the entire window will be colored.
+/// The call to OfficeWidget::setAccent will not populate all child widgets with
+/// the custom accent color. OfficeWindow::setAccent must be called.
 ///
 ////////////////////////////////////////////////////////////////////////////////
