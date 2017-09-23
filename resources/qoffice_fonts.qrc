@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qoffice/fonts/Font-0.ttf</file>
+        <file>qoffice/fonts/Font-1.ttf</file>
+        <file>qoffice/fonts/Font-2.ttf</file>
+        <file>qoffice/fonts/Font-3.ttf</file>
+        <file>qoffice/fonts/Font-4.ttf</file>
+    </qresource>
+</RCC>
