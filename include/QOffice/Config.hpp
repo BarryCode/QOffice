@@ -78,6 +78,9 @@
 #define OffAddFlag(value,flag)    (value |= flag)
 #define OffRemoveFlag(value,flag) (value &= ~flag)
 
+// Snippets put into the anonymous namespace.
+#define OffAnonymous(...) namespace { __VA_ARGS__; }
+
 // Easy to use constructor macroes.
 #define OffDeclareCtor(type) type();
 #define OffDeclareDtor(type) virtual ~type();
@@ -147,6 +150,9 @@ inline QString QOfficeGetClass(const QString& func)
 ///
 /// \def OffRemoveFlag
 /// Removes a specific enum flag from a bitfield.
+///
+/// \def OffAnonymous
+/// Wraps an expression in the anonymous namespace to avoid multiple definitions.
 ///
 /// \def OffDeclareCtor
 /// Declares a default constructor. Implementation is done in the source file.

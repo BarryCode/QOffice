@@ -40,5 +40,10 @@ void OfficeWidget::setAccent(OfficeWidget::Accent accent)
     if (OfficeAccent::isValid(accent))
     {
         m_accent = accent;
+        accentUpdateEvent();
     }
+}
+
+void OfficeWidget::accentUpdateEvent()
+{
 }

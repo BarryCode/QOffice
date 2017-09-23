@@ -60,7 +60,7 @@ public:
     /// \throw This function does not throw exceptions.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    const char* what() const noexcept override;
+    const char* what() const QOFFICE_NOEXCEPT override;
 
 private:
 
