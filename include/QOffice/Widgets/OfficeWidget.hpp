@@ -24,7 +24,7 @@
 #ifndef QOFFICE_WIDGETS_OFFICEWIDGET_HPP
 #define QOFFICE_WIDGETS_OFFICEWIDGET_HPP
 
-#include <QOffice/Config.hpp>
+#include <QOffice/Design/Office.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeWidget
@@ -37,21 +37,6 @@ class QOFFICE_WIDGET_API OfficeWidget
 {
 public:
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Holds all predefined accents and a custom one.
-    /// \enum Accent
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    enum Accent
-    {
-        BlueAccent,
-        RedAccent,
-        GreenAccent,
-        OrangeAccent,
-        PurpleAccent,
-        CustomAccent
-    };
-
     OffDeclareCtor(OfficeWidget)
     OffDefaultDtor(OfficeWidget)
     OffDisableCopy(OfficeWidget)
@@ -63,7 +48,7 @@ public:
     /// \return The current accent.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    virtual Accent accent() const;
+    virtual Office::Accent accent() const;
 
     ////////////////////////////////////////////////////////////////////////////
     /// Specifies the new accent color for this office widget. Does not set the
@@ -73,7 +58,7 @@ public:
     /// \param accent New accent of the office widget.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    virtual void setAccent(Accent accent);
+    virtual void setAccent(Office::Accent accent);
 
 protected:
 
@@ -90,7 +75,7 @@ private:
     // Members
     //
     ////////////////////////////////////////////////////////////////////////////
-    Accent m_accent; ///< Holds the current accent of the office widget.
+    Office::Accent m_accent; ///< Holds the current accent of the office widget.
 };
 
 #endif

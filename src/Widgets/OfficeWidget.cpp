@@ -24,16 +24,16 @@
 #include <QOffice/Widgets/OfficeWidget.hpp>
 
 OfficeWidget::OfficeWidget()
-    : m_accent(BlueAccent)
+    : m_accent(Office::BlueAccent)
 {
 }
 
-OfficeWidget::Accent OfficeWidget::accent() const
+Office::Accent OfficeWidget::accent() const
 {
     return m_accent;
 }
 
-void OfficeWidget::setAccent(OfficeWidget::Accent accent)
+void OfficeWidget::setAccent(Office::Accent accent)
 {
     // In order to avoid exceptions during QWidget::paintEvent, always ensure
     // that a valid accent is available anytime, anywhere.

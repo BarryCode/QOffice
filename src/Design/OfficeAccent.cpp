@@ -23,9 +23,9 @@
 #include <QOffice/Design/OfficeAccent.hpp>
 #include <QOffice/Exceptions/OfficeAccentException.hpp>
 
-OffAnonymous(QColor g_colors[OfficeWidget::CustomAccent+1])
+OffAnonymous(QColor g_colors[Office::CustomAccent+1])
 
-const QColor& OfficeAccent::color(OfficeWidget::Accent accent)
+const QColor& OfficeAccent::color(Office::Accent accent)
 {
     if (!isValid(accent))
     {
@@ -35,7 +35,7 @@ const QColor& OfficeAccent::color(OfficeWidget::Accent accent)
     return g_colors[accent];
 }
 
-const QColor OfficeAccent::lightColor(OfficeWidget::Accent accent)
+const QColor OfficeAccent::lightColor(Office::Accent accent)
 {
     if (!isValid(accent))
     {
@@ -45,7 +45,7 @@ const QColor OfficeAccent::lightColor(OfficeWidget::Accent accent)
     return g_colors[accent].lighter(130);
 }
 
-const QColor OfficeAccent::veryLightColor(OfficeWidget::Accent accent)
+const QColor OfficeAccent::veryLightColor(Office::Accent accent)
 {
     if (!isValid(accent))
     {
@@ -55,7 +55,7 @@ const QColor OfficeAccent::veryLightColor(OfficeWidget::Accent accent)
     return g_colors[accent].lighter(200);
 }
 
-const QColor OfficeAccent::darkColor(OfficeWidget::Accent accent)
+const QColor OfficeAccent::darkColor(Office::Accent accent)
 {
     if (!isValid(accent))
     {
@@ -65,7 +65,7 @@ const QColor OfficeAccent::darkColor(OfficeWidget::Accent accent)
     return g_colors[accent].darker(130);
 }
 
-const QColor OfficeAccent::veryDarkColor(OfficeWidget::Accent accent)
+const QColor OfficeAccent::veryDarkColor(Office::Accent accent)
 {
     if (!isValid(accent))
     {
@@ -75,21 +75,21 @@ const QColor OfficeAccent::veryDarkColor(OfficeWidget::Accent accent)
     return g_colors[accent].darker(200);
 }
 
-bool OfficeAccent::isValid(OfficeWidget::Accent accent)
+bool OfficeAccent::isValid(Office::Accent accent)
 {
     auto value = static_cast<int>(accent);
 
     // The custom accent will _always_ be the last accent, so we can safely
     // determine whether 0 <= value <= CustomAccent.
-    return value >= 0 && value <= OfficeWidget::CustomAccent;
+    return value >= 0 && value <= Office::CustomAccent;
 }
 
 void OfficeAccent::setCustomColor(const QColor& color)
 {
-    g_colors[OfficeWidget::CustomAccent] = color;
+    g_colors[Office::CustomAccent] = color;
 }
 
-QColor g_colors[OfficeWidget::CustomAccent+1] =
+QColor g_colors[Office::CustomAccent+1] =
 {
     QColor(0x2b579a),
     QColor(0xa4373a),

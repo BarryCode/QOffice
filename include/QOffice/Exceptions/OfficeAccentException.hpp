@@ -78,13 +78,13 @@ private:
 /// \ingroup Core
 ///
 /// This exception is thrown when an invalid accent enum value was provided.
-/// Always make sure your value is between 0 and OfficeWidget::CustomAccent+1.
+/// Always make sure your value is between 0 and Office::CustomAccent+1.
 ///
 /// \code
 /// try
 /// {
 ///     // This code will never actually throw, since RedAccent is valid.
-///     OfficeAccent::color(OfficeWidget::RedAccent);
+///     OfficeAccent::color(Office::RedAccent);
 /// }
 /// catch (const OfficeAccentException& e)
 /// {
@@ -98,7 +98,7 @@ private:
 /// \code
 /// OfficeAccent::setCustomColor(QColor(...));
 ///
-/// m_officeWindow->setAccent(OfficeWidget::CustomAccent);
+/// m_officeWindow->setAccent(Office::CustomAccent);
 /// \endcode
 ///
 /// The call to OfficeWidget::setAccent will not populate all child widgets with

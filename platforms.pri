@@ -12,6 +12,12 @@ CONFIG -= debug_and_release debug_and_release_target
 *-armeabi-v8a* { kgl_arch = armeabi-v8a }
 *android* { kgl_arch = $${ANDROID_TARGET_ARCH} }
 
+win32 {
+    contains(QT_ARCH, x86_64) {
+        kgl_arch = x64
+    }
+}
+
 contains(QMAKE_PLATFORM, win32) { kgl_os = windows }
 contains(QMAKE_PLATFORM, linux) { kgl_os = linux }
 contains(QMAKE_PLATFORM, macx) { kgl_os = macosx }

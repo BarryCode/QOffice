@@ -24,7 +24,7 @@
 #ifndef QOFFICE_DESIGN_OFFICEACCENT_HPP
 #define QOFFICE_DESIGN_OFFICEACCENT_HPP
 
-#include <QOffice/Widgets/OfficeWidget.hpp>
+#include <QOffice/Design/Office.hpp>
 #include <QColor>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ public:
     /// \throws OfficeAccentException
     ///
     ////////////////////////////////////////////////////////////////////////////
-    static const QColor& color(OfficeWidget::Accent accent);
+    static const QColor& color(Office::Accent accent);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Retrieves a color being a bit lighter than the color associated with the
@@ -63,7 +63,7 @@ public:
     /// \throws OfficeAccentException
     ///
     ////////////////////////////////////////////////////////////////////////////
-    static const QColor lightColor(OfficeWidget::Accent accent);
+    static const QColor lightColor(Office::Accent accent);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Retrieves a color being much lighter than the color associated with the
@@ -77,7 +77,7 @@ public:
     /// \throws OfficeAccentException
     ///
     ////////////////////////////////////////////////////////////////////////////
-    static const QColor veryLightColor(OfficeWidget::Accent accent);
+    static const QColor veryLightColor(Office::Accent accent);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Retrieves a color being a bit darker than the color associated with the
@@ -91,7 +91,7 @@ public:
     /// \throws OfficeAccentException
     ///
     ////////////////////////////////////////////////////////////////////////////
-    static const QColor darkColor(OfficeWidget::Accent accent);
+    static const QColor darkColor(Office::Accent accent);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Retrieves a color being much darker than the color associated with the
@@ -105,7 +105,7 @@ public:
     /// \throws OfficeAccentException
     ///
     ////////////////////////////////////////////////////////////////////////////
-    static const QColor veryDarkColor(OfficeWidget::Accent accent);
+    static const QColor veryDarkColor(Office::Accent accent);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Determines whether the given accent is a valid accent within QOffice.
@@ -116,7 +116,7 @@ public:
     /// \threadsafe This function is thread-safe.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    static bool isValid(OfficeWidget::Accent accent);
+    static bool isValid(Office::Accent accent);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Specifies the color of the custom accent.
@@ -128,14 +128,6 @@ public:
     ///
     ////////////////////////////////////////////////////////////////////////////
     static void setCustomColor(const QColor& color);
-
-private:
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Static members
-    //
-    ////////////////////////////////////////////////////////////////////////////
-     ///< Holds all accent colors.
 };
 
 #endif
@@ -158,6 +150,6 @@ private:
 ///
 /// If you always use the virtual OfficeWidget::accent method, you do not need
 /// to handle exceptions, as OfficeWidget::setAccent always ensures that the
-/// provided accent is in range 0 <= x <= OfficeWidget::CustomAccent.
+/// provided accent is in range 0 <= x <= Office::CustomAccent.
 ///
 ////////////////////////////////////////////////////////////////////////////////
