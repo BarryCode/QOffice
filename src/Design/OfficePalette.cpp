@@ -25,7 +25,20 @@
 
 #include <QColor>
 
-OffAnonymous(QColor g_palette[OfficePalette::MaximumRole])
+OffAnonymous(QColor g_palette[OfficePalette::MaximumRole] =
+{
+    QColor(0xf1f1f1),
+    QColor(0x666666),
+    QColor(0x989898),
+    QColor(0xbebebe),
+    QColor(0xffffff),
+    QColor(0xe1e1e1),
+    QColor(0x5c5c5c),
+    QColor(0x336699),
+    QColor(0xd5d5d5),
+    QColor(0xc5c5c5),
+    QColor(0xaeaeae)
+})
 
 const QColor& OfficePalette::color(PaletteRole role)
 {
@@ -45,18 +58,3 @@ bool OfficePalette::isValid(PaletteRole role)
     // determine whether 0 <= value < MaximumRole.
     return value >= 0 && value < MaximumRole;
 }
-
-QColor g_palette[OfficePalette::MaximumRole] =
-{
-    QColor(0xf1f1f1),
-    QColor(0x666666),
-    QColor(0x989898),
-    QColor(0xbebebe),
-    QColor(0xffffff),
-    QColor(0xe1e1e1),
-    QColor(0x5c5c5c),
-    QColor(0x336699),
-    QColor(0xd5d5d5),
-    QColor(0xc5c5c5),
-    QColor(0xaeaeae)
-};

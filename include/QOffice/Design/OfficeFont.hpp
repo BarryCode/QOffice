@@ -102,10 +102,10 @@ private:
     // Functions
     //
     ////////////////////////////////////////////////////////////////////////////
-    static uint generateKey(int weight, float pointSize);
-    static QString fontPath(int weight);
-    static bool indexExists(int index);
-    static bool fontExists(int key);
+    static uint generateKey(int, float);
+    static QString fontPath(int);
+    static bool indexExists(int);
+    static bool fontExists(int);
 };
 
 #endif

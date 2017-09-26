@@ -23,7 +23,15 @@
 #include <QOffice/Design/OfficeAccent.hpp>
 #include <QOffice/Exceptions/OfficeAccentException.hpp>
 
-OffAnonymous(QColor g_colors[Office::CustomAccent+1])
+OffAnonymous(QColor g_colors[Office::CustomAccent+1] =
+{
+    QColor(0x2b579a),
+    QColor(0xa4373a),
+    QColor(0x217346),
+    QColor(0xb83B1d),
+    QColor(0x68217a),
+    QColor(0xf00bae),
+})
 
 const QColor& OfficeAccent::color(Office::Accent accent)
 {
@@ -88,13 +96,3 @@ void OfficeAccent::setCustomColor(const QColor& color)
 {
     g_colors[Office::CustomAccent] = color;
 }
-
-QColor g_colors[Office::CustomAccent+1] =
-{
-    QColor(0x2b579a),
-    QColor(0xa4373a),
-    QColor(0x217346),
-    QColor(0xb83B1d),
-    QColor(0x68217a),
-    QColor(0xf00bae),
-};

@@ -75,6 +75,7 @@
     inline void  operator ^= (flags& l,flags r) { l = l ^ r; }
 
 #define OffHasFlag(value,flag)    (value & flag) != 0
+#define OffHasNotFlag(value,flag) (value & flag) == 0
 #define OffAddFlag(value,flag)    (value |= flag)
 #define OffRemoveFlag(value,flag) (value &= ~flag)
 
