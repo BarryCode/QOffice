@@ -82,7 +82,9 @@ SOURCES += src/Exceptions/OfficeAccentException.cpp \
            src/Design/OfficePalette.cpp \
            src/Design/OfficeImage.cpp \
            src/Design/OfficeFont.cpp \
-           src/Exceptions/OfficeFontWeightException.cpp
+           src/Exceptions/OfficeFontWeightException.cpp \
+    src/Widgets/Dialogs/OfficeWindowResizeArea.cpp \
+    src/Widgets/Dialogs/OfficeWindow.cpp
 
 ################################################################################
 ## OUTPUT
