@@ -25,6 +25,7 @@
 #define QOFFICE_WIDGETS_DIALOGS_OFFICEWINDOW_HPP
 
 #include <QOffice/Widgets/OfficeWidget.hpp>
+#include <QOffice/Widgets/OfficeWindowMenu.hpp>
 #include <QOffice/Widgets/Dialogs/OfficeWindowResizeArea.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +94,7 @@ public:
         ResizeBottom = 0x0008
     };
 
-    OffDeclareDtor(OfficeWindow)
+    OffDefaultDtor(OfficeWindow)
     OffDisableCopy(OfficeWindow)
     OffDisableMove(OfficeWindow)
 
@@ -298,7 +299,8 @@ private:
     priv::ResizeArea* m_resizeLeft;
     priv::ResizeArea* m_resizeBottom;
     priv::ResizeArea* m_resizeRight;
-    //OfficeWindowMenu* m_windowMenu;
+    OfficeWindowMenu* m_windowLabelMenu;
+    OfficeWindowMenu* m_windowQuickMenu;
 
     ////////////////////////////////////////////////////////////////////////////
     // Metadata

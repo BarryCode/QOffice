@@ -31,29 +31,30 @@
 #include <QPainter>
 #include <QtEvents>
 
-OffAnonymous(OfficeWindow::ResizeDirection c_topLeft = OfficeWindow::ResizeTop | OfficeWindow::ResizeLeft)
-OffAnonymous(OfficeWindow::ResizeDirection c_topRight = OfficeWindow::ResizeTop | OfficeWindow::ResizeRight)
-OffAnonymous(OfficeWindow::ResizeDirection c_bottomLeft = OfficeWindow::ResizeBottom | OfficeWindow::ResizeLeft)
-OffAnonymous(OfficeWindow::ResizeDirection c_bottomRight = OfficeWindow::ResizeBottom | OfficeWindow::ResizeRight)
-OffAnonymous(OfficeWindow::ResizeDirection c_top = OfficeWindow::ResizeTop)
-OffAnonymous(OfficeWindow::ResizeDirection c_left = OfficeWindow::ResizeLeft)
-OffAnonymous(OfficeWindow::ResizeDirection c_bottom = OfficeWindow::ResizeBottom)
-OffAnonymous(OfficeWindow::ResizeDirection c_right = OfficeWindow::ResizeRight)
 OffAnonymous(OfficeWindow* g_activeWindow = nullptr)
 
-OffAnonymous(int c_shadowSize = 5)
-OffAnonymous(int c_titlePaddingX = 24)
-OffAnonymous(int c_titlePaddingY = 10)
-OffAnonymous(int c_windowButtonX = 11)
-OffAnonymous(int c_windowButtonY = 9)
-OffAnonymous(int c_titleHeight = 36)
-OffAnonymous(int c_menuItemSpacing = 16)
-OffAnonymous(int c_menuItemHeight = 16)
-OffAnonymous(int c_menuIconY = 6)
-OffAnonymous(int c_shadowPadding = c_shadowSize * 2)
-OffAnonymous(int c_shadowBlur = -c_shadowSize / 4 + 1)
-OffAnonymous(int c_iconPosX = c_windowButtonX + c_shadowPadding)
-OffAnonymous(int c_iconPosY = c_windowButtonY + c_shadowPadding)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_topLeft = OfficeWindow::ResizeTop | OfficeWindow::ResizeLeft)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_topRight = OfficeWindow::ResizeTop | OfficeWindow::ResizeRight)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_bottomLeft = OfficeWindow::ResizeBottom | OfficeWindow::ResizeLeft)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_bottomRight = OfficeWindow::ResizeBottom | OfficeWindow::ResizeRight)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_top = OfficeWindow::ResizeTop)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_left = OfficeWindow::ResizeLeft)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_bottom = OfficeWindow::ResizeBottom)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_right = OfficeWindow::ResizeRight)
+
+OffAnonymous(QOFFICE_CONSTEXPR int c_shadowSize = 5)
+OffAnonymous(QOFFICE_CONSTEXPR int c_titlePaddingX = 24)
+OffAnonymous(QOFFICE_CONSTEXPR int c_titlePaddingY = 10)
+OffAnonymous(QOFFICE_CONSTEXPR int c_windowButtonX = 11)
+OffAnonymous(QOFFICE_CONSTEXPR int c_windowButtonY = 9)
+OffAnonymous(QOFFICE_CONSTEXPR int c_titleHeight = 28)
+OffAnonymous(QOFFICE_CONSTEXPR int c_menuItemSpacing = 16)
+OffAnonymous(QOFFICE_CONSTEXPR int c_menuItemHeight = 16)
+OffAnonymous(QOFFICE_CONSTEXPR int c_menuIconY = 6)
+OffAnonymous(QOFFICE_CONSTEXPR int c_shadowPadding = c_shadowSize * 2)
+OffAnonymous(QOFFICE_CONSTEXPR int c_shadowBlur = -c_shadowSize / 4 + 1)
+OffAnonymous(QOFFICE_CONSTEXPR int c_iconPosX = c_windowButtonX + c_shadowPadding)
+OffAnonymous(QOFFICE_CONSTEXPR int c_iconPosY = c_windowButtonY + c_shadowPadding)
 
 OfficeWindow::OfficeWindow(QWidget* parent)
     : QWidget(parent)
@@ -75,6 +76,8 @@ OfficeWindow::OfficeWindow(QWidget* parent)
     , m_resizeLeft(new priv::ResizeArea(this, c_left))
     , m_resizeBottom(new priv::ResizeArea(this, c_bottom))
     , m_resizeRight(new priv::ResizeArea(this, c_right))
+    , m_windowLabelMenu(new OfficeWindowMenu(this, OfficeWindowMenu::LabelMenu))
+    , m_windowQuickMenu(new OfficeWindowMenu(this, OfficeWindowMenu::QuickMenu))
 {
     setGeometry(x(), y(), 600, 400);
     setMouseTracking(true);
@@ -82,10 +85,13 @@ OfficeWindow::OfficeWindow(QWidget* parent)
     // Create a frameless window with a translucent background for the shadow.
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
-}
 
-OfficeWindow::~OfficeWindow()
-{
+    m_windowLabelMenu->show();
+    m_windowLabelMenu->addItem("Item1");
+    m_windowLabelMenu->addItem("Item2");
+
+    m_windowQuickMenu->show();
+    m_windowQuickMenu->addItem("Item1", QPixmap(":/qoffice/images/window/restore.png"));
 }
 
 bool OfficeWindow::hasCloseButton() const
@@ -301,6 +307,8 @@ void OfficeWindow::mouseMoveEvent(QMouseEvent* event)
     {
         repaintTitleBar();
     }
+
+    QWidget::mouseMoveEvent(event);
 }
 
 void OfficeWindow::mousePressEvent(QMouseEvent* event)
@@ -318,6 +326,8 @@ void OfficeWindow::mousePressEvent(QMouseEvent* event)
             repaintTitleBar();
         }
     }
+
+    QWidget::mousePressEvent(event);
 }
 
 void OfficeWindow::mouseReleaseEvent(QMouseEvent* event)
@@ -335,6 +345,8 @@ void OfficeWindow::mouseReleaseEvent(QMouseEvent* event)
             repaintTitleBar();
         }
     }
+
+    QWidget::mouseReleaseEvent(event);
 }
 
 void OfficeWindow::mouseDoubleClickEvent(QMouseEvent* event)
@@ -360,6 +372,8 @@ void OfficeWindow::mouseDoubleClickEvent(QMouseEvent* event)
         updateLayoutPadding();
         update();
     }
+
+    QWidget::mouseDoubleClickEvent(event);
 }
 
 void OfficeWindow::focusInEvent(QFocusEvent*)
@@ -378,13 +392,15 @@ void OfficeWindow::focusOutEvent(QFocusEvent*)
     }
 }
 
-void OfficeWindow::showEvent(QShowEvent*)
+void OfficeWindow::showEvent(QShowEvent* event)
 {
     // When window is first shown, apply accent color to all widgets.
     setAccent(accent());
+
+    QWidget::showEvent(event);
 }
 
-void OfficeWindow::leaveEvent(QEvent*)
+void OfficeWindow::leaveEvent(QEvent* event)
 {
     if (m_stateWindow == StateDrag)
     {
@@ -400,6 +416,8 @@ void OfficeWindow::leaveEvent(QEvent*)
 
         repaintTitleBar();
     }
+
+    QWidget::leaveEvent(event);
 }
 
 bool OfficeWindow::event(QEvent* event)
@@ -508,10 +526,19 @@ void OfficeWindow::updateResizeRectangles()
 {
     int padding = (isMaximized()) ? 0 : c_shadowPadding;
     int totalWidth =
-        m_closeRectangle.width() +
+        m_closeRectangle.width()    +
         m_maximizeRectangle.width() +
         m_minimizeRectangle.width();
 
+    int dragWidth =
+        width()     -
+        padding * 2 -
+        totalWidth  -
+        m_windowLabelMenu->width() -
+        m_windowQuickMenu->width();
+
+
+    // Resize areas
     m_resizeTopLeft->setGeometry(0, 0, 10, 10);
     m_resizeTopRight->setGeometry(width() - 10, 0, 10, 10);
     m_resizeBottomRight->setGeometry(width() - 10, height() - 10, 10, 10);
@@ -521,12 +548,23 @@ void OfficeWindow::updateResizeRectangles()
     m_resizeBottom->setGeometry(10, height() - 10, width() - 20, 10);
     m_resizeLeft->setGeometry(0, 10, 10, height() - 20);
 
-    // MENU GEOMETRY #536
+    // Rectangles
     m_dragRectangle.setRect(
-        padding + padding + 16,
+        padding + m_windowQuickMenu->width(),
         padding,
-        width() - padding - totalWidth - padding * 2 - 16,
+        dragWidth,
         c_titleHeight
+        );
+
+    m_windowLabelMenu->move(
+        m_dragRectangle.x() +
+        m_dragRectangle.width(),
+        padding
+        );
+
+    m_windowQuickMenu->move(
+        padding,
+        padding
         );
 
     m_clientRectangle.setRect(
@@ -550,8 +588,10 @@ void OfficeWindow::updateVisibleTitle()
     QFontMetrics metrics(font());
 
     int currentWidth = metrics.width(title);
-    int estimatedWidth = (m_dragRectangle.width() - currentWidth) / 2
-            - c_titlePaddingX - c_shadowPadding;
+    int estimatedWidth = m_dragRectangle.width() -
+            c_titlePaddingX * 2 -
+            c_shadowPadding -
+            currentWidth;
 
     // Removes characters as long as it does not overlap the window buttons.
     while (currentWidth > estimatedWidth && estimatedWidth > 0)
@@ -813,24 +853,24 @@ bool OfficeWindow::mouseReleaseAction(const QPoint& pos)
         }
         else if (m_stateMaximize == ButtonPress && m_maximizeRectangle.contains(pos))
         {
+            updateButtonRectangles();
+            updateResizeRectangles();
+            updateLayoutPadding();
+            updateVisibleTitle();
+
             if (isMaximized())
             {
                 showNormal();
-                updateResizeRectangles();
             }
             else
             {
                 showMaximized();
-                updateResizeRectangles();
             }
-
-            updateLayoutPadding();
-            update();
         }
         else if (m_stateMinimize == ButtonPress && m_minimizeRectangle.contains(pos))
         {
-            showMinimized();
             updateLayoutPadding();
+            showMinimized();
         }
 
         m_stateClose    = ButtonNone;
