@@ -9,5 +9,5 @@ Inactive:
 ![](https://i.imgur.com/o43NyAs.png)  
 Button-Hover:  
 ![](https://i.imgur.com/2dDQNTQ.png)  
-Window-Menu:
-![](https://i.imgur.com/xHvtBCD.png)
+Window-Menu:  
+![](https://i.imgur.com/xHvtBCD.png)  
