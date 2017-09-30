@@ -70,18 +70,21 @@ priv::ResizeArea::ResizeArea(OfficeWindow* window, int directions)
 
 void priv::ResizeArea::enterEvent(QEvent*)
 {
-    // When entering a resize area, no button should be highlighted.
-    m_window->m_stateClose    = OfficeWindow::ButtonNone;
-    m_window->m_stateMaximize = OfficeWindow::ButtonNone;
-    m_window->m_stateMinimize = OfficeWindow::ButtonNone;
+    if (m_window != nullptr)
+    {
+        // When entering a resize area, no button should be highlighted.
+        m_window->m_stateClose    = OfficeWindow::ButtonNone;
+        m_window->m_stateMaximize = OfficeWindow::ButtonNone;
+        m_window->m_stateMinimize = OfficeWindow::ButtonNone;
 
-    // Applies the changes we just did visually.
-    m_window->repaintTitleBar();
+        // Applies the changes we just did visually.
+        m_window->repaintTitleBar();
+    }
 }
 
 void priv::ResizeArea::mousePressEvent(QMouseEvent* event)
 {
-    if (event->button() == Qt::LeftButton && m_window->canResize())
+    if (event->button() == Qt::LeftButton && m_window && m_window->canResize())
     {
         m_window->m_stateWindow = OfficeWindow::StateResize;
     }
@@ -89,7 +92,7 @@ void priv::ResizeArea::mousePressEvent(QMouseEvent* event)
 
 void priv::ResizeArea::mouseReleaseEvent(QMouseEvent* event)
 {
-    if (event->button() == Qt::LeftButton && m_window->canResize())
+    if (event->button() == Qt::LeftButton && m_window && m_window->canResize())
     {
         m_window->m_stateWindow = OfficeWindow::StateNone;
         m_window->generateDropShadow();
@@ -99,7 +102,7 @@ void priv::ResizeArea::mouseReleaseEvent(QMouseEvent* event)
 
 void priv::ResizeArea::mouseMoveEvent(QMouseEvent* event)
 {
-    if (m_window->m_stateWindow == OfficeWindow::StateResize)
+    if (m_window && m_window->m_stateWindow == OfficeWindow::StateResize)
     {
         QPoint posGlobal = event->globalPos();
         QRect windowRect = m_window->geometry();
