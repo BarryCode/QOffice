@@ -69,8 +69,9 @@ HEADERS += include/QOffice/Config.hpp \
            include/QOffice/Widgets/Dialogs/OfficeWindow.hpp \
            include/QOffice/Widgets/Dialogs/OfficeWindowResizeArea.hpp \
            include/QOffice/Design/Office.hpp \
-    include/QOffice/Widgets/OfficeWindowMenu.hpp \
-    include/QOffice/Widgets/OfficeWindowMenuItem.hpp
+           include/QOffice/Widgets/OfficeWindowMenu.hpp \
+           include/QOffice/Widgets/OfficeWindowMenuItem.hpp \
+           include/QOffice/Widgets/OfficeTooltip.hpp
 
 ###########################################################
 # SOURCE FILES
@@ -85,10 +86,11 @@ SOURCES += src/Exceptions/OfficeAccentException.cpp \
            src/Design/OfficeImage.cpp \
            src/Design/OfficeFont.cpp \
            src/Exceptions/OfficeFontWeightException.cpp \
-    src/Widgets/Dialogs/OfficeWindowResizeArea.cpp \
-    src/Widgets/Dialogs/OfficeWindow.cpp \
-    src/Widgets/OfficeWindowMenu.cpp \
-    src/Widgets/OfficeWindowMenuItem.cpp
+           src/Widgets/Dialogs/OfficeWindowResizeArea.cpp \
+           src/Widgets/Dialogs/OfficeWindow.cpp \
+           src/Widgets/OfficeWindowMenu.cpp \
+           src/Widgets/OfficeWindowMenuItem.cpp \
+           src/Widgets/OfficeTooltip.cpp
 
 ################################################################################
 ## OUTPUT
