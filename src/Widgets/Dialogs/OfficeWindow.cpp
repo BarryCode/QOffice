@@ -206,6 +206,11 @@ OfficeWindow* OfficeWindow::activeWindow()
     return g_activeWindow;
 }
 
+void OfficeWindow::accentUpdateEvent()
+{
+    update();
+}
+
 void OfficeWindow::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
@@ -288,17 +293,25 @@ void OfficeWindow::paintEvent(QPaintEvent*)
 
 void OfficeWindow::resizeEvent(QResizeEvent* event)
 {
+    updateButtonRectangles();
+    updateResizeRectangles();
+    updateLayoutPadding();
+    updateVisibleTitle();
+    updateResizeWidgets();
+
     // Does not generate a drop shadow if resizing or currently being in
     // maximized window mode.
     if (m_stateWindow != StateResize && !isMaximized())
     {
+        // Little hack: When the window is really big, repainting the drop
+        // shadow takes long, causing layouts, button rectangles and other
+        // contents to be redrawn late, causing a visual glitch.
+        repaint();
+
         generateDropShadow();
     }
 
-    updateButtonRectangles();
-    updateResizeRectangles();
-    updateVisibleTitle();
-    updateResizeWidgets();
+    update();
 
     QWidget::resizeEvent(event);
 }
@@ -365,22 +378,27 @@ void OfficeWindow::mouseDoubleClickEvent(QMouseEvent* event)
         hasMaximizeButton() &&
         canResize())
     {
+        // The window is about to be maximized or restored. In order to
+        // avoid that all the titlebar's contents are invisible for a split
+        // second, we recalculate all the necessary things beforehand.
+        updateButtonRectangles();
+        updateResizeRectangles();
+        updateVisibleTitle();
+
         if (isMaximized())
         {
             showNormal();
-            updateResizeRectangles();
         }
         else
         {
             showMaximized();
-            updateResizeRectangles();
         }
 
         m_stateMaximize = ButtonNone;
-
-        updateLayoutPadding();
         update();
     }
+
+    updateLayoutPadding();
 
     QWidget::mouseDoubleClickEvent(event);
 }
@@ -405,6 +423,7 @@ void OfficeWindow::showEvent(QShowEvent* event)
 {
     // When window is first shown, apply accent color to all widgets.
     setAccent(accent());
+    updateLayoutPadding();
 
     QWidget::showEvent(event);
 }
@@ -628,7 +647,7 @@ void OfficeWindow::updateLayoutPadding()
     {
         if (isMaximized())
         {
-            // Disable drop shadow in maximize mode.
+            // No drop shadow in maximize mode.
             layout()->setContentsMargins(1, c_titleHeight, 1, 1);
         }
         else
@@ -845,7 +864,6 @@ bool OfficeWindow::mouseReleaseAction(const QPoint& pos)
             // second, we recalculate all the necessary things beforehand.
             updateButtonRectangles();
             updateResizeRectangles();
-            updateLayoutPadding();
             updateVisibleTitle();
 
             if (isMaximized())
@@ -856,6 +874,8 @@ bool OfficeWindow::mouseReleaseAction(const QPoint& pos)
             {
                 showMaximized();
             }
+
+            updateLayoutPadding();
         }
         else if (m_stateMinimize == ButtonPress && m_minimizeRectangle.contains(pos))
         {

@@ -253,6 +253,7 @@ public:
 
 protected:
 
+    virtual void accentUpdateEvent() override;
     virtual void paintEvent(QPaintEvent*) override;
     virtual void resizeEvent(QResizeEvent*) override;
     virtual void mouseMoveEvent(QMouseEvent*) override;

@@ -188,6 +188,8 @@ void priv::WindowItem::mousePressEvent(QMouseEvent* event)
         emit clicked(this);
     }
 
+    emit tooltipHideRequested(this);
+
     QWidget::mousePressEvent(event);
 }
 

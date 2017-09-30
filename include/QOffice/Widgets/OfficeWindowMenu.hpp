@@ -148,6 +148,7 @@ private:
     QTimer*                  m_timer;   ///< Defines the tooltip timer.
 
     friend class priv::WindowItem;
+    friend class OfficeWindow;
 
     Q_OBJECT
 };

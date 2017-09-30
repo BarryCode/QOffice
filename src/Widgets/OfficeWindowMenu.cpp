@@ -118,8 +118,6 @@ bool OfficeWindowMenu::removeItem(int id)
 
 void OfficeWindowMenu::onItemClicked(priv::WindowItem* item)
 {
-    hideTooltip();
-
     emit itemClicked(item->id());
 }
 
@@ -137,7 +135,7 @@ void OfficeWindowMenu::onShowTooltip(priv::WindowItem* item)
 
 void OfficeWindowMenu::onHideTooltip(priv::WindowItem*)
 {
-    if (!m_tooltip->geometry().contains(QCursor::pos()))
+    if (!m_tooltip->isVisible() || !m_tooltip->geometry().contains(QCursor::pos()))
     {
         hideTooltip();
     }
