@@ -28,6 +28,7 @@
 
 class OfficeTooltip;
 class OfficeWindow;
+namespace priv { class Titlebar; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeWindowMenu
@@ -59,11 +60,11 @@ public:
     /// Initializes a new instance of the OfficeWindowMenu while the given
     /// \p parent is specified as owner of this widget.
     ///
-    /// \param[in] parent The window that owns this menu.
+    /// \param[in] parent The window titlebar that owns this menu.
     /// \param[in] type The window type.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    OfficeWindowMenu(OfficeWindow* parent, Type type);
+    OfficeWindowMenu(priv::Titlebar* parent, Type type);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Adds a label item to the window menu.

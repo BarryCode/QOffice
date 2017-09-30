@@ -22,6 +22,7 @@
 
 #include <QOffice/Widgets/Dialogs/OfficeWindow.hpp>
 #include <QOffice/Widgets/Dialogs/OfficeWindowResizeArea.hpp>
+#include <QOffice/Widgets/Dialogs/OfficeWindowTitlebar.hpp>
 
 #include <QtEvents>
 
@@ -73,12 +74,12 @@ void priv::ResizeArea::enterEvent(QEvent*)
     if (m_window != nullptr)
     {
         // When entering a resize area, no button should be highlighted.
-        m_window->m_stateClose    = OfficeWindow::ButtonNone;
-        m_window->m_stateMaximize = OfficeWindow::ButtonNone;
-        m_window->m_stateMinimize = OfficeWindow::ButtonNone;
+        m_window->m_titleBar->m_stateClose    = priv::Titlebar::ButtonNone;
+        m_window->m_titleBar->m_stateMaximize = priv::Titlebar::ButtonNone;
+        m_window->m_titleBar->m_stateMinimize = priv::Titlebar::ButtonNone;
 
         // Applies the changes we just did visually.
-        m_window->repaintTitleBar();
+        m_window->m_titleBar->update();
     }
 }
 

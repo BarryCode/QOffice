@@ -23,16 +23,17 @@
 #include <QOffice/Widgets/OfficeTooltip.hpp>
 #include <QOffice/Widgets/OfficeWindowMenu.hpp>
 #include <QOffice/Widgets/Dialogs/OfficeWindow.hpp>
+#include <QOffice/Widgets/Dialogs/OfficeWindowTitlebar.hpp>
 
 #include <QHBoxLayout>
 #include <QtEvents>
 
 OffAnonymous(QOFFICE_CONSTEXPR int c_menuHeight = 28)
 
-OfficeWindowMenu::OfficeWindowMenu(OfficeWindow* parent, Type type)
+OfficeWindowMenu::OfficeWindowMenu(priv::Titlebar* parent, Type type)
     : QWidget(parent),
       m_type(type)
-    , m_parent(parent)
+    , m_parent(parent->m_window)
     , m_tooltip(new OfficeTooltip())
     , m_timer(new QTimer(this))
 {

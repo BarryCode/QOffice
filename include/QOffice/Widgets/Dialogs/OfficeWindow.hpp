@@ -27,6 +27,7 @@
 #include <QOffice/Widgets/OfficeWidget.hpp>
 #include <QOffice/Widgets/OfficeWindowMenu.hpp>
 #include <QOffice/Widgets/Dialogs/OfficeWindowResizeArea.hpp>
+#include <QOffice/Widgets/Dialogs/OfficeWindowTitlebar.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeWindow
@@ -53,45 +54,6 @@ public:
         NoResize         = 0x0008,
         NoMaximize       = 0x0010,
         NoMenu           = 0x0020
-    };
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Defines the states for the window buttons in the top-right.
-    /// \enum ButtonState
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    enum ButtonState
-    {
-        ButtonNone,
-        ButtonHover,
-        ButtonPress,
-        ButtonSpecial
-    };
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Defines the states for various window actions.
-    /// \enum WindowState
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    enum WindowState
-    {
-        StateNone,
-        StateDrag,
-        StateResize
-    };
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Defines the resize directions for the window.
-    /// \enum ResizeDirection
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    enum ResizeDirection
-    {
-        ResizeNone   = 0x0000,
-        ResizeLeft   = 0x0001,
-        ResizeTop    = 0x0002,
-        ResizeRight  = 0x0004,
-        ResizeBottom = 0x0008
     };
 
     OffDefaultDtor(OfficeWindow)
@@ -251,19 +213,30 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     static OfficeWindow* activeWindow();
 
+    enum WindowState
+    {
+        StateNone,
+        StateDrag,
+        StateResize
+    };
+
+    enum ResizeDirection
+    {
+        ResizeNone   = 0x0000,
+        ResizeLeft   = 0x0001,
+        ResizeTop    = 0x0002,
+        ResizeRight  = 0x0004,
+        ResizeBottom = 0x0008
+    };
+
 protected:
 
     virtual void accentUpdateEvent() override;
     virtual void paintEvent(QPaintEvent*) override;
     virtual void resizeEvent(QResizeEvent*) override;
-    virtual void mouseMoveEvent(QMouseEvent*) override;
-    virtual void mousePressEvent(QMouseEvent*) override;
-    virtual void mouseReleaseEvent(QMouseEvent*) override;
-    virtual void mouseDoubleClickEvent(QMouseEvent*) override;
     virtual void focusInEvent(QFocusEvent*) override;
     virtual void focusOutEvent(QFocusEvent*) override;
     virtual void showEvent(QShowEvent*) override;
-    virtual void leaveEvent(QEvent*) override;
     virtual bool event(QEvent*) override;
 
 private:
@@ -273,47 +246,12 @@ private:
     //
     ////////////////////////////////////////////////////////////////////////////
     void generateDropShadow();
-    void repaintTitleBar();
-    void updateButtonRectangles();
     void updateResizeRectangles();
-    void updateVisibleTitle();
     void updateResizeWidgets();
     void updateLayoutPadding();
-    bool mouseMoveDrag(const QPoint&);
-    bool mouseMoveSpecial(const QPoint&);
-    bool mouseMoveHitTest(const QPoint&);
-    bool mousePressDrag(const QPoint&);
-    bool mousePressHitTest(const QPoint&);
-    bool mouseReleaseDrag(const QPoint&);
-    bool mouseReleaseAction(const QPoint&);
-    QRect centerRectangle(const QPixmap&, const QRect&);
 
     ////////////////////////////////////////////////////////////////////////////
-    // Members 1
-    //
-    ////////////////////////////////////////////////////////////////////////////
-    ButtonState m_stateClose;
-    ButtonState m_stateMaximize;
-    ButtonState m_stateMinimize;
-    WindowState m_stateWindow;
-    Flags       m_flagsWindow;
-    QPixmap     m_dropShadow;
-    QPixmap     m_imageClose;
-    QPixmap     m_imageMaximize;
-    QPixmap     m_imageMinimize;
-    QPixmap     m_imageRestore;
-    QString     m_visibleTitle;
-    QPoint      m_dragPosition;
-    QRect       m_clientRectangle;
-    QRect       m_titleRectangle;
-    QRect       m_dragRectangle;
-    QRect       m_closeRectangle;
-    QRect       m_maximizeRectangle;
-    QRect       m_minimizeRectangle;
-    bool        m_tooltipVisible;
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Members 2
+    // Members
     //
     ////////////////////////////////////////////////////////////////////////////
     priv::ResizeArea* m_resizeTopLeft;
@@ -324,8 +262,12 @@ private:
     priv::ResizeArea* m_resizeLeft;
     priv::ResizeArea* m_resizeBottom;
     priv::ResizeArea* m_resizeRight;
-    OfficeWindowMenu* m_windowLabelMenu;
-    OfficeWindowMenu* m_windowQuickMenu;
+    priv::Titlebar*   m_titleBar;
+    WindowState       m_stateWindow;
+    Flags             m_flagsWindow;
+    QPixmap           m_dropShadow;
+    QRect             m_clientRectangle;
+    bool              m_tooltipVisible;
 
     ////////////////////////////////////////////////////////////////////////////
     // Metadata
@@ -339,6 +281,7 @@ private:
     Q_PROPERTY(Office::Accent Accent READ accent WRITE setAccent)
 
     friend class priv::ResizeArea;
+    friend class priv::Titlebar;
     friend class OfficeTooltip;
 };
 
