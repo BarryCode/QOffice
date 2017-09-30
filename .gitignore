@@ -41,3 +41,4 @@ resources/templates/**
 
 # bin
 bin/**
+test/**

@@ -1,400 +1,433 @@
-/*
- *  QOffice: Office UI framework for Qt
- *  Copyright (C) 2016-2017 Nicolas Kogler
- *
- *  This file is part of QOffice.
- *
- *  QOffice is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  QOffice is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with QOffice. If not, see <http://www.gnu.org/licenses/>.
- *
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+// QOffice - The office framework for Qt
+// Copyright (C) 2016-2018 Nicolas Kogler
+//
+// This file is part of the $Module module.
+//
+// QOffice is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// QOffice is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with QOffice. If not, see <http://www.gnu.org/licenses/>.
+//
+////////////////////////////////////////////////////////////////////////////////
 
-
-// QOffice headers
+#include <QOffice/Design/OfficeImage.hpp>
+#include <QOffice/Design/OfficePalette.hpp>
 #include <QOffice/Widgets/OfficeTooltip.hpp>
 #include <QOffice/Widgets/Dialogs/OfficeWindow.hpp>
-#include <QOffice/Widgets/Constants/OfficeTooltipConstants.hpp>
-#include <QOffice/Design/OfficePalette.hpp>
 
-// Qt headers
-#include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsDropShadowEffect>
-#include <QMouseEvent>
 #include <QKeyEvent>
+#include <QMouseEvent>
 #include <QPainter>
 
-
-QOFFICE_USING_NAMESPACE
-
+OffAnonymous(QOFFICE_CONSTEXPR int c_margin  = c_shadowPadding + 10)
+OffAnonymous(QOFFICE_CONSTEXPR int c_padding = c_margin * 2)
+OffAnonymous(QOFFICE_CONSTEXPR int c_bodyMargin = 10)
+OffAnonymous(QOFFICE_CONSTEXPR int c_iconMargin = 8)
+OffAnonymous(QOFFICE_CONSTEXPR int c_helpMargin = 7)
+OffAnonymous(QOFFICE_CONSTEXPR int c_separator  = 9)
 
 OfficeTooltip::OfficeTooltip(QWidget* parent)
     : QWidget(parent)
-    , m_Duration(4000)
-    , m_Timer(new QTimer(this))
-    , m_IsLinkHovered(false)
+    , m_timer(new QTimer(this))
+    , m_animation(new QPropertyAnimation(this))
+    , m_activeWindow(nullptr)
+    , m_heading("")
+    , m_bodyText("Text")
+    , m_helpText("")
+    , m_helpIcon(":/qoffice/images/widgets/tooltip_help.png")
+    , m_duration(4000)
+    , m_helpKey(Qt::Key_F1)
+    , m_opacity(1.0)
+    , m_isHelpEnabled(false)
+    , m_isLinkHovered(false)
 {
+    // Tells Qt that our widget is a tooltip and should be frameless.
     setWindowFlags(Qt::ToolTip | Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
     setMouseTracking(true);
 
-    m_OpacAnim = new QPropertyAnimation(this);
-    m_OpacAnim->setTargetObject(this);
-    m_OpacAnim->setPropertyName(QByteArray("Opacity"));
-    m_OpacAnim->setDuration(200);
+    m_animation->setTargetObject(this);
+    m_animation->setPropertyName(QByteArray("Opacity"));
+    m_animation->setDuration(200);
 
-    connect(m_OpacAnim, SIGNAL(valueChanged(QVariant)), this, SLOT(update()));
-    connect(m_Timer, SIGNAL(timeout()), this, SLOT(beginHideTooltip()));
-    m_HelpIcon = QPixmap(":/qoffice/images/widgets/tooltip_help.png");
+    // Need to use old syntax since update() has overloads :(
+    QObject::connect(
+        m_animation,
+        SIGNAL(valueChanged(QVariant)),
+        this,
+        SLOT(update())
+        );
+
+    QObject::connect(
+        m_timer,
+        &QTimer::timeout,
+        this,
+        &OfficeTooltip::beginHideTooltip
+        );
 }
 
-
-OfficeTooltip::~OfficeTooltip()
+const QString& OfficeTooltip::title() const
 {
+    return m_heading;
 }
 
-
-void
-OfficeTooltip::setHeading(const QString& heading)
+const QString& OfficeTooltip::text() const
 {
-    m_Heading = heading;
+    return m_bodyText;
 }
 
-
-void
-OfficeTooltip::setText(const QString& text)
+bool OfficeTooltip::isHelpEnabled() const
 {
-    m_BodyText = text;
+    return m_isHelpEnabled;
 }
 
-
-void
-OfficeTooltip::setHelpText(const QString& text)
+const QString& OfficeTooltip::helpText() const
 {
-    m_HelpText = text;
+    return m_helpText;
 }
 
-
-void
-OfficeTooltip::setHelpIcon(const QPixmap& icon)
+const QPixmap& OfficeTooltip::helpIcon() const
 {
-    if (icon.isNull())
-        m_HelpIcon = QPixmap(":/qoffice/images/widgets/tooltip_help.png");
-    else
-        m_HelpIcon = icon;
+    return m_helpIcon;
 }
 
-
-void
-OfficeTooltip::setDisplayDuration(int milliseconds)
+Qt::Key OfficeTooltip::helpKey() const
 {
-    m_Duration = milliseconds;
+    return m_helpKey;
 }
 
+int OfficeTooltip::duration() const
+{
+    return m_duration;
+}
 
-void
-OfficeTooltip::paintEvent(QPaintEvent*)
+void OfficeTooltip::setTitle(const QString& title)
+{
+    m_heading = title;
+}
+
+void OfficeTooltip::setText(const QString& text)
+{
+    m_bodyText = text;
+}
+
+void OfficeTooltip::setHelpEnabled(bool enabled)
+{
+    m_isHelpEnabled = enabled;
+}
+
+void OfficeTooltip::setHelpText(const QString& text)
+{
+    m_helpText = text;
+}
+
+void OfficeTooltip::setHelpIcon(const QPixmap& icon)
+{
+    m_helpIcon = icon;
+}
+
+void OfficeTooltip::setHelpKey(Qt::Key trigger)
+{
+    m_helpKey = trigger;
+}
+
+void OfficeTooltip::setDuration(int milliseconds)
+{
+    m_duration = milliseconds;
+}
+
+void OfficeTooltip::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
 
-    // Retrieves all needed colors for rendering this tooltip.
-    const QColor& colorBordr = OfficePalette::get(OfficePalette::TooltipBorder);
-    const QColor& colorBackg = OfficePalette::get(OfficePalette::TooltipBackground);
-    const QColor& colorTextn = OfficePalette::get(OfficePalette::TooltipText);
-    const QColor& colorTexth = OfficePalette::get(OfficePalette::TooltipHelpText);
-    const QColor& colorSepar = OfficePalette::get(OfficePalette::TooltipSeparator);
+    // Retrieves a standardized set of colors for this tooltip.
+    const QColor& colorBorder = OfficePalette::color(OfficePalette::TooltipBorder);
+    const QColor& colorBackg = OfficePalette::color(OfficePalette::TooltipBackground);
+    const QColor& colorText1 = OfficePalette::color(OfficePalette::TooltipText);
+    const QColor& colorText2 = OfficePalette::color(OfficePalette::TooltipHelpText);
+    const QColor& colorSeparator = OfficePalette::color(OfficePalette::TooltipSeparator);
 
+    // Drop-shadow
+    painter.setOpacity(m_opacity);
+    painter.drawPixmap(QPoint(), m_dropShadow);
 
-    painter.setOpacity(m_Opacity);
-    painter.drawPixmap(QPoint(), m_DropShadow);
+    // Background and border
+    painter.setPen(colorBorder);
+    painter.fillRect(m_clientRectangle, colorBackg);
+    painter.drawRect(m_borderRectangle);
 
-    // Renders the background and the border of the tooltip.
-    painter.fillRect(m_ClientRect, colorBackg);
-    painter.setPen(colorBordr);
-    painter.drawRect(m_BorderRect);
-
-    // Renders the heading.
-    if (!m_Heading.isEmpty())
+    // Title
+    if (!m_heading.isEmpty())
     {
-        QFont f = font();
+        QFont currentFont = font();
+        currentFont.setBold(true);
 
-        f.setBold(true);
-        painter.setFont(f);
-        painter.setPen(colorTextn);
-        painter.drawText(m_HeadingRect, m_Heading);
+        painter.setFont(currentFont);
+        painter.setPen(colorText1);
+        painter.drawText(m_headingRectangle, m_heading);
     }
 
-    // Renders the body.
-    if (!m_BodyText.isEmpty())
+    // Body
+    if (!m_bodyText.isEmpty())
     {
         painter.setFont(font());
-        painter.setPen(colorTextn);
-        painter.drawText(m_BodyRect, Qt::TextWordWrap, m_BodyText);
+        painter.setPen(colorText1);
+        painter.drawText(m_bodyRectangle, Qt::TextWordWrap, m_bodyText);
     }
 
-    // Renders the separator and the help text.
-    if (!m_HelpText.isEmpty())
+    // Help
+    if (m_isHelpEnabled && !m_helpText.isEmpty())
     {
-        QFont f = font();
+        QFont currentFont = font();
+        currentFont.setBold(true);
 
-        f.setBold(true);
-        painter.setFont(f);
-        painter.fillRect(m_SeparatorRect, colorSepar);
-        painter.drawPixmap(m_HelpIconRect, m_HelpIcon);
-        painter.setPen(colorTexth);
-        painter.drawText(m_HelpTextRect, m_HelpText);
+        painter.setFont(currentFont);
+        painter.setPen(colorText2);
 
-        // Renders the link underline.
-        if (m_IsLinkHovered)
+        painter.fillRect(m_sepaRectangle, colorSeparator);
+        painter.drawPixmap(m_iconRectangle, m_helpIcon);
+        painter.drawText(m_helpRectangle, m_helpText);
+
+        if (m_isLinkHovered)
         {
-            QPoint p1(m_HelpTextRect.x(), m_HelpTextRect.bottom());
-            QPoint p2(m_HelpTextRect.right(), m_HelpTextRect.bottom());
+            QPoint p1(m_helpRectangle.left(),  m_helpRectangle.bottom());
+            QPoint p2(m_helpRectangle.right(), m_helpRectangle.bottom());
 
             painter.drawLine(p1, p2);
         }
     }
 }
 
-
-void
-OfficeTooltip::mouseMoveEvent(QMouseEvent* event)
+void OfficeTooltip::mouseMoveEvent(QMouseEvent* event)
 {
-    if (m_HelpText.isEmpty())
-        return;
-
-    bool oldState = m_IsLinkHovered;
-
-    // Determines whether the cursor hovers the link.
-    if (m_HelpTextRect.contains(event->pos()))
+    if (m_isHelpEnabled && !m_helpText.isEmpty())
     {
-        m_IsLinkHovered = true;
-        setCursor(Qt::PointingHandCursor);
-    }
-    else
-    {
-        m_IsLinkHovered = false;
-        unsetCursor();
-    }
+        bool previousState = m_isLinkHovered;
 
-    if (m_IsLinkHovered != oldState)
-        update();
-}
+        if (m_helpRectangle.contains(event->pos()))
+        {
+            m_isLinkHovered = true;
+            setCursor(Qt::PointingHandCursor);
+        }
+        else
+        {
+            m_isLinkHovered = false;
+            unsetCursor();
+        }
 
-
-void
-OfficeTooltip::mousePressEvent(QMouseEvent* event)
-{
-    if (m_HelpText.isEmpty())
-        return;
-
-    // Determines whether the link is pressed.
-    if (m_IsLinkHovered && event->button() == Qt::LeftButton)
-    {
-        hide();
-        emit helpRequested();
+        if (m_isLinkHovered != previousState)
+        {
+            update();
+        }
     }
 }
 
-
-void
-OfficeTooltip::keyPressEvent(QKeyEvent* event)
+void OfficeTooltip::mousePressEvent(QMouseEvent* event)
 {
-    if (!m_HelpText.isEmpty() && event->key() == Qt::Key_F1)
+    if (m_isHelpEnabled && !m_helpText.isEmpty())
     {
-        hide();
-        emit helpRequested();
+        // When the link is pressed, the helpRequested signal should be emitted.
+        // It is your responsibility to handle the signal and open some sort of
+        // help dialog.
+        if (m_isLinkHovered && event->button() == Qt::LeftButton)
+        {
+            hide();
+
+            emit helpRequested();
+        }
     }
 }
 
-
-void
-OfficeTooltip::showEvent(QShowEvent*)
+void OfficeTooltip::keyPressEvent(QKeyEvent* event)
 {
-    m_Timer->setInterval(m_Duration);
-    m_Timer->start();
+    if (m_isHelpEnabled && !m_helpText.isEmpty())
+    {
+        // When the trigger key is pressed, the helpRequested signal should be
+        // emitted. It is your responsibility to handle the signal and open some
+        // sort of help dialog.
+        if (event->key() == m_helpKey)
+        {
+            hide();
+
+            emit helpRequested();
+        }
+    }
+}
+
+void OfficeTooltip::showEvent(QShowEvent*)
+{
+    m_timer->setInterval(m_duration);
+    m_timer->start();
+
+    // Tells the active window that a tooltip was shown. This prevents the
+    // OfficeWindow from rendering in "deactivated mode".
+    if (OfficeWindow::activeWindow() != nullptr)
+    {
+        OfficeWindow::activeWindow()->m_tooltipVisible = true;
+
+        // After the next calls, the active window function will return nullptr.
+        // Therefore, temporarily store it in a private member variable.
+        m_activeWindow = OfficeWindow::activeWindow();
+    }
+
     updateRectangles();
-
-    // Tells the active window that a tooltip was shown.
-    // This prevents the window to render incorrectly.
-    if (OfficeWindow::g_ActiveWindow != nullptr)
-    {
-        OfficeWindow::g_ActiveWindow->m_IsTooltipShown = true;
-        m_ActiveWindow = OfficeWindow::g_ActiveWindow;
-    }
-
     activateWindow();
+
+    // Tells Qt that our newly shown tooltip should get the focus.
     setFocus(Qt::PopupFocusReason);
 
-    // Fades in the tooltip.
-    m_Opacity = 0.0;
-    m_OpacAnim->setStartValue(0.0);
-    m_OpacAnim->setEndValue(1.0);
-    m_OpacAnim->start();
+    m_opacity = 0.0;
+    m_animation->setStartValue(0.0);
+    m_animation->setEndValue(1.0);
+    m_animation->start();
 }
 
-
-void
-OfficeTooltip::hideEvent(QHideEvent*)
+void OfficeTooltip::hideEvent(QHideEvent*)
 {
-    if (m_ActiveWindow != nullptr)
-        m_ActiveWindow->m_IsTooltipShown = false;
+    if (m_activeWindow != nullptr)
+    {
+        m_activeWindow->m_tooltipVisible = false;
+    }
 
-    m_Timer->stop();
-    m_Opacity = 0.0;
-    m_IsLinkHovered = false;
-    disconnect(m_OpacAnim, SIGNAL(finished()), this, SLOT(hideTooltip()));
+    m_timer->stop();
+    m_opacity = 0.0;
+    m_isLinkHovered = false;
+
+    QObject::disconnect(
+        m_animation,
+        &QPropertyAnimation::finished,
+        this,
+        &OfficeTooltip::finishHideTooltip
+        );
 }
 
-
-void
-OfficeTooltip::leaveEvent(QEvent*)
+void OfficeTooltip::leaveEvent(QEvent*)
 {
-    m_Timer->setInterval(400);
-    m_Timer->start();
+    m_timer->setInterval(400);
+    m_timer->start();
+
     unsetCursor();
 }
 
-
-void
-OfficeTooltip::beginHideTooltip()
+void OfficeTooltip::beginHideTooltip()
 {
-    m_OpacAnim->setStartValue(1.0);
-    m_OpacAnim->setEndValue(0.0);
-    m_OpacAnim->start();
-    connect(m_OpacAnim, SIGNAL(finished()), this, SLOT(hideTooltip()));
+    m_animation->setStartValue(1.0);
+    m_animation->setEndValue(0.0);
+    m_animation->start();
+
+    QObject::connect(
+        m_animation,
+        &QPropertyAnimation::finished,
+        this,
+        &OfficeTooltip::finishHideTooltip
+        );
 }
 
-
-void
-OfficeTooltip::hideTooltip()
+void OfficeTooltip::finishHideTooltip()
 {
+    m_timer->stop();
+
     hide();
-    m_Timer->stop();
 }
 
-
-void
-OfficeTooltip::updateRectangles()
+void OfficeTooltip::updateRectangles()
 {
-    QFont boldFont = font();
-          boldFont.setBold(true);
-    QFontMetrics metrics(font());
+    QFont normFont = font(); normFont.setBold(false);
+    QFont boldFont = font(); boldFont.setBold(true);
+
+    QFontMetrics normMetrics(normFont);
     QFontMetrics boldMetrics(boldFont);
 
-    // Specifies the rectangle for the heading.
-    int currentX = TOOLTIP_MARGIN;
-    int currentY = TOOLTIP_MARGIN;
-    if (!m_Heading.isEmpty())
+    int currentX = c_margin;
+    int currentY = c_margin;
+
+    // Title
+    if (!m_heading.isEmpty())
     {
-        QRect br = boldMetrics.boundingRect(m_Heading);
+        QRect bounds = boldMetrics.boundingRect(m_heading);
 
-        m_HeadingRect.setX(currentX);
-        m_HeadingRect.setY(currentY);
-        m_HeadingRect.setWidth(br.width());
-        m_HeadingRect.setHeight(br.height());
+        m_headingRectangle.setX(currentX);
+        m_headingRectangle.setY(currentY);
+        m_headingRectangle.setSize(bounds.size() + QSize(5, 5));
 
-        currentY += br.height();
-        currentY += TOOLTIP_BODY_MARGIN;
+        currentY += (bounds.height() + c_bodyMargin);
     }
 
-    // Specifies the rectangle for the body.
-    if (!m_BodyText.isEmpty())
+    // Body
+    if (!m_bodyText.isEmpty())
     {
-        QRect br = metrics.boundingRect(
-                    QRect(0, 0, width() - (TOOLTIP_MARGIN * 2), 300),
-                    Qt::TextWordWrap,
-                    m_BodyText);
+        QRect max(0, 0, width() - c_padding, 300);
+        QRect bounds = normMetrics.boundingRect(max, Qt::TextWordWrap, m_bodyText);
 
-        m_BodyRect.setX(currentX);
-        m_BodyRect.setY(currentY);
-        m_BodyRect.setWidth(br.width());
-        m_BodyRect.setHeight(br.height());
+        m_bodyRectangle.setX(currentX);
+        m_bodyRectangle.setY(currentY);
+        m_bodyRectangle.setSize(bounds.size());
 
-        currentY += br.height();
+        currentY += bounds.height();
     }
 
-    // Specifies the rectangle for the help area.
-    if (!m_HelpText.isEmpty())
+    // Help
+    if (!m_helpText.isEmpty())
     {
-        currentY += TOOLTIP_SEPA_MARGIN;
-        m_SeparatorRect.setX(currentX);
-        m_SeparatorRect.setY(currentY);
-        m_SeparatorRect.setWidth(width() - (TOOLTIP_MARGIN * 2));
-        m_SeparatorRect.setHeight(1);
-        currentY += TOOLTIP_HELP_MARGIN;
+        currentY += c_separator;
 
-        m_HelpIconRect.setX(currentX);
-        m_HelpIconRect.setY(currentY);
-        m_HelpIconRect.setWidth(16);
-        m_HelpIconRect.setHeight(16);
-        currentX += m_HelpIcon.width();
-        currentX += TOOLTIP_ICON_PADDING;
+        // Separator
+        m_sepaRectangle.setX(currentX);
+        m_sepaRectangle.setY(currentY);
+        m_sepaRectangle.setSize(QSize(width() - c_padding, 1));
 
-        m_HelpTextRect.setX(currentX);
-        m_HelpTextRect.setY(currentY);
-        m_HelpTextRect.setWidth(boldMetrics.width(m_HelpText));
-        m_HelpTextRect.setHeight(boldMetrics.height());
-        currentY += m_HelpTextRect.height();
+        currentY += c_separator;
+
+        // Icon
+        m_iconRectangle.setX(currentX);
+        m_iconRectangle.setY(currentY);
+        m_iconRectangle.setSize(m_helpIcon.size());
+
+        currentX += (m_helpIcon.width() + c_iconMargin);
+
+        // Text
+        m_helpRectangle.setX(currentX);
+        m_helpRectangle.setY(currentY);
+        m_helpRectangle.setWidth(boldMetrics.width(m_helpText));
+        m_helpRectangle.setHeight(boldMetrics.height());
+
+        currentY += m_helpRectangle.height();
     }
 
-    // Changes the height of the widget.
-    currentY += TOOLTIP_MARGIN;
+    currentY += c_margin;
     resize(width(), currentY);
-
-    // Specifies the client rectangle.
-    m_ClientRect.setX(TOOLTIP_DROP_SHADOW);
-    m_ClientRect.setY(TOOLTIP_DROP_SHADOW);
-    m_ClientRect.setWidth(width() - TOOLTIP_DROP_SHADOW * 2);
-    m_ClientRect.setHeight(height() - TOOLTIP_DROP_SHADOW * 2);
-
-    // Specifies the border rectangle.
-    m_BorderRect = m_ClientRect.adjusted(0, 0, -1, -1);
-
     generateDropShadow();
+
+    // Client
+    m_clientRectangle.setTopLeft(QPoint(c_shadowPadding, c_shadowPadding));
+    m_clientRectangle.setWidth(width() - c_shadowPadding * 2);
+    m_clientRectangle.setHeight(height() - c_shadowPadding * 2);
+
+    // Border
+    m_borderRectangle = m_clientRectangle.adjusted(0,0,-1,-1);
 }
 
-
-void
-OfficeTooltip::generateDropShadow()
+void OfficeTooltip::generateDropShadow()
 {
-    // Creates a new pixmap that fills the entire widget.
-    m_DropShadow = QPixmap(size());
-    m_DropShadow.fill(Qt::transparent);
+    m_dropShadow = OfficeImage::generateDropShadow(size());
+}
 
-    QPainter painter(&m_DropShadow);
+qreal OfficeTooltip::opacity() const
+{
+    return m_opacity;
+}
 
-    // Defines the rectangle.
-    QRectF rect(
-            TOOLTIP_DROP_SHADOW,
-            TOOLTIP_DROP_SHADOW,
-            width()  - TOOLTIP_DROP_SHADOW * 2,
-            height() - TOOLTIP_DROP_SHADOW * 2);
-
-    // Renders the rectangle.
-    painter.fillRect(rect, Qt::darkGray);
-
-    // Prepares the pixmap for blurring.
-    QGraphicsScene scene;
-    QGraphicsPixmapItem item(m_DropShadow);
-    QGraphicsDropShadowEffect shadow;
-
-    shadow.setBlurRadius(TOOLTIP_DROP_SHADOW * 2);
-    shadow.setColor(Qt::gray);
-    shadow.setOffset(TOOLTIP_DROP_SHADOW_B, TOOLTIP_DROP_SHADOW_B);
-
-    // Blurs the rectangle and renders it to the pixmap.
-    item.setGraphicsEffect(&shadow);
-    scene.addItem(&item);
-    scene.render(&painter);
-    painter.end();
+void OfficeTooltip::setOpacity(qreal opacity)
+{
+    m_opacity = opacity;
 }

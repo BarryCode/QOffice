@@ -3,7 +3,7 @@
 // QOffice - The office framework for Qt
 // Copyright (C) 2016-2018 Nicolas Kogler
 //
-// This file is part of the Widget module.
+// This file is part of the Core module.
 //
 // QOffice is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -21,53 +21,46 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef QOFFICE_WIDGETS_OFFICEWIDGET_HPP
-#define QOFFICE_WIDGETS_OFFICEWIDGET_HPP
+#ifndef QOFFICE_EXCEPTIONS_OFFICEPALETTEEXCEPTION_HPP
+#define QOFFICE_EXCEPTIONS_OFFICEPALETTEEXCEPTION_HPP
 
-#include <QOffice/Design/Office.hpp>
+#include <QOffice/Config.hpp>
+#include <exception>
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeWidget
-/// \brief The base class for all QOffice widgets.
+/// \class OfficePaletteException
+/// \brief This exception is thrown when an invalid palette role was provided.
 /// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
 /// \date September 22, 2017
 ///
 ////////////////////////////////////////////////////////////////////////////////
-class QOFFICE_WIDGET_API OfficeWidget
+class QOFFICE_CORE_API OfficePaletteException : std::exception
 {
 public:
 
-    OffDeclareCtor(OfficeWidget)
-    OffDefaultDtor(OfficeWidget)
-    OffDisableCopy(OfficeWidget)
-    OffDisableMove(OfficeWidget)
+    ////////////////////////////////////////////////////////////////////////////
+    /// Initializes a new instance of the OfficePaletteException class. Instead
+    /// of manually passing the function name to \p func, the OffCurrentFunc
+    /// macro should be used to retrieve function and namespace dynamically.
+    ///
+    /// \param[in] func The name of the function that threw the exception.
+    /// \param[in] value The value that caused the exception.
+    ///
+    /// \throw This function does not throw exceptions.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    OfficePaletteException(const QString& func, const int value) QOFFICE_NOEXCEPT;
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Retrieves the accent of this office widget.
+    /// Retrieves the cause of this exception.
     ///
-    /// \return The current accent.
+    /// \return The cause as C-string.
     ///
-    ////////////////////////////////////////////////////////////////////////////
-    virtual Office::Accent accent() const;
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// Specifies the new accent color for this office widget. Does not set the
-    /// accent for the child widgets. Consider calling OfficeWindow::setAccent
-    /// instead.
-    ///
-    /// \param accent New accent of the office widget.
+    /// \threadsafe This function is thread safe.
+    /// \throw This function does not throw exceptions.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    virtual void setAccent(Office::Accent accent);
-
-protected:
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// This event is triggered whenever the accent was updated. It should
-    /// update the surface of the underlying Qt widget.
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    virtual void accentUpdateEvent();
+    const char* what() const QOFFICE_NOEXCEPT override;
 
 private:
 
@@ -75,33 +68,37 @@ private:
     // Members
     //
     ////////////////////////////////////////////////////////////////////////////
-    Office::Accent m_accent; ///< Holds the current accent of the office widget.
+    std::string m_reason; ///< Holds the exception message, ready for use.
 };
 
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeWidget
-/// \ingroup Widget
+/// \class OfficePaletteException
+/// \ingroup Core
 ///
-/// Why does OfficeWidget not subclass QWidget? The reason is pretty obvious
-/// once one decides to write more advanced widgets. If OfficeWidget devires
-/// from QWidget, one would not be able to inherit the functionality of e.g.
-/// QTreeView, meaning they need to reimplement everything from scratch. The
-/// correct way to use OfficeWidget is as follows:
+/// This exception is thrown when an invalid palette role value was provided.
+/// Always make sure that your value is between 0 and OfficePalette::Max.
 ///
 /// \code
-/// class OfficeListView : public QListView, public OfficeWidget
+/// try
 /// {
-/// protected:
-///
-///     void paintEvent(QPaintEvent*) override
-///     {
-///         const QColor& accentColor = OfficeAccent::get(m_accent);
-///
-///         // draw something using the accent color.
-///     }
-/// };
+///     // This code will never actually throw, since Background is valid.
+///     OfficePalette::get(OfficePalette::Background);
+/// }
+/// catch (const OfficePaletteException& e)
+/// {
+///     // Print the exception.
+/// }
 /// \endcode
+///
+/// If one is unhappy with the predefined palette, they can have custom palette
+/// colors.
+///
+/// \code
+/// OfficePalette::set(OfficePalette::Background, QColor(...));
+/// \endcode
+///
+/// This will change every "Background"-color after the window is redrawn.
 ///
 ////////////////////////////////////////////////////////////////////////////////

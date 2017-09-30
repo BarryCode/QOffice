@@ -1,231 +1,243 @@
-/*
- *  QOffice: Office UI framework for Qt
- *  Copyright (C) 2016-2017 Nicolas Kogler
- *
- *  This file is part of QOffice.
- *
- *  QOffice is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  QOffice is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with QOffice. If not, see <http://www.gnu.org/licenses/>.
- *
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+// QOffice - The office framework for Qt
+// Copyright (C) 2016-2018 Nicolas Kogler
+//
+// This file is part of the Widget module.
+//
+// QOffice is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// QOffice is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with QOffice. If not, see <http://www.gnu.org/licenses/>.
+//
+////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
+#ifndef QOFFICE_WIDGETS_OFFICETOOLTIP_HPP
+#define QOFFICE_WIDGETS_OFFICETOOLTIP_HPP
 
-#ifndef QOFFICE_OFFICETOOLTIP_HPP
-#define QOFFICE_OFFICETOOLTIP_HPP
-
-
-// QOffice headers
 #include <QOffice/Config.hpp>
-
-// Qt headers
 #include <QWidget>
-
-
-QOFFICE_BEGIN_NAMESPACE
-
 
 class OfficeWindow;
 
-
-/**
- * This is the description of the class.
- *
- * @class OfficeTooltip
- * @author Nicolas Kogler
- * @date January 1st, 2016
- *
- */
-class QOFFICE_EXPORT OfficeTooltip : public QWidget
+////////////////////////////////////////////////////////////////////////////////
+/// \class OfficeTooltip
+/// \brief OfficeTooltipdesc
+/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \date September 30, 2017
+///
+////////////////////////////////////////////////////////////////////////////////
+class QOFFICE_WIDGET_API OfficeTooltip : public QWidget
 {
 public:
 
-    /**
-     * Initializes a new instance of OfficeTooltip.
-     *
-     * @param parent The widget to show this tooltip on.
-     *
-     */
+    OffDefaultDtor(OfficeTooltip)
+    OffDisableCopy(OfficeTooltip)
+    OffDisableMove(OfficeTooltip)
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Initializes a new instance of OfficeTooltip and specifies the given
+    /// \p parent as widget the tooltip is shown on.
+    ///
+    /// \param parent The widget to show this tooltip on.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
     OfficeTooltip(QWidget* parent = nullptr);
 
-    /**
-     * Cleans up all resources used by this tooltip.
-     *
-     */
-    ~OfficeTooltip();
+    ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves the title of this tooltip.
+    ///
+    /// \return The title of this tooltip.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    const QString& title() const;
 
+    ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves the text of this tooltip.
+    ///
+    /// \return The text of this tooltip.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    const QString& text() const;
 
-    /**
-     * Specifies the heading (in bold) of the tooltip.
-     *
-     * @param heading The heading string.
-     *
-     */
-    void setHeading(const QString& heading);
+    ////////////////////////////////////////////////////////////////////////////
+    /// Determines whether the help section is enabled.
+    ///
+    /// \return True if help is enabled, false otherwise.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    bool isHelpEnabled() const;
 
-    /**
-     * Specifies the body text of the tooltip.
-     *
-     * @param text Descriptive body text.
-     *
-     */
+    ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves the help text of this tooltip.
+    ///
+    /// \return The help text of this tooltip.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    const QString& helpText() const;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves the help icon of this tooltip.
+    ///
+    /// \return The help icon of this tooltip.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    const QPixmap& helpIcon() const;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves the key that triggers the helpRequested signal.
+    ///
+    /// \return The triggering key for help.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    Qt::Key helpKey() const;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves the duration this tooltip is shown.
+    ///
+    /// \return The display duration.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    int duration() const;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies the title of this tooltip.
+    ///
+    /// \param[in] title The new title.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void setTitle(const QString& title);
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies the text of this tooltip.
+    ///
+    /// \param[in] text The new text.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
     void setText(const QString& text);
 
-    /**
-     * Specifies the text written next to the help icon.
-     * A help text is either clickable or it's signal can
-     * be also triggered through an F1 key press. If this
-     * string is empty, no help section will be shown.
-     *
-     * @param text Text next to the help icon.
-     *
-     */
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies whether the help section should be enabled.
+    ///
+    /// \param[in] enabled True to enable the help section, false otherwise.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void setHelpEnabled(bool enabled);
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies the help text of this tooltip.
+    ///
+    /// \param[in] text The new help text.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
     void setHelpText(const QString& text);
 
-    /**
-     * Specifies the image of the help icon.
-     *
-     * @param icon Help icon. If null, default will be used.
-     *
-     */
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies the help icon of this tooltip.
+    ///
+    /// \param[in] icon The new help icon.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
     void setHelpIcon(const QPixmap& icon);
 
-    /**
-     * Specifies the display duration of the tooltip.
-     *
-     * @param milliseconds The amount of time to display the toolip.
-     *
-     */
-    void setDisplayDuration(int milliseconds);
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies the triggering key for help.
+    ///
+    /// \param[in] trigger The key that triggers the helpRequested signal.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void setHelpKey(Qt::Key trigger);
 
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies the duration this tooltip is shown.
+    ///
+    /// \param[in] milliseconds The new display duration, in milliseconds.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void setDuration(int milliseconds);
 
 protected:
 
-    /**
-     * Paints the tooltip.
-     *
-     * @param event Holds nothing we need.
-     *
-     */
-    void paintEvent(QPaintEvent* event) override;
-
-    /**
-     * If the "help text" link is hovered, it should be
-     * marked as a link through displaying an underline.
-     *
-     * @param event Holds the mouse pointer position.
-     *
-     */
-    void mouseMoveEvent(QMouseEvent* event) override;
-
-    /**
-     * If the "help text" link is pressed, it should
-     * trigger a signal that hides the tooltip and
-     * shows a help dialog or something of that kind.
-     *
-     * @param event Holds the pressed mouse button.
-     *
-     */
-    void mousePressEvent(QMouseEvent* event) override;
-
-    /**
-     * If the F1 key is pressed, help will be requested.
-     *
-     * @param event Holds the pressed key.
-     *
-     */
-    void keyPressEvent(QKeyEvent* event) override;
-
-    /**
-     * Starts the display duration timer on show.
-     *
-     * @param event Holds nothing we need.
-     *
-     */
-    void showEvent(QShowEvent* event) override;
-
-    /**
-     * Post-modifies the window.
-     *
-     * @param event Holds nothing we need.
-     *
-     */
-    void hideEvent(QHideEvent* event) override;
-
-    /**
-     * Hides the tooltip after some time when it was left.
-     *
-     * @param event Holds nothing we need.
-     *
-     */
-    void leaveEvent(QEvent* event) override;
-
+    virtual void paintEvent(QPaintEvent*) override;
+    virtual void mouseMoveEvent(QMouseEvent*) override;
+    virtual void mousePressEvent(QMouseEvent*) override;
+    virtual void keyPressEvent(QKeyEvent*) override;
+    virtual void showEvent(QShowEvent*) override;
+    virtual void hideEvent(QHideEvent*) override;
+    virtual void leaveEvent(QEvent*) override;
 
 signals:
 
-    /**
-     * Is emitted if F1 or the help link is pressed.
-     *
-     */
     void helpRequested();
-
 
 public slots:
 
     void beginHideTooltip();
-
-
-private slots:
-
-    void hideTooltip();
-
+    void finishHideTooltip();
 
 private:
 
-    // Members
-    QString m_Heading;
-    QString m_BodyText;
-    QString m_HelpText;
-    QPixmap m_HelpIcon;
-    int32_t m_Duration;
-    QTimer* m_Timer;
-    QPixmap m_DropShadow;
-    QRect   m_ClientRect;
-    QRect   m_BorderRect;
-    QRect   m_HeadingRect;
-    QRect   m_BodyRect;
-    QRect   m_HelpIconRect;
-    QRect   m_HelpTextRect;
-    QRect   m_SeparatorRect;
-    qreal   m_Opacity;
-    bool    m_IsLinkHovered;
-
-    QPropertyAnimation* m_OpacAnim;
-    OfficeWindow*       m_ActiveWindow;
-
-    // Helpers
+    ////////////////////////////////////////////////////////////////////////////
+    // Functions
+    //
+    ////////////////////////////////////////////////////////////////////////////
     void updateRectangles();
     void generateDropShadow();
-    auto getOpacity() -> qreal { return m_Opacity; }
-    void setOpacity(qreal opc) { m_Opacity = opc;  }
+    qreal opacity() const;
+    void setOpacity(qreal opacity);
 
+    ////////////////////////////////////////////////////////////////////////////
+    // Members 1
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    QTimer*             m_timer;
+    QPropertyAnimation* m_animation;
+    OfficeWindow*       m_activeWindow;
+    QString             m_heading;
+    QString             m_bodyText;
+    QString             m_helpText;
+    QPixmap             m_helpIcon;
+    qint32              m_duration;
+    Qt::Key             m_helpKey;
+    QPixmap             m_dropShadow;
+    QRect               m_clientRectangle;
+    QRect               m_borderRectangle;
+    QRect               m_headingRectangle;
+    QRect               m_bodyRectangle;
+    QRect               m_iconRectangle;
+    QRect               m_helpRectangle;
+    QRect               m_sepaRectangle;
+    qreal               m_opacity;
+    bool                m_isHelpEnabled;
+    bool                m_isLinkHovered;
 
+    ////////////////////////////////////////////////////////////////////////////
     // Metadata
+    //
+    ////////////////////////////////////////////////////////////////////////////
     Q_OBJECT
-    Q_PROPERTY(qreal Opacity READ getOpacity WRITE setOpacity)
+    Q_PROPERTY(qreal Opacity READ opacity WRITE setOpacity)
 };
 
+#endif
 
-QOFFICE_END_NAMESPACE
-
-
-#endif // QOFFICE_OFFICETOOLTIP_HPP
+////////////////////////////////////////////////////////////////////////////////
+/// \class OfficeTooltip
+/// \ingroup Widget
+///
+/// $Detailedclassdesc
+///
+/// \code
+/// <example_code>
+/// \endcode
+///
+////////////////////////////////////////////////////////////////////////////////

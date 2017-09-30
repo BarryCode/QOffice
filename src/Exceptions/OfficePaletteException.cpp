@@ -3,7 +3,7 @@
 // QOffice - The office framework for Qt
 // Copyright (C) 2016-2018 Nicolas Kogler
 //
-// This file is part of the Widget module.
+// This file is part of the Core module.
 //
 // QOffice is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -20,30 +20,26 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QOffice/Design/OfficeAccent.hpp>
-#include <QOffice/Widgets/OfficeWidget.hpp>
 
-OfficeWidget::OfficeWidget()
-    : m_accent(Office::BlueAccent)
+#include <QOffice/Exceptions/OfficePaletteException.hpp>
+
+OfficePaletteException::OfficePaletteException(
+    const QString& func,
+    const int value
+    ) QOFFICE_NOEXCEPT : std::exception()
 {
+    m_reason = std::string(
+        std::string("@@@") +
+        std::string("    QOffice reported an exception\n") +
+        std::string("    type: OfficePaletteException\n") +
+        std::string("    func: ") + func.toStdString() + "\n" +
+        std::string("    The value \"") + std::to_string(value) +
+        std::string("\" is not a valid palette role.\n") +
+        std::string("@@@")
+        );
 }
 
-Office::Accent OfficeWidget::accent() const
+const char* OfficePaletteException::what() const QOFFICE_NOEXCEPT
 {
-    return m_accent;
-}
-
-void OfficeWidget::setAccent(Office::Accent accent)
-{
-    // In order to avoid exceptions during QWidget::paintEvent, always ensure
-    // that a valid accent is available anytime, anywhere.
-    if (OfficeAccent::isValid(accent))
-    {
-        m_accent = accent;
-        accentUpdateEvent();
-    }
-}
-
-void OfficeWidget::accentUpdateEvent()
-{
+    return m_reason.c_str();
 }

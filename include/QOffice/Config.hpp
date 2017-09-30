@@ -1,165 +1,213 @@
-/*
- *  QOffice: Office UI framework for Qt
- *  Copyright (C) 2016-2017 Nicolas Kogler
- *
- *  This file is part of QOffice.
- *
- *  QOffice is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  QOffice is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with QOffice. If not, see <http://www.gnu.org/licenses/>.
- *
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+// QOffice - The office framework for Qt
+// Copyright (C) 2016-2018 Nicolas Kogler
+//
+// This file is part of the Core module.
+//
+// QOffice is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// QOffice is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with QOffice. If not, see <http://www.gnu.org/licenses/>.
+//
+////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////////
+/// \file Config.hpp
+/// \brief This header provides useful macroes for the QOffice framework.
+///
+////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
 #ifndef QOFFICE_CONFIG_HPP
 #define QOFFICE_CONFIG_HPP
 
-
-// Qt headers
 #include <QtCore>
 
-// Standard headers
-#include <cstdint>
-#include <cstring>
-
-
-/**
- * This macro either exports or imports dynamic symbols
- * or does nothing if <em>QOFFICE_STATIC</em> is defined.
- * It furthermore only exports symbols if <em>QOFFICE_BUILD</em>
- * is defined, i.e. this library is being built.
- *
- * @def QOFFICE_EXPORT
- *
- */
-#if !defined(QOFFICE_STATIC) && defined(QOFFICE_BUILD)
-    #define QOFFICE_EXPORT Q_DECL_EXPORT
+#if defined(QOFFICE_BUILD_STATIC)
+    // If you want to statically link against QOffice, contact a lawyer to
+    // retrieve information about the LGPL and what you can do or can not do.
+    #define QOFFICE_CORE_API
+    #define QOFFICE_DESIGN_API
+    #define QOFFICE_WIDGET_API
+    #define QOFFICE_PLUGIN_API
 #else
-    #define QOFFICE_EXPORT
+    #if defined(QOFFICE_BUILD_SHARED)
+        // Export symbols to shared library.
+        #define QOFFICE_CORE_API    Q_DECL_EXPORT
+        #define QOFFICE_DESIGN_API  Q_DECL_EXPORT
+        #define QOFFICE_WIDGET_API  Q_DECL_EXPORT
+        #define QOFFICE_PLUGIN_API  Q_DECL_EXPORT
+    #else
+        // Import symbols to link symbols.
+        #define QOFFICE_CORE_API    Q_DECL_IMPORT
+        #define QOFFICE_DESIGN_API  Q_DECL_IMPORT
+        #define QOFFICE_WIDGET_API  Q_DECL_IMPORT
+        #define QOFFICE_PLUGIN_API  Q_DECL_IMPORT
+    #endif
 #endif
 
-
-/**
- * These macroes simplify the use of namespaces within QOffice.
- * They also ensure to change the scope of all classes whenever
- * a possible change of the QOffice namespaces occur. The macro
- * QOFFICE_USING_NAMESPACE might also be used if it is ensured
- * that there are no conflicting type names otherwise.
- *
- * @code
- *     QOFFICE_BEGIN_NAMESPACE
- *     // your code
- *     QOFFICE_END_NAMESPACE
- * @endcode
- *
- * @def QOFFICE_BEGIN_NAMESPACE QOFFICE_END_NAMESPACE QOFFICE_USING_NAMESPACE
- *
- */
-#define QOFFICE_BEGIN_NAMESPACE     namespace off {
-#define QOFFICE_END_NAMESPACE       }
-#define QOFFICE_USING_NAMESPACE     using namespace off;
-
-
-/**
- * As the GCC has no way of only retrieving scope and
- * function name (scope::func), we have to provide a
- * macro that converts <em>void scope::func(args)</em> to
- * <em>scope::func</em>. This macro makes use of the C++11
- * lambdas, which allow this function to be a one-liner and
- * therefore working for the following code:
- *
- * @code
- *     Exception ex(QOFFICE_FUNC);
- * @endcode
- *
- * @def QOFFICE_CONVERT_FUNC
- *
- */
-#if defined(Q_CC_GNU)
-    #define QOFFICE_CONVERT_FUNC(x) \
-    {                               \
-        [](const char *a) ->        \
-        std::string {               \
-            std::string s(a);       \
-            std::size_t w =         \
-            s.find_first_of(" ");   \
-            s.erase(0, w+1);        \
-            w=s.find_first_of("("); \
-            s.erase(w, -1);         \
-            return s;               \
-        } (x)                       \
-    }
-#else
-    #define QOFFICE_CONVERT_FUNC(x) (x)
-#endif
-
-/**
- * This macro tries to retrieve the current function
- * name and the scope of the function, too. Unfortunately,
- * there is no standard way to do this, therefore we use
- * compiler-specific macroes.
- *
- * @def QOFFICE_FUNC
- *
- */
 #if defined(Q_CC_MSVC)
-    #define QOFFICE_FUNC QOFFICE_CONVERT_FUNC(__FUNCTION__)
-#elif defined(Q_CC_GNU)
-    #define QOFFICE_FUNC QOFFICE_CONVERT_FUNC(__PRETTY_FUNCTION__)
+    // MSVC is missing some C++11 keywords.
+    #define QOFFICE_NOEXCEPT
+    #define QOFFICE_CONSTEXPR const
 #else
-    #define QOFFICE_FUNC QOFFICE_CONVERT_FUNC(__func__) /* C99 standard */
+    #define QOFFICE_NOEXCEPT noexcept
+    #define QOFFICE_CONSTEXPR constexpr
 #endif
 
+// Bitwise operators for strong- and weak-type enums.
+#define OffEnumOperators(flags) \
+    inline flags operator |  (flags l,flags r) { return (flags) (static_cast<int>(l) | static_cast<int>(r)); } \
+    inline flags operator &  (flags l,flags r) { return (flags) (static_cast<int>(l) & static_cast<int>(r)); } \
+    inline flags operator ^  (flags l,flags r) { return (flags) (static_cast<int>(l) ^ static_cast<int>(r)); } \
+    inline flags operator ~  (flags f)         { return (flags) (static_cast<int>(f)); } \
+    inline void  operator |= (flags& l,flags r) { l = l | r; } \
+    inline void  operator &= (flags& l,flags r) { l = l & r; } \
+    inline void  operator ^= (flags& l,flags r) { l = l ^ r; }
 
-/**
- * There is no pretty way of retrieving the class name
- * in c++, because every compiler has different mangling
- * conventions. This macro tries to find the class name
- * by looking at one of its pretty function names.
- *
- * @def QOFFICE_CONVERT_CLASS
- *
- */
-#ifdef Q_CC_GNU
-    #define QOFFICE_CONVERT_CLASS(x)\
-    {                               \
-        [](std::string a) ->        \
-        std::string {               \
-            std::string s(a);       \
-            s.erase(s.find_last_of  \
-                   ("::")-1,-1);    \
-            return s;               \
-        } (x);                      \
+#define OffHasFlag(value,flag)    (value & flag) != 0
+#define OffHasNotFlag(value,flag) (value & flag) == 0
+#define OffAddFlag(value,flag)    (value |= flag)
+#define OffRemoveFlag(value,flag) (value &= ~flag)
+
+// Snippets put into the anonymous namespace.
+#define OffAnonymous(...) namespace { __VA_ARGS__; }
+
+// Easy to use constructor macroes.
+#define OffDeclareCtor(type) type();
+#define OffDeclareDtor(type) virtual ~type();
+#define OffDeclareCopy(type) type(const type& t); type& operator =(const type& t);
+#define OffDefaultCtor(type) type() = default;
+#define OffDefaultDtor(type) virtual ~type() = default;
+#define OffDefaultCopy(type) type(const type& t) = default; type& operator =(const type& t) = default;
+#define OffDisableCopy(type) type(const type& t) = delete; type& operator =(const type& t) = delete;
+#define OffDeclareMove(type) type(type&& t); type& operator=(type&& t);
+
+#if !defined(Q_CC_MSVC)
+    #define OffDefaultMove(type) type(type&& t) = default; type& operator=(type&& t) = default;
+    #define OffDisableMove(type) type(type&& t) = delete;  type& operator=(type&& t) = delete;
+#else
+    // MSVC does not support defaulted and disabled move constructors.
+    #define OffDefaultMove(type)
+    #define OffDisableMove(type)
+#endif
+
+inline QString QOfficeGetFunc(const QString& func)
+{
+    QString output(func);
+    int32_t whitespace = func.indexOf(' ');
+
+    if (whitespace != -1)
+    {
+        output.remove(0, whitespace + 1);
+        whitespace = output.indexOf('(');
+        output.remove(whitespace, -1);
+        whitespace = output.indexOf(' ');
+        output.remove(0, whitespace + 1);
     }
+
+    return output;
+}
+
+inline QString QOfficeGetClass(const QString& func)
+{
+    QString output(func);
+    int32_t nspace = func.lastIndexOf("::");
+
+    return output.remove(nspace - 1, -1);
+}
+
+#if defined(Q_CC_MSVC)
+    #define OffCurrentFunc QOfficeGetFunc(__FUNCTION__)
+#elif defined(Q_CC_GNU) || defined(Q_CC_CLANG)
+    #define OffCurrentFunc QOfficeGetFunc(__PRETTY_FUNCTION__)
 #else
-    #define QOFFICE_CONVERT_CLASS(x) (x)
+    // Use standard C99 __func__ macro as fallback.
+    #define OffCurrentFunc QOfficeGetFunc(__func__)
 #endif
 
-/**
- * This macro tries to retrieve the current class
- * name and the scope of it, too. By using the QOFFICE_FUNC
- * macro - which returns scope::func - we are able to simply
- * cut off the last scope operator and the function name.
- *
- * @def QOFFICE_CLASS
- *
- */
-#define QOFFICE_CLASS (QOFFICE_CONVERT_CLASS(QOFFICE_FUNC))
+#define OffCurrentClass QOfficeGetClass(OffCurrentFunc)
 
-
-/* MSVC 2013 and lower do not support noexcept. */
-#if defined(_MSC_VER) && _MSC_VER <= 1800
-    #define noexcept
 #endif
 
+////////////////////////////////////////////////////////////////////////////////
+/// \def OffEnumOperators
+/// Defines bitwise operators for strong- and weak-type enumerators.
+///
+/// \def OffHasFlag
+/// Determines whether a bitfield contains a specific enum flag.
+///
+/// \def OffAddFlag
+/// Adds a specific enum flag to a bitfield.
+///
+/// \def OffRemoveFlag
+/// Removes a specific enum flag from a bitfield.
+///
+/// \def OffAnonymous
+/// Wraps an expression in the anonymous namespace to avoid multiple definitions.
+///
+/// \def OffDeclareCtor
+/// Declares a default constructor. Implementation is done in the source file.
+///
+/// \def OffDeclareDtor
+/// Declares a virtual destructor. Implementation is done in the source file.
+///
+/// \def OffDeclareCopy
+/// Declares a copy constructor. Implementation is done in the source file.
+///
+/// \def OffDeclareMove
+/// Declares a move constructor. Implementation is done in the source file.
+///
+/// \def OffDefaultCtor
+/// Generates default code for a default constructor.
+///
+/// \def OffDefaultDtor
+/// Generates default code for a default destructor.
+///
+/// \def OffDefaultCopy
+/// Generates default code for a copy constructor and copy assignment operator.
+///
+/// \def OffDefaultMove
+/// Generates default code for a move constructor and move assignment operator.
+///
+/// \def OffDisableCopy
+/// Prevents the programmer to copy a class instance.
+///
+/// \def OffDisableMove
+/// Prevents the compiler to move a class instance.
+///
+/// \def OffCurrentFunc
+/// Retrieves the beautified name of the current function.
+///
+/// \def OffCurrentClass
+/// Retrieves the beautified name of the current class.
+///
+////////////////////////////////////////////////////////////////////////////////
 
-#endif // QOFFICE_CONFIG_HPP
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup Core Core
+/// \brief Contains all core-related classes.
+/// \details Defines the core functionality within the framework.
+///
+/// \defgroup Design Design
+/// \brief Contains all design-related classes.
+/// \details Defines reusable and standardized design functionality.
+///
+/// \defgroup Widget Widget
+/// \brief Contains all widget-related classes.
+/// \details Defines flat-styled widgets, dialogs and components.
+///
+/// \defgroup Plugin Plugin
+/// \brief Contains all plugin-related classes.
+/// \details Defines plugin classes written for the Qt designer.
+///
+////////////////////////////////////////////////////////////////////////////////

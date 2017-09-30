@@ -1,116 +1,106 @@
 ###########################################################
 #
-#   QOffice: Office UI framework for Qt
-#   Copyright (C) 2016-2017 Nicolas Kogler
+#   QOffice: The office framework for Qt
+#   Copyright (C) 2016-2018 Nicolas Kogler
 #   License: Lesser General Public License 3.0
 #
 ###########################################################
 
 ###########################################################
+# GENERAL SETTINGS
 #
-# QMAKE SETTINGS
 ###########################################################
-TARGET          =       QOffice
-TEMPLATE        =       lib
-QT             +=       widgets uiplugin designer uitools
-CONFIG         +=       plugin c++11
-DEFINES        +=       QOFFICE_BUILD
+TARGET   = QOffice
+TEMPLATE = lib
+QT      += widgets uiplugin designer uitools
+CONFIG  += plugin c++11
+DEFINES += QOFFICE_BUILD_SHARED
 
 ###########################################################
+# WINDOWS SETTINGS
 #
-# QMAKE SETTINGS (windows)
 ###########################################################
 win32 {
-    QMAKE_TARGET_COMPANY        =   Nicolas Kogler
-    QMAKE_TARGET_PRODUCT        =   QOffice
-    QMAKE_TARGET_DESCRIPTION    =   Office UI framework for Qt
-    QMAKE_TARGET_COPYRIGHT      =   Copyright (C) 2016-2017 Nicolas Kogler
+    QMAKE_TARGET_COMPANY     = Nicolas Kogler
+    QMAKE_TARGET_PRODUCT     = QOffice
+    QMAKE_TARGET_DESCRIPTION = The office framework for Qt
+    QMAKE_TARGET_COPYRIGHT   = Copyright (C) 2016-2018 Nicolas Kogler
 }
 
 ###########################################################
-#
 # COMPILER SETTINGS
+#
 ###########################################################
 gcc {
-    QMAKE_LFLAGS        +=      -static-libgcc -static-libstdc++
+    QMAKE_LFLAGS += -static-libgcc -static-libstdc++
 }
 
 ###########################################################
-#
 # INCLUDE PATHS
+#
 ###########################################################
-INCLUDEPATH         +=      include \
-                            include/QOffice \
-                            include/QOffice/Widgets
+INCLUDEPATH += include \
+               include/QOffice \
+               include/QOffice/Widgets
 
 ###########################################################
-#
 # RESOURCES & MISCELLANEOUS
+#
 ###########################################################
-RESOURCES           +=      resources/qoffice_plugins.qrc \
-                            resources/qoffice_images.qrc \
-                            resources/qoffice_editors.qrc
-DISTFILES           +=      resources/templates/class.txt \
-                            resources/templates/enum.txt \
-                            resources/templates/plugin.txt \
-                            resources/templates/plugin_src.txt \
-                            resources/templates/source.txt \
-                            resources/templates/widget.txt \
-                            resources/templates/widget_src.txt \
+RESOURCES += resources/qoffice_plugins.qrc \
+             resources/qoffice_images.qrc \
+             resources/qoffice_editors.qrc \
+             resources/qoffice_fonts.qrc
 
 ###########################################################
-#
 # HEADER FILES
+#
 ###########################################################
-HEADERS             +=      include/QOffice/Config.hpp \
-                            include/QOffice/Interfaces/IOfficeWidget.hpp \
-                            include/QOffice/Design/OfficeAccents.hpp \
-                            include/QOffice/Design/Exceptions/InvalidAccentException.hpp \
-                            include/QOffice/Widgets/OfficeWidget.hpp \
-                            include/QOffice/Widgets/Dialogs/OfficeWindow.hpp \
-                            include/QOffice/Plugins/OfficeWidgetPlugin.hpp \
-                            include/QOffice/Plugins/OfficeWindowPlugin.hpp \
-                            include/QOffice/Plugins/OfficePluginCollection.hpp \
-                            include/QOffice/Widgets/Enums/OfficeWindowEnums.hpp \
-                            include/QOffice/Widgets/Constants/OfficeWindowConstants.hpp \
-                            include/QOffice/Design/OfficePalette.hpp \
-                            include/QOffice/Widgets/Dialogs/OfficeWindowMenu.hpp \
-                            include/QOffice/Widgets/OfficeTooltip.hpp \
-                            include/QOffice/Widgets/Constants/OfficeTooltipConstants.hpp \
-                            include/QOffice/Widgets/OfficeMenu.hpp \
-                            include/QOffice/Plugins/OfficeMenuPlugin.hpp \
-                            include/QOffice/Plugins/Extensions/OfficeMenuTaskMenu.hpp \
-                            include/QOffice/Plugins/Extensions/OfficeMenuEditorDialog.hpp \
-                            include/QOffice/Widgets/OfficeMenuTopItem.hpp \
-                            include/QOffice/Widgets/OfficeMenuPanel.hpp \
-                            include/QOffice/Widgets/OfficeMenuItem.hpp \
-                            include/QOffice/Widgets/Enums/OfficeMenuEnums.hpp \
-    include/QOffice/Widgets/Constants/OfficeMenuConstants.hpp \
-    include/QOffice/Widgets/OfficeMenuSubMenu.hpp \
-    include/QOffice/Widgets/OfficeDropDown.hpp \
-    include/QOffice/Design/OfficeImaging.hpp
+HEADERS += include/QOffice/Config.hpp \
+           include/QOffice/Exceptions/OfficePaletteException.hpp \
+           include/QOffice/Exceptions/OfficeImageException.hpp \
+           include/QOffice/Exceptions/OfficeAccentException.hpp \
+           include/QOffice/Widgets/OfficeWidget.hpp \
+           include/QOffice/Design/OfficeAccent.hpp \
+           include/QOffice/Design/OfficePalette.hpp \
+           include/QOffice/Design/OfficeImage.hpp \
+           include/QOffice/Design/OfficeFont.hpp \
+           include/QOffice/Exceptions/OfficeFontWeightException.hpp \
+           include/QOffice/Widgets/Dialogs/OfficeWindow.hpp \
+           include/QOffice/Widgets/Dialogs/OfficeWindowResizeArea.hpp \
+           include/QOffice/Design/Office.hpp \
+           include/QOffice/Widgets/OfficeWindowMenu.hpp \
+           include/QOffice/Widgets/OfficeWindowMenuItem.hpp \
+           include/QOffice/Widgets/OfficeTooltip.hpp
 
 ###########################################################
-#
 # SOURCE FILES
+#
 ###########################################################
-SOURCES             +=      src/Design/Exceptions/InvalidAccentException.cpp \
-                            src/Design/OfficeAccents.cpp \
-                            src/Widgets/OfficeWidget.cpp \
-                            src/Widgets/Dialogs/OfficeWindow.cpp \
-                            src/Plugins/OfficeWidgetPlugin.cpp \
-                            src/Plugins/OfficePluginCollection.cpp \
-                            src/Plugins/OfficeWindowPlugin.cpp \
-                            src/Design/OfficePalette.cpp \
-                            src/Widgets/Dialogs/OfficeWindowMenu.cpp \
-                            src/Widgets/OfficeTooltip.cpp \
-                            src/Widgets/OfficeMenu.cpp \
-                            src/Plugins/OfficeMenuPlugin.cpp \
-                            src/Plugins/Extensions/OfficeMenuTaskMenu.cpp \
-                            src/Plugins/Extensions/OfficeMenuEditorDialog.cpp \
-                            src/Widgets/OfficeMenuTopItem.cpp \
-                            src/Widgets/OfficeMenuPanel.cpp \
-    src/Widgets/OfficeMenuItem.cpp \
-    src/Widgets/OfficeMenuSubMenu.cpp \
-    src/Design/OfficeImaging.cpp \
-    src/Widgets/OfficeDropDown.cpp
+SOURCES += src/Exceptions/OfficeAccentException.cpp \
+           src/Exceptions/OfficePaletteException.cpp \
+           src/Exceptions/OfficeImageException.cpp \
+           src/Widgets/OfficeWidget.cpp \
+           src/Design/OfficeAccent.cpp \
+           src/Design/OfficePalette.cpp \
+           src/Design/OfficeImage.cpp \
+           src/Design/OfficeFont.cpp \
+           src/Exceptions/OfficeFontWeightException.cpp \
+           src/Widgets/Dialogs/OfficeWindowResizeArea.cpp \
+           src/Widgets/Dialogs/OfficeWindow.cpp \
+           src/Widgets/OfficeWindowMenu.cpp \
+           src/Widgets/OfficeWindowMenuItem.cpp \
+           src/Widgets/OfficeTooltip.cpp
+
+################################################################################
+## OUTPUT
+##
+################################################################################
+include(platforms.pri)
+message(Writing library to: $${PWD}/bin/$${kgl_path})
+
+DESTDIR     = $${PWD}/bin/$${kgl_path}
+OBJECTS_DIR = $${DESTDIR}/obj
+MOC_DIR     = $${OBJECTS_DIR}
+RCC_DIR     = $${OBJECTS_DIR}
+UI_DIR      = $${OBJECTS_DIR}

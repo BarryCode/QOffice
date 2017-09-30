@@ -21,90 +21,80 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef QOFFICE_DESIGN_OFFICEPALETTE_HPP
-#define QOFFICE_DESIGN_OFFICEPALETTE_HPP
+#ifndef QOFFICE_DESIGN_OFFICEIMAGE_HPP
+#define QOFFICE_DESIGN_OFFICEIMAGE_HPP
 
 #include <QOffice/Config.hpp>
 
+QOFFICE_CONSTEXPR int c_shadowSize    = 5;
+QOFFICE_CONSTEXPR int c_shadowPadding = +c_shadowSize * 2;
+QOFFICE_CONSTEXPR int c_shadowBlur    = -c_shadowSize / 4 + 1;
+
 ////////////////////////////////////////////////////////////////////////////////
-/// \class OfficePalette
-/// \brief $Classdesc
+/// \class OfficeImage
+/// \brief Provides useful pixel manipulation functions for QImage and QPixmap.
 /// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
 /// \date September 23, 2017
 ///
 ////////////////////////////////////////////////////////////////////////////////
-class QOFFICE_DESIGN_API OfficePalette
+class QOFFICE_DESIGN_API OfficeImage
 {
 public:
 
     ////////////////////////////////////////////////////////////////////////////
-    /// \brief Defines all palette roles available in QOffice.
-    /// \enum PaletteRole
+    /// Converts an image to grayscale, while keeping the original image
+    /// untouched. Do not call this function in QWidget::paintEvent, since it
+    /// is potentially expensive. Rather keep a pre-computed grayscale image
+    /// somewhere in your class and use it directly in QWidget::paintEvent.
+    ///
+    /// \param[in] original The original image to convert to grayscale.
+    /// \return A copy of the original image with a grayscale palette.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    enum PaletteRole
-    {
-        Background,
-        Foreground,
-        DisabledText,
-        TooltipBorder,
-        TooltipBackground,
-        TooltipSeparator,
-        TooltipText,
-        TooltipHelpText,
-        MenuSeparator,
-        MenuItemHover,
-        MenuItemPress,
-        MaximumRole
-    };
+    static QImage convertToGrayscale(const QImage& original);
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Retrieves the color associated to the specified palette role.
+    /// Converts an pixmap to grayscale, while keeping the original pixmap
+    /// untouched. Do not call this function in QWidget::paintEvent, since it
+    /// is potentially expensive. Rather keep a pre-computed grayscale pixmap
+    /// somewhere in your class and use it directly in QWidget::paintEvent.
     ///
-    /// \param[in] role The palette role of the color to retrieve.
-    /// \return The color associated with the given palette role.
-    ///
-    /// \threadsafe This function is thread-safe.
-    /// \throws OfficePaletteException
+    /// \param[in] original The original pixmap to convert to grayscale.
+    /// \return A copy of the original pixmap with a grayscale palette.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    static const QColor& color(PaletteRole role);
+    static QPixmap convertToGrayscale(const QPixmap& original);
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Determines whether the specified palette role corresponds to a value.
+    /// Generates a drop shadow of the given \p size.
     ///
-    /// \param[in] role The palette role to check.
-    /// \return True if the given \p role is valid, false otherwise.
-    ///
-    /// \threadsafe This function is thread-safe.
+    /// \param[in] size The size of the drop shadow.
+    /// \return The pixmap containing the shadow.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    static bool isValid(PaletteRole role);
+    static QPixmap generateDropShadow(const QSize& size);
 };
 
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class OfficePalette
+/// \class OfficeImage
 /// \ingroup Design
 ///
-/// Every QOffice-widget should use the functionality of this class in their
-/// QWidget::paintEvent method. Use as follows:
+/// A way to use the OfficeImage::convertToGrayscale function is as follows:
 ///
 /// \code
+/// void setIcon(const QImage& icon)
+/// {
+///     m_iconEnable = icon;
+///     m_iconDisable = OfficeImage::convertToGrayscale(icon);
+/// }
+///
 /// void paintEvent(QPaintEvent*)
 /// {
 ///     QPainter painter(this);
-///     const QColor& backColor = OfficePalette::color(OfficePalette::Background);
-///     painter.fillRect(rect(), backColor);
+///     painter.drawImage(QPoint(), (enabled()) ? m_iconEnable : m_iconDisable;
 /// }
 /// \endcode
-///
-/// You must not use dynamic methods to retrieve a color from OfficePalette,
-/// since OfficePalette::color throws exceptions. You want to avoid them at
-/// all costs in QWidget::paintEvent (it might even crash the Qt Designer!).
-///
-/// If you really need to use a dynamic OfficePalette::PaletteRole, use the
-/// OfficePalette::isValid function in order to validate the value beforehand.
 ///
 ////////////////////////////////////////////////////////////////////////////////

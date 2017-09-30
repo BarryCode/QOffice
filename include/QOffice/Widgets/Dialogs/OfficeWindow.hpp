@@ -1,467 +1,343 @@
-/*
- *  QOffice: Office UI framework for Qt
- *  Copyright (C) 2016-2017 Nicolas Kogler
- *
- *  This file is part of QOffice.
- *
- *  QOffice is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  QOffice is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with QOffice. If not, see <http://www.gnu.org/licenses/>.
- *
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+// QOffice - The office framework for Qt
+// Copyright (C) 2016-2018 Nicolas Kogler
+//
+// This file is part of the Widget module.
+//
+// QOffice is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// QOffice is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with QOffice. If not, see <http://www.gnu.org/licenses/>.
+//
+////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
+#ifndef QOFFICE_WIDGETS_DIALOGS_OFFICEWINDOW_HPP
+#define QOFFICE_WIDGETS_DIALOGS_OFFICEWINDOW_HPP
 
-#ifndef QOFFICE_OFFICEWINDOW_HPP
-#define QOFFICE_OFFICEWINDOW_HPP
+#include <QOffice/Widgets/OfficeWidget.hpp>
+#include <QOffice/Widgets/OfficeWindowMenu.hpp>
+#include <QOffice/Widgets/Dialogs/OfficeWindowResizeArea.hpp>
 
-
-// QOffice headers
-#include <QOffice/Interfaces/IOfficeWidget.hpp>
-#include <QOffice/Widgets/Dialogs/OfficeWindowMenu.hpp>
-#include <QOffice/Widgets/Enums/OfficeWindowEnums.hpp>
-
-// Qt headers
-#include <QMainWindow>
-#include <QTextOption>
-
-
-QOFFICE_BEGIN_NAMESPACE
-
-
-class WinResizeArea;
-
-
-/**
- * This is the description of the class.
- *
- * @class OfficeWindow
- * @author Nicolas Kogler
- * @date December 24th, 2016
- *
- */
-class QOFFICE_EXPORT OfficeWindow : public QWidget, public IOfficeWidget
+////////////////////////////////////////////////////////////////////////////////
+/// \class OfficeWindow
+/// \brief This class defines a window in a modern look and feel.
+/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \date September 24, 2017
+///
+////////////////////////////////////////////////////////////////////////////////
+class QOFFICE_WIDGET_API OfficeWindow : public QWidget, public OfficeWidget
 {
 public:
 
-    enum AccentColor
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Defines flags that can modify the behaviour of OfficeWindow.
+    /// \enum Flag
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    enum Flags
     {
-        BlueAccent,
-        RedAccent,
-        GreenAccent,
-        OrangeAccent,
-        PurpleAccent
+        NoFlag           = 0x0000,
+        NoCloseButton    = 0x0001,
+        NoMinimizeButton = 0x0002,
+        NoMaximizeButton = 0x0004,
+        NoResize         = 0x0008,
+        NoMaximize       = 0x0010,
+        NoMenu           = 0x0020
     };
 
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Defines the states for the window buttons in the top-right.
+    /// \enum ButtonState
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    enum ButtonState
+    {
+        ButtonNone,
+        ButtonHover,
+        ButtonPress,
+        ButtonSpecial
+    };
 
-    /**
-     * Initializes a new instance of OfficeWindow.
-     *
-     * @param parent The parent of this widget.
-     *
-     */
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Defines the states for various window actions.
+    /// \enum WindowState
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    enum WindowState
+    {
+        StateNone,
+        StateDrag,
+        StateResize
+    };
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Defines the resize directions for the window.
+    /// \enum ResizeDirection
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    enum ResizeDirection
+    {
+        ResizeNone   = 0x0000,
+        ResizeLeft   = 0x0001,
+        ResizeTop    = 0x0002,
+        ResizeRight  = 0x0004,
+        ResizeBottom = 0x0008
+    };
+
+    OffDefaultDtor(OfficeWindow)
+    OffDisableCopy(OfficeWindow)
+    OffDisableMove(OfficeWindow)
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Initializes a new instance of OfficeWindow and specifies the given
+    /// \p parent as parent window.
+    ///
+    /// \param[in] parent The parent window of this window.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
     OfficeWindow(QWidget* parent = nullptr);
 
-    /**
-     * Destructs this OfficeWindow instance.
-     *
-     */
-    virtual ~OfficeWindow();
-
-
-    /**
-     * Reimplemented pure virtual function from IOfficeWidget.
-     * Retrieves the accent color for this office widget.
-     *
-     * @returns the current accent color.
-     *
-     */
-    Accent accent() const override;
-
-    /**
-     * Retrieves the current accent color from OfficeWindow.
-     * This function exists because the Qt designer cannot
-     * handle or does not accept enums from other classes.
-     *
-     * @returns the current acccent color.
-     *
-     */
-    AccentColor accentColor() const;
-
-    /**
-     * Determines whether this window has a close button.
-     *
-     * @returns true if it has.
-     */
+    ////////////////////////////////////////////////////////////////////////////
+    /// Determines whether this window has a close button.
+    ///
+    /// \return True if it has a close button, false otherwise.
+    ///
+    /// \sa OfficeWindow::setFlags OfficeWindow::setCloseButtonVisible
+    ///
+    ////////////////////////////////////////////////////////////////////////////
     bool hasCloseButton() const;
 
-    /**
-     * Determines whether this window has a maximize button.
-     *
-     * @returns true if it has.
-     */
+    ////////////////////////////////////////////////////////////////////////////
+    /// Determines whether this window has a maximize button.
+    ///
+    /// \return True if it has a maximize button, false otherwise.
+    ///
+    /// \sa  OfficeWindow::flags OfficeWindow::setMaximizeButtonVisible
+    ///
+    ////////////////////////////////////////////////////////////////////////////
     bool hasMaximizeButton() const;
 
-    /**
-     * Determines whether this window has a minimize button.
-     *
-     * @returns true if it has.
-     */
+    ////////////////////////////////////////////////////////////////////////////
+    /// Determines whether this window has a minimize button.
+    ///
+    /// \return True if it has a minimize button, false otherwise.
+    ///
+    /// \sa  OfficeWindow::flags OfficeWindow::setMinimizeButtonVisible
+    ///
+    ////////////////////////////////////////////////////////////////////////////
     bool hasMinimizeButton() const;
 
-    /**
-     * Determines whether this window is resizable.
-     *
-     * @returns true if it is.
-     */
+    ////////////////////////////////////////////////////////////////////////////
+    /// Determines whether this window can be resized.
+    ///
+    /// \return True if it can be resized, false otherwise.
+    ///
+    /// \sa OfficeWindow::flags OfficeWindow::setFlags
+    ///
+    ////////////////////////////////////////////////////////////////////////////
     bool canResize() const;
 
-    /**
-     * Determines whether this window is active.
-     *
-     * @returns true if it is active.
-     *
-     */
-    bool isActive();
+    ////////////////////////////////////////////////////////////////////////////
+    /// Determines whether this window is active.
+    ///
+    /// \return True if it is active, false otherwise.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    bool isActive() const;
 
-    /**
-     * Retrieves a pointer to the window menu.
-     *
-     * @returns the window menu.
-     *
-     */
-    OfficeWindowMenu* menu() const;
+    ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves the current flags of this OfficeWindow.
+    ///
+    /// \return A bitwise OR combination of OfficeWindow::Flags values.
+    ///
+    /// \sa OfficeWindow::setFlags
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    Flags flags() const;
 
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies the accent for all widgets subordinated to this window.
+    ///
+    /// \param[in] accent The new accent to apply to all widgets.
+    ///
+    /// \sa OfficeWidget::accent
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void setAccent(Office::Accent accent) override;
 
-   /**
-    * Reimplmented pure virtual function from IOfficeWidget.
-    * Specifies the new accent color for this office widget.
-    * Should never be called manually by the programmer, except
-    * within the top-level OfficeWindow instance.
-    *
-    * @param accent New accent color of the office widget.
-    *
-    */
-    void setAccent(Accent accent) override;
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies whether the window has a close button or not.
+    ///
+    /// \param[in] visible True to show the close button.
+    ///
+    /// \sa OfficeWindow::hasCloseButton OfficeWindow::setFlags
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void setCloseButtonVisible(bool visible);
 
-    /**
-     * Alternative to the default setAccent() function, because
-     * the Qt designer cannot handle or does not accept enums
-     * from other classes.
-     *
-     * @param accent New accent color of the office window.
-     *
-     */
-    void setAccentColor(AccentColor accent);
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies whether the window has a maximize button or not.
+    ///
+    /// \param[in] visible True to show the maximize button.
+    ///
+    /// \sa OfficeWindow::hasMaximizeButton OfficeWindow::setFlags
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void setMaximizeButtonVisible(bool visible);
 
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies whether the window has a minimize button or not.
+    ///
+    /// \param[in] visible True to show the minimize button.
+    ///
+    /// \sa OfficeWindow::hasMinimizeButton OfficeWindow::setFlags
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void setMinimizeButtonVisible(bool visible);
 
-    /**
-     * Defines that the window either has a close
-     * button or not.
-     *
-     * @param close True if has close button.
-     *
-     */
-    void setCloseButtonVisible(bool close);
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies whether the window is resizable.
+    ///
+    /// \param[in] resizable True to be able to resize window.
+    ///
+    /// \sa OfficeWindow::canResize OfficeWindow::setFlags
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void setResizable(bool resizable);
 
-    /**
-     * Defines that the window either has a maximize
-     * button or not.
-     *
-     * @param maximize True if has maximize button.
-     *
-     */
-    void setMaximizeButtonVisible(bool maximize);
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies the flags for this office window. The flags specify window
+    /// button visibility, resize capability and more. Multiple flags can be
+    /// specified by bitwise OR'ing multiple OfficeWindow::Flags values together.
+    ///
+    /// \param[in] flags The new flags.
+    ///
+    /// \sa OfficeWindow::flags
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void setFlags(Flags flags);
 
-    /**
-     * Defines that the window either has a minimize
-     * button or not.
-     *
-     * @param minimize True if has minimize button.
-     *
-     */
-    void setMinimizeButtonVisible(bool minimize);
-
-    /**
-     * Defines that the window can either be resized or not.
-     *
-     * @param resize True if able to resize.
-     *
-     */
-    void setResizable(bool resize);
-
-    /**
-     * Defines the menu items for this office window.
-     * This window will own the given menu items and
-     * dispose them properly on form close.
-     *
-     * @param items List of items.
-     *
-     */
-    void setMenuItems(const QList<OfficeWindowMenuItem*>& items);
-
+    ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves the currently active window.
+    ///
+    /// \return The active window or nullptr.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    static OfficeWindow* activeWindow();
 
 protected:
 
-    /**
-     * Renders the office window. It has the typical stripe
-     * at the top of the window (colored in the accent color).
-     * Also renders the drop-shadow, the border (in accent) and
-     * all the icons and menu items on the title bar.
-     *
-     * @param event Holds nothing we need.
-     *
-     */
-    virtual void paintEvent(QPaintEvent* event) override;
-
-    /**
-     * Updates the positions of the window buttons, the menu,
-     * the title and other buttons. Pre-renders the drop shadow.
-     *
-     * @param event Holds the old widget size.
-     *
-     */
-    virtual void resizeEvent(QResizeEvent* event) override;
-
-    /**
-     * Contains most of the window logic. Performs hit-tests on
-     * the icon, the title bar, the window icons and also the
-     * resizing areas.
-     *
-     * @param event Holds the current mouse position.
-     *
-     */
-    virtual void mouseMoveEvent(QMouseEvent* event) override;
-
-    /**
-     * Changes the state of the window buttons and initiates
-     * resizing and moving the window.
-     *
-     * @param Holds the mouse position and pressed button.
-     *
-     */
-    virtual void mousePressEvent(QMouseEvent* event) override;
-
-    /**
-     * Resets the state of the window buttons and cancels
-     * any resizing or moving action.
-     *
-     * @param Holds the mouse position and released button.
-     *
-     */
-    virtual void mouseReleaseEvent(QMouseEvent* event) override;
-
-    /**
-     * If the mouse-pointer is on the title bar and
-     * the left mouse button is double clicked, then
-     * the window is maximized or restored, depending
-     * on its current state.
-     *
-     * @param event Holds the mouse position and clicked button.
-     *
-     */
-    virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
-
-    /**
-     * Catches the WindowActive and WindowDeactive event.
-     *
-     * @param event Holds the event type.
-     *
-     */
-    virtual bool event(QEvent* event) override;
-
-    /**
-     * Sets this window to the active window upon focusing it.
-     *
-     * @param event Holds nothing we need.
-     *
-     */
-    virtual void focusInEvent(QFocusEvent* event) override;
-
-    /**
-     * Sets the active window to null pointer upon defocusing it.
-     *
-     * @param event Holds nothing we need.
-     *
-     */
-    virtual void focusOutEvent(QFocusEvent* event) override;
-
-    /**
-     * Recursively changes the accent of all child widgets.
-     *
-     * @param event Holds nothing we need.
-     *
-     */
-    virtual void showEvent(QShowEvent* event) override;
-
-    /**
-     * Qt somehow has a high latency when forwarding calls to
-     * move(), which causes the dragging to lag horribly, plus
-     * dragging stops when the user moves it too rapidly due to
-     * the mouse pointer leaving this widget. This function now
-     * ensures that the window is always positioned correctly,
-     * even if the mouse pointer left the widget.
-     *
-     * @param event Holds nothing we need.
-     *
-     */
-    virtual void leaveEvent(QEvent* event) override;
-
+    virtual void paintEvent(QPaintEvent*) override;
+    virtual void resizeEvent(QResizeEvent*) override;
+    virtual void mouseMoveEvent(QMouseEvent*) override;
+    virtual void mousePressEvent(QMouseEvent*) override;
+    virtual void mouseReleaseEvent(QMouseEvent*) override;
+    virtual void mouseDoubleClickEvent(QMouseEvent*) override;
+    virtual void focusInEvent(QFocusEvent*) override;
+    virtual void focusOutEvent(QFocusEvent*) override;
+    virtual void showEvent(QShowEvent*) override;
+    virtual void leaveEvent(QEvent*) override;
+    virtual bool event(QEvent*) override;
 
 private:
 
-    // Members
-    WinButtonState    m_CloseState;
-    WinButtonState    m_MaximState;
-    WinButtonState    m_MinimState;
-    WindowState       m_State;
-    WinResizeArea*    m_ResizeTopLeft;
-    WinResizeArea*    m_ResizeTopRight;
-    WinResizeArea*    m_ResizeBottomLeft;
-    WinResizeArea*    m_ResizeBottomRight;
-    WinResizeArea*    m_ResizeTop;
-    WinResizeArea*    m_ResizeLeft;
-    WinResizeArea*    m_ResizeBottom;
-    WinResizeArea*    m_ResizeRight;
-    OfficeWindowMenu* m_Menu;
-    QPixmap           m_DropShadow;
-    QPixmap           m_CloseImage;
-    QPixmap           m_MaximImage;
-    QPixmap           m_MinimImage;
-    QPixmap           m_RestoreImage;
-    QTextOption       m_TitleOptions;
-    QString           m_VisibleTitle;
-    QPoint            m_InitialDragPos;
-    QRect             m_ClientRect;
-    QRect             m_TitleRect;
-    QRect             m_DragRect;
-    QRect             m_CloseRect;
-    QRect             m_MaximRect;
-    QRect             m_MinimRect;
-    bool              m_HasCloseBtn;
-    bool              m_HasMaximBtn;
-    bool              m_HasMinimBtn;
-    bool              m_CanResize;
-    bool              m_IsTooltipShown;
-
-    // Helpers
+    ////////////////////////////////////////////////////////////////////////////
+    // Functions
+    //
+    ////////////////////////////////////////////////////////////////////////////
     void generateDropShadow();
     void repaintTitleBar();
-    void updateButtonRects();
-    void updateResizeRects();
+    void updateButtonRectangles();
+    void updateResizeRectangles();
     void updateVisibleTitle();
     void updateResizeWidgets();
     void updateLayoutPadding();
-    auto centerRect(const QPixmap& img, const QRect& rc) -> QRect;
-    bool mouseMoveDrag(const QPoint& p);
-    bool mouseMoveSpecial(const QPoint& p);
-    bool mouseMoveHitTest(const QPoint& p);
-    bool mousePressDrag(const QPoint& p);
-    bool mousePressHitTest(const QPoint& p);
-    bool mouseReleaseDrag(const QPoint& p);
-    bool mouseReleaseAction(const QPoint& p);
+    bool mouseMoveDrag(const QPoint&);
+    bool mouseMoveSpecial(const QPoint&);
+    bool mouseMoveHitTest(const QPoint&);
+    bool mousePressDrag(const QPoint&);
+    bool mousePressHitTest(const QPoint&);
+    bool mouseReleaseDrag(const QPoint&);
+    bool mouseReleaseAction(const QPoint&);
+    QRect centerRectangle(const QPixmap&, const QRect&);
 
+    ////////////////////////////////////////////////////////////////////////////
+    // Members 1
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    ButtonState m_stateClose;
+    ButtonState m_stateMaximize;
+    ButtonState m_stateMinimize;
+    WindowState m_stateWindow;
+    Flags       m_flagsWindow;
+    QPixmap     m_dropShadow;
+    QPixmap     m_imageClose;
+    QPixmap     m_imageMaximize;
+    QPixmap     m_imageMinimize;
+    QPixmap     m_imageRestore;
+    QString     m_visibleTitle;
+    QPoint      m_dragPosition;
+    QRect       m_clientRectangle;
+    QRect       m_titleRectangle;
+    QRect       m_dragRectangle;
+    QRect       m_closeRectangle;
+    QRect       m_maximizeRectangle;
+    QRect       m_minimizeRectangle;
+    bool        m_tooltipVisible;
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Members 2
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    priv::ResizeArea* m_resizeTopLeft;
+    priv::ResizeArea* m_resizeTopRight;
+    priv::ResizeArea* m_resizeBottomLeft;
+    priv::ResizeArea* m_resizeBottomRight;
+    priv::ResizeArea* m_resizeTop;
+    priv::ResizeArea* m_resizeLeft;
+    priv::ResizeArea* m_resizeBottom;
+    priv::ResizeArea* m_resizeRight;
+    OfficeWindowMenu* m_windowLabelMenu;
+    OfficeWindowMenu* m_windowQuickMenu;
+
+    ////////////////////////////////////////////////////////////////////////////
     // Metadata
+    //
+    ////////////////////////////////////////////////////////////////////////////
     Q_OBJECT
-    Q_ENUMS(AccentColor)
-    Q_PROPERTY(bool CanResize READ canResize WRITE setResizable)
-    Q_PROPERTY(bool HasCloseButton READ hasCloseButton WRITE setCloseButtonVisible)
-    Q_PROPERTY(bool HasMaximizeButton READ hasMaximizeButton WRITE setMaximizeButtonVisible)
-    Q_PROPERTY(bool HasMinimizeButton READ hasMinimizeButton WRITE setMinimizeButtonVisible)
-    Q_PROPERTY(AccentColor Accent READ accentColor WRITE setAccentColor)
+    Q_PROPERTY(bool Resizable READ canResize WRITE setResizable)
+    Q_PROPERTY(bool CloseButton READ hasCloseButton WRITE setCloseButtonVisible)
+    Q_PROPERTY(bool MaximizeButton READ hasMaximizeButton WRITE setMaximizeButtonVisible)
+    Q_PROPERTY(bool MinimizeButton READ hasMinimizeButton WRITE setMinimizeButtonVisible)
+    Q_PROPERTY(Office::Accent Accent READ accent WRITE setAccent)
 
-    // Friends
-    friend class WinResizeArea;
+    friend class priv::ResizeArea;
     friend class OfficeTooltip;
-
-    // Static variables
-    static OfficeWindow* g_ActiveWindow;
 };
 
+OffEnumOperators(OfficeWindow::Flags)
+OffEnumOperators(OfficeWindow::ResizeDirection)
 
-/**
- * This class represents a resize area on the window.
- * Whenever it is hovered, it will change the cursor
- * and trigger a resize when it is pressed. Will change
- * back to normal cursor when the mouse leaves it.
- *
- * @class WinResizeArea
- * @author Nicolas Kogler
- * @date December 28th, 2016
- *
- */
-class WinResizeArea : public QWidget
-{
-public:
+#endif
 
-    /**
-     * Stores a reference to the window and determines
-     * the cursor to use by the given direction.
-     *
-     * @param window Window owning this resizing area.
-     * @param dir The resize direction to use.
-     *
-     */
-    WinResizeArea(OfficeWindow* window, WinResizeDirs dir);
-
-
-protected:
-
-    /**
-     * Resets the button state of all buttons.
-     *
-     * @param event Holds nothing we need.
-     *
-     */
-    void enterEvent(QEvent* event) override;
-
-    /**
-     * Triggers the resizing mode of the window.
-     *
-     * @param event Holds the held button.
-     *
-     */
-    void mousePressEvent(QMouseEvent* event) override;
-
-    /**
-     * Resets the state of the office window.
-     *
-     * @param event Holds the held button.
-     *
-     */
-    void mouseReleaseEvent(QMouseEvent* event) override;
-
-    /**
-     * Changes the size of the window, depending
-     * on the direction in which it resizes.
-     *
-     * @param event Holds the global mouse position.
-     *
-     */
-    void mouseMoveEvent(QMouseEvent* event) override;
-
-
-private:
-
-    // Members
-    OfficeWindow* m_Window;
-    WinResizeDirs m_Direction;
-};
-
-
-QOFFICE_END_NAMESPACE
-
-
-// Metadata
-Q_DECLARE_METATYPE(off::OfficeWindow::AccentColor)
-
-
-#endif // QOFFICE_OFFICEWINDOW_HPP
+////////////////////////////////////////////////////////////////////////////////
+/// \class OfficeWindow
+/// \ingroup Widget
+///
+/// $Detailedclassdesc
+///
+/// \code
+/// <example_code>
+/// \endcode
+///
+////////////////////////////////////////////////////////////////////////////////

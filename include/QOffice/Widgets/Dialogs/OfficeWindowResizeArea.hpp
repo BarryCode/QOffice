@@ -20,30 +20,39 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QOffice/Design/OfficeAccent.hpp>
-#include <QOffice/Widgets/OfficeWidget.hpp>
+#pragma once
+#ifndef QOFFICE_WIDGETS_DIALOGS_OFFICEWINDOWRESIZEAREA_HPP
+#define QOFFICE_WIDGETS_DIALOGS_OFFICEWINDOWRESIZEAREA_HPP
 
-OfficeWidget::OfficeWidget()
-    : m_accent(Office::BlueAccent)
+#include <QOffice/Config.hpp>
+#include <QWidget>
+
+class OfficeWindow;
+
+namespace priv
 {
+class ResizeArea : public QWidget
+{
+public:
+
+    OffDefaultDtor(ResizeArea)
+    OffDisableCopy(ResizeArea)
+    OffDisableMove(ResizeArea)
+
+    ResizeArea(OfficeWindow* window, int directions);
+
+protected:
+
+    void enterEvent(QEvent*) override;
+    void mouseMoveEvent(QMouseEvent*) override;
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
+
+private:
+
+    OfficeWindow* m_window;
+    int           m_directions;
+};
 }
 
-Office::Accent OfficeWidget::accent() const
-{
-    return m_accent;
-}
-
-void OfficeWidget::setAccent(Office::Accent accent)
-{
-    // In order to avoid exceptions during QWidget::paintEvent, always ensure
-    // that a valid accent is available anytime, anywhere.
-    if (OfficeAccent::isValid(accent))
-    {
-        m_accent = accent;
-        accentUpdateEvent();
-    }
-}
-
-void OfficeWidget::accentUpdateEvent()
-{
-}
+#endif

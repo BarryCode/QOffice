@@ -1,677 +1,671 @@
-/*
- *  QOffice: Office UI framework for Qt
- *  Copyright (C) 2016-2017 Nicolas Kogler
- *
- *  This file is part of QOffice.
- *
- *  QOffice is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  QOffice is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with QOffice. If not, see <http://www.gnu.org/licenses/>.
- *
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+// QOffice - The office framework for Qt
+// Copyright (C) 2016-2018 Nicolas Kogler
+//
+// This file is part of the Widget module.
+//
+// QOffice is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// QOffice is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with QOffice. If not, see <http://www.gnu.org/licenses/>.
+//
+////////////////////////////////////////////////////////////////////////////////
 
-
-// QOffice headers
-#include <QOffice/Widgets/Dialogs/OfficeWindow.hpp>
-#include <QOffice/Widgets/Constants/OfficeWindowConstants.hpp>
-#include <QOffice/Design/OfficeAccents.hpp>
+#include <QOffice/Design/OfficeAccent.hpp>
+#include <QOffice/Design/OfficeImage.hpp>
 #include <QOffice/Design/OfficePalette.hpp>
+#include <QOffice/Widgets/Dialogs/OfficeWindow.hpp>
 
-// Qt headers
-#include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsDropShadowEffect>
-#include <QPainter>
 #include <QLayout>
+#include <QPainter>
 #include <QtEvents>
 
+OffAnonymous(OfficeWindow* g_activeWindow = nullptr)
 
-QOFFICE_USING_NAMESPACE
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_topLeft = OfficeWindow::ResizeTop | OfficeWindow::ResizeLeft)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_topRight = OfficeWindow::ResizeTop | OfficeWindow::ResizeRight)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_bottomLeft = OfficeWindow::ResizeBottom | OfficeWindow::ResizeLeft)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_bottomRight = OfficeWindow::ResizeBottom | OfficeWindow::ResizeRight)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_top = OfficeWindow::ResizeTop)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_left = OfficeWindow::ResizeLeft)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_bottom = OfficeWindow::ResizeBottom)
+OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_right = OfficeWindow::ResizeRight)
 
+OffAnonymous(QOFFICE_CONSTEXPR int c_titlePaddingX = 24)
+OffAnonymous(QOFFICE_CONSTEXPR int c_titlePaddingY = 10)
+OffAnonymous(QOFFICE_CONSTEXPR int c_windowButtonX = 11)
+OffAnonymous(QOFFICE_CONSTEXPR int c_windowButtonY = 9)
+OffAnonymous(QOFFICE_CONSTEXPR int c_titleHeight   = 28)
+OffAnonymous(QOFFICE_CONSTEXPR int c_menuItemSpacing = 16)
+OffAnonymous(QOFFICE_CONSTEXPR int c_menuItemHeight  = 16)
+OffAnonymous(QOFFICE_CONSTEXPR int c_menuIconY = 6)
+OffAnonymous(QOFFICE_CONSTEXPR int c_iconPosX  = c_windowButtonX + c_shadowPadding)
+OffAnonymous(QOFFICE_CONSTEXPR int c_iconPosY  = c_windowButtonY + c_shadowPadding)
 
 OfficeWindow::OfficeWindow(QWidget* parent)
     : QWidget(parent)
-    , m_CloseState(WinButtonState::None)
-    , m_MaximState(WinButtonState::None)
-    , m_MinimState(WinButtonState::None)
-    , m_HasCloseBtn(true)
-    , m_HasMaximBtn(true)
-    , m_HasMinimBtn(true)
-    , m_CanResize(true)
-    , m_IsTooltipShown(false)
-
+    , m_stateClose(ButtonNone)
+    , m_stateMaximize(ButtonNone)
+    , m_stateMinimize(ButtonNone)
+    , m_stateWindow(StateNone)
+    , m_flagsWindow(NoFlag)
+    , m_imageClose(QPixmap(":/qoffice/images/window/close.png"))
+    , m_imageMaximize(QPixmap(":/qoffice/images/window/max.png"))
+    , m_imageMinimize(QPixmap(":/qoffice/images/window/min.png"))
+    , m_imageRestore(QPixmap(":/qoffice/images/window/restore.png"))
+    , m_tooltipVisible(false)
+    , m_resizeTopLeft(new priv::ResizeArea(this, c_topLeft))
+    , m_resizeTopRight(new priv::ResizeArea(this, c_topRight))
+    , m_resizeBottomLeft(new priv::ResizeArea(this, c_bottomLeft))
+    , m_resizeBottomRight(new priv::ResizeArea(this, c_bottomRight))
+    , m_resizeTop(new priv::ResizeArea(this, c_top))
+    , m_resizeLeft(new priv::ResizeArea(this, c_left))
+    , m_resizeBottom(new priv::ResizeArea(this, c_bottom))
+    , m_resizeRight(new priv::ResizeArea(this, c_right))
+    , m_windowLabelMenu(new OfficeWindowMenu(this, OfficeWindowMenu::LabelMenu))
+    , m_windowQuickMenu(new OfficeWindowMenu(this, OfficeWindowMenu::QuickMenu))
 {
-    // Manipulates the widget attributes and flags
-    // in order to create a frameless window.
-    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-    setAttribute(Qt::WA_TranslucentBackground);
-
-    // Enables mouse tracking.
+    setGeometry(x(), y(), 600, 400);
     setMouseTracking(true);
 
-    // Specifies the title rendering options.
-    m_TitleOptions.setAlignment(Qt::AlignCenter);
-    m_TitleOptions.setWrapMode(QTextOption::NoWrap);
+    // Create a frameless window with a translucent background for the shadow.
+    setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
+    setAttribute(Qt::WA_TranslucentBackground);
 
-    // Creates the resizing areas on the window.
-    m_ResizeTopLeft     = new WinResizeArea(this, RESIZE_TL);
-    m_ResizeTopRight    = new WinResizeArea(this, RESIZE_TR);
-    m_ResizeBottomRight = new WinResizeArea(this, RESIZE_BR);
-    m_ResizeBottomLeft  = new WinResizeArea(this, RESIZE_BL);
-    m_ResizeTop         = new WinResizeArea(this, RESIZE_T);
-    m_ResizeLeft        = new WinResizeArea(this, RESIZE_L);
-    m_ResizeBottom      = new WinResizeArea(this, RESIZE_B);
-    m_ResizeRight       = new WinResizeArea(this, RESIZE_R);
-    m_Menu              = new OfficeWindowMenu(this);
+    m_windowLabelMenu->show();
+    m_windowLabelMenu->addItem("Item1", QPixmap(), "This item does this and that.");
+    m_windowLabelMenu->addItem("Item2", QPixmap(), "This item does nothing.");
 
-    // Loads all the window button images.
-    m_CloseImage = QPixmap(":/qoffice/images/window/close.png");
-    m_MaximImage = QPixmap(":/qoffice/images/window/max.png");
-    m_MinimImage = QPixmap(":/qoffice/images/window/min.png");
-    m_RestoreImage = QPixmap(":/qoffice/images/window/restore.png");
+    m_windowQuickMenu->show();
+    m_windowQuickMenu->addItem("Item1", QPixmap(":/qoffice/images/window/restore.png"));
 }
 
-
-OfficeWindow::~OfficeWindow()
+bool OfficeWindow::hasCloseButton() const
 {
+    return OffHasNotFlag(m_flagsWindow, NoCloseButton);
 }
 
-
-IOfficeWidget::Accent
-OfficeWindow::accent() const
+bool OfficeWindow::hasMaximizeButton() const
 {
-    return m_Accent;
+    return OffHasNotFlag(m_flagsWindow, NoMaximizeButton);
 }
 
-
-OfficeWindow::AccentColor
-OfficeWindow::accentColor() const
+bool OfficeWindow::hasMinimizeButton() const
 {
-    return static_cast<AccentColor>(m_Accent);
+    return OffHasNotFlag(m_flagsWindow, NoMinimizeButton);
 }
 
-
-bool
-OfficeWindow::hasCloseButton() const
+bool OfficeWindow::canResize() const
 {
-    return m_HasCloseBtn;
+    return OffHasNotFlag(m_flagsWindow, NoResize);
 }
 
-
-bool
-OfficeWindow::hasMaximizeButton() const
+OfficeWindow::Flags OfficeWindow::flags() const
 {
-    return m_HasMaximBtn;
+    return m_flagsWindow;
 }
 
-
-bool
-OfficeWindow::hasMinimizeButton() const
+void OfficeWindow::setAccent(Office::Accent accent)
 {
-    return m_HasMinimBtn;
-}
-
-
-bool
-OfficeWindow::canResize() const
-{
-    return m_CanResize;
-}
-
-
-OfficeWindowMenu*
-OfficeWindow::menu() const
-{
-    return m_Menu;
-}
-
-
-void
-OfficeWindow::setAccent(Accent accent)
-{
-    const QList<QWidget*> matches = findChildren<QWidget*>();
-    for (auto* widget : matches)
+    if (OfficeAccent::isValid(accent))
     {
-        auto* officeWidget = dynamic_cast<IOfficeWidget*>(widget);
-        if (officeWidget != nullptr)
-            officeWidget->setAccent(accent);
+        const auto matches = findChildren<QWidget*>();
+        for (auto* widget : matches)
+        {
+            // Why dynamic_cast? The problem we are facing here may look like
+            // a design problem, but it is not. Imagine OfficeWidget deviring
+            // from QWidget - we would never need a dynamic cast here, since we
+            // could simply assume that every child is an OfficeWidget, right?
+            // No, because the user might need other widgets from the Qt library
+            // for which there are no office equivalents - the entire code
+            // breaks because static_cast or alike would return a nullptr.
+            // Also, if we devire OfficeWidget from QWidget, there is no
+            // possibility of adapting the functionality of great Qt widgets
+            // like QListView. Reimplementing that takes a huge amount of time!
+            auto* officeWidget = dynamic_cast<OfficeWidget*>(widget);
+            if (officeWidget != nullptr)
+            {
+                officeWidget->setAccent(accent);
+            }
+        }
+
+        OfficeWidget::setAccent(accent);
     }
-
-    m_Accent = accent;
-    update();
 }
 
-
-void
-OfficeWindow::setAccentColor(AccentColor accent)
+void OfficeWindow::setCloseButtonVisible(bool visible)
 {
-    setAccent(static_cast<Accent>(accent));
+    if (visible)
+    {
+        OffRemoveFlag(m_flagsWindow, NoCloseButton);
+    }
+    else
+    {
+        OffAddFlag(m_flagsWindow, NoCloseButton);
+    }
 }
 
-
-void
-OfficeWindow::setCloseButtonVisible(bool close)
+void OfficeWindow::setMaximizeButtonVisible(bool visible)
 {
-    m_HasCloseBtn = close;
-    updateButtonRects();
-    repaintTitleBar();
+    if (visible)
+    {
+        OffRemoveFlag(m_flagsWindow, NoMaximizeButton);
+    }
+    else
+    {
+        OffAddFlag(m_flagsWindow, NoMaximizeButton);
+    }
 }
 
-
-void
-OfficeWindow::setMaximizeButtonVisible(bool maximize)
+void OfficeWindow::setMinimizeButtonVisible(bool visible)
 {
-    m_HasMaximBtn = maximize;
-    updateButtonRects();
-    repaintTitleBar();
+    if (visible)
+    {
+        OffRemoveFlag(m_flagsWindow, NoMinimizeButton);
+    }
+    else
+    {
+        OffAddFlag(m_flagsWindow, NoMinimizeButton);
+    }
 }
 
-
-void
-OfficeWindow::setMinimizeButtonVisible(bool minimize)
+void OfficeWindow::setResizable(bool resizable)
 {
-    m_HasMinimBtn = minimize;
-    updateButtonRects();
-    repaintTitleBar();
+    if (resizable)
+    {
+        OffRemoveFlag(m_flagsWindow, NoResize);
+    }
+    else
+    {
+        OffAddFlag(m_flagsWindow, NoResize);
+    }
 }
 
-
-void
-OfficeWindow::setResizable(bool resize)
+void OfficeWindow::setFlags(Flags flags)
 {
-    m_CanResize = resize;
-    updateResizeRects();
-    update();
+    m_flagsWindow = flags;
 }
 
-
-void
-OfficeWindow::setMenuItems(const QList<OfficeWindowMenuItem*>& items)
+OfficeWindow* OfficeWindow::activeWindow()
 {
-    m_Menu->setItems(items);
+    return g_activeWindow;
 }
 
-
-void
-OfficeWindow::paintEvent(QPaintEvent*)
+void OfficeWindow::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
-    QRect borderRect = m_ClientRect.adjusted(0, 0, -1, -1);
 
-    // Retrieves the color of the current accent.
-    const QColor& colorBackg = OfficePalette::get(OfficePalette::Background);
-    const QColor& colorAccnt = OfficeAccents::get(accent());
+    // Retrieves various standardized QOffice colors.
+    const QColor& colorBackground = OfficePalette::color(OfficePalette::Background);
+    const QColor& colorForeground = OfficePalette::color(OfficePalette::DisabledText);
+    const QColor& colorAccent = OfficeAccent::color(accent());
 
-    // Renders the drop shadow.
-    if (!isMaximized() && m_State != WindowState::Resizing && isActive())
-        painter.drawPixmap(QPoint(), m_DropShadow);
+    // Drop shadow
+    if (m_stateWindow != StateResize && isActive() && !isMaximized())
+    {
+        painter.drawPixmap(QPoint(), m_dropShadow);
+    }
 
-    // Renders the background.
-    painter.fillRect(m_ClientRect, colorBackg);
-    painter.fillRect(m_TitleRect, colorAccnt);
+    // Background
+    painter.fillRect(m_clientRectangle, colorBackground);
+    painter.fillRect(m_titleRectangle, colorAccent);
 
-    // Renders the window border.
+    // Border
     if (isActive())
-        painter.setPen(colorAccnt);
+    {
+        painter.setPen(colorAccent);
+    }
     else
-        painter.setPen(OfficePalette::get(OfficePalette::DisabledText));
+    {
+        painter.setPen(colorForeground);
+    }
 
-    painter.drawRect(borderRect);
+    painter.drawRect(m_clientRectangle.adjusted(0,0,-1,-1));
 
-    // Renders the title bar text.
+    // Titlebar text
     if (!isActive())
+    {
+        // When the window is not active, the titlebar text and the titlebar
+        // buttons should not be rendered darker but rather blend into the
+        // background.
         painter.setOpacity(0.5);
+    }
 
     painter.setFont(font());
-    painter.setPen(colorBackg);
-    painter.drawText(m_TitleRect, m_VisibleTitle, m_TitleOptions);
+    painter.setPen(colorBackground);
+    painter.drawText(m_titleRectangle, m_visibleTitle, QTextOption(Qt::AlignCenter));
 
-    // Renders the background color of the window buttons.
-    if (m_CloseState == WinButtonState::Hovered)
-        painter.fillRect(m_CloseRect, OfficeAccents::lighter(colorAccnt));
-    else if (m_MaximState == WinButtonState::Hovered)
-        painter.fillRect(m_MaximRect, OfficeAccents::lighter(colorAccnt));
-    else if (m_MinimState == WinButtonState::Hovered)
-        painter.fillRect(m_MinimRect, OfficeAccents::lighter(colorAccnt));
-    else if (m_CloseState == WinButtonState::Pressed)
-        painter.fillRect(m_CloseRect, OfficeAccents::darker(colorAccnt));
-    else if (m_MaximState == WinButtonState::Pressed)
-        painter.fillRect(m_MaximRect, OfficeAccents::darker(colorAccnt));
-    else if (m_MinimState == WinButtonState::Pressed)
-        painter.fillRect(m_MinimRect, OfficeAccents::darker(colorAccnt));
+    // Window button background
+    if (m_stateClose == ButtonHover)
+        painter.fillRect(m_closeRectangle, OfficeAccent::lightColor(accent()));
+    else if (m_stateMaximize == ButtonHover)
+        painter.fillRect(m_maximizeRectangle, OfficeAccent::lightColor(accent()));
+    else if (m_stateMinimize == ButtonHover)
+        painter.fillRect(m_minimizeRectangle, OfficeAccent::lightColor(accent()));
+    else if (m_stateClose == ButtonPress)
+        painter.fillRect(m_closeRectangle, OfficeAccent::darkColor(accent()));
+    else if (m_stateMaximize == ButtonPress)
+        painter.fillRect(m_maximizeRectangle, OfficeAccent::darkColor(accent()));
+    else if (m_stateMinimize == ButtonPress)
+        painter.fillRect(m_minimizeRectangle, OfficeAccent::darkColor(accent()));
 
-    // Renders the window button icons themselves.
-    if (m_HasCloseBtn)
-        painter.drawPixmap(centerRect(m_CloseImage, m_CloseRect), m_CloseImage);
-    if (m_HasMinimBtn)
-        painter.drawPixmap(centerRect(m_MinimImage, m_MinimRect), m_MinimImage);
-    if (m_HasMaximBtn)
+    // Window button icons
+    if (OffHasNotFlag(m_flagsWindow, NoCloseButton))
     {
-        if (!isMaximized())
-            painter.drawPixmap(centerRect(m_MaximImage, m_MaximRect), m_MaximImage);
+        painter.drawPixmap(centerRectangle(m_imageClose, m_closeRectangle), m_imageClose);
+    }
+    if (OffHasNotFlag(m_flagsWindow, NoMinimizeButton))
+    {
+        painter.drawPixmap(centerRectangle(m_imageMinimize, m_minimizeRectangle), m_imageMinimize);
+    }
+    if (OffHasNotFlag(m_flagsWindow, NoMaximizeButton))
+    {
+        if (isMaximized())
+        {
+            painter.drawPixmap(centerRectangle(m_imageRestore, m_maximizeRectangle), m_imageRestore);
+        }
         else
-            painter.drawPixmap(centerRect(m_RestoreImage, m_MaximRect), m_RestoreImage);
+        {
+            painter.drawPixmap(centerRectangle(m_imageMaximize, m_maximizeRectangle), m_imageMaximize);
+        }
     }
 }
 
-
-void
-OfficeWindow::resizeEvent(QResizeEvent* event)
+void OfficeWindow::resizeEvent(QResizeEvent* event)
 {
-    // Does not generate a drop shadow if resizing
-    // or currently being in maximized window mode.
-    if (!isMaximized() && m_State != WindowState::Resizing)
+    // Does not generate a drop shadow if resizing or currently being in
+    // maximized window mode.
+    if (m_stateWindow != StateResize && !isMaximized())
+    {
         generateDropShadow();
+    }
 
-    // Updates all rectangles, the title and the resize widgets.
-    updateButtonRects();
-    updateResizeRects();
+    updateButtonRectangles();
+    updateResizeRectangles();
     updateVisibleTitle();
     updateResizeWidgets();
 
     QWidget::resizeEvent(event);
 }
 
-
-void
-OfficeWindow::mouseMoveEvent(QMouseEvent* event)
+void OfficeWindow::mouseMoveEvent(QMouseEvent* event)
 {
-    bool reqUpdate = false;
-    const QPoint p = event->pos();
+    const QPoint pos = event->pos();
 
-    // Performs several hit-tests. If one of these
-    // functions returns true, the title bar will be redrawn.
-    if (mouseMoveDrag(p))
-        return;
-    if (mouseMoveSpecial(p))
-        reqUpdate = true;
-    if (mouseMoveHitTest(p))
-        reqUpdate = true;
+    // Performs several hit-tests. If one of these functions returns true,
+    // the title bar will be redrawn.
+    if (!mouseMoveDrag(pos))
+    {
+        if (mouseMoveSpecial(pos) || mouseMoveHitTest(pos))
+        {
+            repaintTitleBar();
+        }
+    }
 
-    if (reqUpdate)
-        repaintTitleBar();
+    QWidget::mouseMoveEvent(event);
 }
 
-
-void
-OfficeWindow::mousePressEvent(QMouseEvent* event)
+void OfficeWindow::mousePressEvent(QMouseEvent* event)
 {
-    // Only the left button triggers events.
-    if (event->button() != Qt::LeftButton)
-        return;
+    if (event->button() == Qt::LeftButton)
+    {
+        const QPoint pos = event->pos();
+        if (mousePressDrag(pos))
+        {
+            return;
+        }
 
-    // Performs several hit-tests.
-    const QPoint p = event->pos();
-    if (mousePressDrag(p))
-        return;
-    if (mousePressHitTest(p))
-        repaintTitleBar();
+        if (mousePressHitTest(pos))
+        {
+            repaintTitleBar();
+        }
+    }
+
+    QWidget::mousePressEvent(event);
 }
 
-
-void
-OfficeWindow::mouseReleaseEvent(QMouseEvent* event)
+void OfficeWindow::mouseReleaseEvent(QMouseEvent* event)
 {
-    // Only the left button triggers events.
-    if (event->button() != Qt::LeftButton)
-        return;
+    if (event->button() == Qt::LeftButton)
+    {
+        const QPoint pos = event->pos();
+        if (mouseReleaseDrag(pos))
+        {
+            return;
+        }
 
-    // Performs several hit-tests.
-    const QPoint p = event->pos();
-    if (mouseReleaseDrag(p))
-        return;
-    if (mouseReleaseAction(p))
-        repaintTitleBar();
+        if (mouseReleaseAction(pos))
+        {
+            repaintTitleBar();
+        }
+    }
+
+    QWidget::mouseReleaseEvent(event);
 }
 
-
-void
-OfficeWindow::mouseDoubleClickEvent(QMouseEvent* event)
+void OfficeWindow::mouseDoubleClickEvent(QMouseEvent* event)
 {
-    // Only maximizes/restores under certain conditions.
     if (event->button() == Qt::LeftButton &&
-        m_DragRect.contains(event->pos()) &&
-        m_CanResize && m_HasMaximBtn)
+        m_dragRectangle.contains(event->pos()) &&
+        hasMaximizeButton() &&
+        canResize())
     {
         if (isMaximized())
         {
             showNormal();
-            updateResizeRects();
+            updateResizeRectangles();
         }
         else
         {
             showMaximized();
-            updateResizeRects();
+            updateResizeRectangles();
         }
 
-        m_MaximState = WinButtonState::None;
+        m_stateMaximize = ButtonNone;
+
         updateLayoutPadding();
         update();
     }
+
+    QWidget::mouseDoubleClickEvent(event);
 }
 
+void OfficeWindow::focusInEvent(QFocusEvent*)
+{
+    if (g_activeWindow != this)
+    {
+        g_activeWindow = this;
+    }
+}
 
-bool
-OfficeWindow::event(QEvent* event)
+void OfficeWindow::focusOutEvent(QFocusEvent*)
+{
+    if (g_activeWindow == this)
+    {
+        g_activeWindow = nullptr;
+    }
+}
+
+void OfficeWindow::showEvent(QShowEvent* event)
+{
+    // When window is first shown, apply accent color to all widgets.
+    setAccent(accent());
+
+    QWidget::showEvent(event);
+}
+
+void OfficeWindow::leaveEvent(QEvent* event)
+{
+    if (m_stateWindow == StateDrag)
+    {
+        // There might be a chance of the mouse pointer leaving the window
+        // while we are dragging it.
+        move(QCursor::pos() - m_dragPosition);
+    }
+    else
+    {
+        m_stateClose    = ButtonNone;
+        m_stateMaximize = ButtonNone;
+        m_stateMinimize = ButtonNone;
+
+        repaintTitleBar();
+    }
+
+    QWidget::leaveEvent(event);
+}
+
+bool OfficeWindow::event(QEvent* event)
 {
     switch (event->type())
     {
-        case QEvent::WindowActivate:
-            focusInEvent(nullptr);
-            break;
+    case QEvent::WindowActivate:
+        focusInEvent(nullptr);
+        break;
 
-        case QEvent::WindowDeactivate:
-            focusOutEvent(nullptr);
-            break;
-
-        default:
-            break;
+    case QEvent::WindowDeactivate:
+        focusOutEvent(nullptr);
+        break;
     }
 
     return QWidget::event(event);
 }
 
-
-void
-OfficeWindow::focusInEvent(QFocusEvent*)
+void OfficeWindow::generateDropShadow()
 {
-    if (g_ActiveWindow != this)
-        g_ActiveWindow = this;
+    m_dropShadow = OfficeImage::generateDropShadow(size());
 }
 
-
-void
-OfficeWindow::focusOutEvent(QFocusEvent*)
+void OfficeWindow::repaintTitleBar()
 {
-    if (g_ActiveWindow == this)
-        g_ActiveWindow = nullptr;
+    update(m_titleRectangle);
 }
 
-
-void
-OfficeWindow::showEvent(QShowEvent*)
+void OfficeWindow::updateButtonRectangles()
 {
-    setAccent(m_Accent);
-}
+    const QSize& sizeClose = m_imageClose.size();
+    const QSize& sizeMaxim = m_imageMaximize.size();
+    const QSize& sizeMinim = m_imageMinimize.size();
 
-
-void
-OfficeWindow::leaveEvent(QEvent*)
-{
-    if (m_State == WindowState::Dragging)
-    {
-        move(QCursor::pos() - m_InitialDragPos);
-    }
-    else
-    {
-        // Dehovers any hovered window buttons.
-        m_CloseState = WinButtonState::None;
-        m_MaximState = WinButtonState::None;
-        m_MinimState = WinButtonState::None;
-        repaintTitleBar();
-    }
-}
-
-
-void
-OfficeWindow::generateDropShadow()
-{
-    // Creates a new pixmap that fills the entire widget.
-    m_DropShadow = QPixmap(size());
-    m_DropShadow.fill(Qt::transparent);
-
-    QPainter painter(&m_DropShadow);
-    QPainterPath path;
-
-    // Defines the rounded rectangle.
-    QRectF rounded(
-            DROP_SHADOW_PADDING,
-            DROP_SHADOW_PADDING,
-            width()  - DROP_SHADOW_PADDING * 2,
-            height() - DROP_SHADOW_PADDING * 2);
-
-    // Renders the rounded rectangle.
-    path.addRoundedRect(rounded, 4, 4);
-    painter.fillPath(path, Qt::black);
-
-    // Prepares the pixmap for blurring.
-    QGraphicsScene scene;
-    QGraphicsPixmapItem item(m_DropShadow);
-    QGraphicsDropShadowEffect shadow;
-
-    shadow.setBlurRadius(DROP_SHADOW * 2);
-    shadow.setColor(Qt::black);
-    shadow.setOffset(DROP_SHADOW_BLUR, DROP_SHADOW_BLUR);
-
-    // Blurs the rectangle and renders it to the pixmap.
-    item.setGraphicsEffect(&shadow);
-    scene.addItem(&item);
-    scene.render(&painter);
-    painter.end();
-}
-
-
-void
-OfficeWindow::repaintTitleBar()
-{
-    update(m_TitleRect);
-}
-
-
-void
-OfficeWindow::updateButtonRects()
-{
-    const QSize& szClose = m_CloseImage.size();
-    const QSize& szMaxim = m_MaximImage.size();
-    const QSize& szMinim = m_MinimImage.size();
-
-    // Calculates the initial button position.
-    int paddingX = (isMaximized()) ? WINDOW_BUTTON_X : ICON_POSITION_X;
-    int paddingY = (isMaximized()) ? WINDOW_BUTTON_Y : ICON_POSITION_Y;
-    int initialX = width() - szClose.width() - paddingX;
+    // Initial button position.
+    int paddingX = (isMaximized()) ? c_windowButtonX : c_iconPosX;
+    int paddingY = (isMaximized()) ? c_windowButtonY : c_iconPosY;
+    int initialX = width() - sizeClose.width() - paddingX;
     int initialY = paddingY;
 
-    // Calculates the close button rectangle.
-    if (m_HasCloseBtn)
+    // Close button rectangle.
+    if (OffHasNotFlag(m_flagsWindow, NoCloseButton))
     {
-        m_CloseRect.setRect(
-                    initialX - 10,
-                    initialY - 8,
-                    szClose.width()  + 20,
-                    szClose.height() + 16);
-        initialX -= (szMaxim.width() + 20);
+        m_closeRectangle.setRect(
+            initialX - 10,
+            initialY - 8,
+            sizeClose.width()  + 20,
+            sizeClose.height() + 16
+            );
+
+        initialX -= sizeMaxim.width() + 20;
     }
 
-    // Calculates the maximize button rectangle.
-    if (m_HasMaximBtn)
+    // Maximize button rectangle.
+    if (OffHasNotFlag(m_flagsWindow, NoMaximizeButton))
     {
-        m_MaximRect.setRect(
-                    initialX - 10,
-                    initialY - 8,
-                    szMaxim.width()  + 20,
-                    szMaxim.height() + 16);
-        initialX -= (szMinim.width() + 20);
+        m_maximizeRectangle.setRect(
+            initialX - 10,
+            initialY - 8,
+            sizeMaxim.width()  + 20,
+            sizeMaxim.height() + 16
+            );
+
+        initialX -= sizeMinim.width() + 20;
     }
 
-    // Calculates the minimize button rectangle.
-    if (m_HasMinimBtn)
+    // Minimize button rectangle.
+    if (OffHasNotFlag(m_flagsWindow, NoMinimizeButton))
     {
-        m_MinimRect.setRect(
-                    initialX - 10,
-                    initialY - 8,
-                    szMinim.width()  + 20,
-                    szMinim.height() + 16);
+        m_minimizeRectangle.setRect(
+            initialX - 10,
+            initialY - 8,
+            sizeMinim.width()  + 20,
+            sizeMinim.height() + 16
+            );
     }
 }
 
-
-void
-OfficeWindow::updateResizeRects()
+void OfficeWindow::updateResizeRectangles()
 {
-    // Changes the locations of the resize widgets.
-    m_ResizeTopLeft->setGeometry(0, 0, 10, 10);
-    m_ResizeTopRight->setGeometry(width() - 10, 0, 10, 10);
-    m_ResizeBottomRight->setGeometry(width() - 10, height() - 10, 10, 10);
-    m_ResizeBottomLeft->setGeometry(0, height() - 10, 10, 10);
-    m_ResizeTop->setGeometry(10, 0, width() - 20, 10);
-    m_ResizeRight->setGeometry(width() - 10, 10, 10, height() - 20);
-    m_ResizeBottom->setGeometry(10, height() - 10, width() - 20, 10);
-    m_ResizeLeft->setGeometry(0, 10, 10, height() - 20);
+    int padding = (isMaximized()) ? 0 : c_shadowPadding;
+    int totalWidth =
+        m_closeRectangle.width()    +
+        m_maximizeRectangle.width() +
+        m_minimizeRectangle.width();
 
-    // Determines the padding caused by the drop shadow.
-    int dsPadding = (isMaximized()) ? 0 : DROP_SHADOW_PADDING;
-    //int dsAdjustm = (isMaximized()) ? DROP_SHADOW_PADDING : 0;
-    int buttonWid = m_CloseRect.width() + m_MaximRect.width() + m_MinimRect.width();
+    int dragWidth =
+        width()     -
+        padding * 2 -
+        totalWidth  -
+        m_windowLabelMenu->width() -
+        m_windowQuickMenu->width();
 
-    // Specifies the menu position.
-    m_Menu->setGeometry(QRect(
-                QPoint(dsPadding + 8, dsPadding + 4),
-                m_Menu->sizeHint()));
 
-    // Specifies the title dragging rectangle.
-    m_DragRect.setRect(
-                dsPadding + m_Menu->width() + 8,
-                dsPadding,
-                width() - m_Menu->width() - buttonWid - dsPadding * 2 - 8,
-                TITLE_HEIGHT);
+    // Resize areas
+    m_resizeTopLeft->setGeometry(0, 0, 10, 10);
+    m_resizeTopRight->setGeometry(width() - 10, 0, 10, 10);
+    m_resizeBottomRight->setGeometry(width() - 10, height() - 10, 10, 10);
+    m_resizeBottomLeft->setGeometry(0, height() - 10, 10, 10);
+    m_resizeTop->setGeometry(10, 0, width() - 20, 10);
+    m_resizeRight->setGeometry(width() - 10, 10, 10, height() - 20);
+    m_resizeBottom->setGeometry(10, height() - 10, width() - 20, 10);
+    m_resizeLeft->setGeometry(0, 10, 10, height() - 20);
 
-    // Specifies the client rectangle.
-    m_ClientRect.setRect(
-                dsPadding,
-                dsPadding,
-                width()  - dsPadding * 2,
-                height() - dsPadding * 2);
+    // Rectangles
+    m_dragRectangle.setRect(
+        padding + m_windowQuickMenu->width(),
+        padding,
+        dragWidth,
+        c_titleHeight
+        );
 
-    // Specifies the title rectangle.
-    m_TitleRect.setRect(
-                dsPadding,
-                dsPadding,
-                width() - dsPadding * 2,
-                TITLE_HEIGHT);
+    m_windowLabelMenu->move(
+        m_dragRectangle.x() +
+        m_dragRectangle.width(),
+        padding
+        );
+
+    m_windowQuickMenu->move(
+        padding + 1,
+        padding + 1
+        );
+
+    m_clientRectangle.setRect(
+        padding,
+        padding,
+        width()  - padding * 2,
+        height() - padding * 2
+        );
+
+    m_titleRectangle.setRect(
+        padding,
+        padding,
+        width() - padding * 2,
+        c_titleHeight
+        );
 }
 
-
-void
-OfficeWindow::updateVisibleTitle()
+void OfficeWindow::updateVisibleTitle()
 {
     QString title = windowTitle();
     QFontMetrics metrics(font());
 
-    // Retrieves the initial and the estimated width.
     int currentWidth = metrics.width(title);
-    int estimated = ((m_DragRect.width() - currentWidth) / 2)
-                  - TITLE_PADDING_X - DROP_SHADOW_PADDING;
+    int estimatedWidth = m_dragRectangle.width() -
+            c_titlePaddingX * 2 -
+            c_shadowPadding -
+            currentWidth;
 
-    // Iterates until the desired with was reached.
-    while (currentWidth > estimated && estimated > 0)
+    // Removes characters as long as it does not overlap the window buttons.
+    while (currentWidth > estimatedWidth && estimatedWidth > 0)
     {
         title.remove(title.length() - 1, 1);
         currentWidth = metrics.width(title);
     }
 
     // Displays dots behind the modified title.
-    if (title.length() < 3 || estimated < currentWidth)
-        title = QString("");
+    if (title.length() < 3 || estimatedWidth < currentWidth)
+    {
+        title = "";
+    }
     else if (windowTitle().length() != title.length())
+    {
         title.remove(title.length() - 2, 2).append("...");
+    }
 
-    m_VisibleTitle = title;
+    m_visibleTitle = title;
 }
 
-
-void
-OfficeWindow::updateResizeWidgets()
+void OfficeWindow::updateResizeWidgets()
 {
-    if (!m_CanResize || isMaximized())
+    if (OffHasFlag(m_flagsWindow, NoResize) || isMaximized())
     {
-        if (m_ResizeTopLeft->isVisible()) m_ResizeTopLeft->hide();
-        if (m_ResizeTopRight->isVisible()) m_ResizeTopRight->hide();
-        if (m_ResizeBottomRight->isVisible()) m_ResizeBottomRight->hide();
-        if (m_ResizeBottomLeft->isVisible()) m_ResizeBottomLeft->hide();
-        if (m_ResizeTop->isVisible()) m_ResizeTop->hide();
-        if (m_ResizeLeft->isVisible()) m_ResizeLeft->hide();
-        if (m_ResizeBottom->isVisible()) m_ResizeBottom->hide();
-        if (m_ResizeRight->isVisible()) m_ResizeRight->hide();
+        if (m_resizeTopLeft->isVisible()) m_resizeTopLeft->hide();
+        if (m_resizeTopRight->isVisible()) m_resizeTopRight->hide();
+        if (m_resizeBottomRight->isVisible()) m_resizeBottomRight->hide();
+        if (m_resizeBottomLeft->isVisible()) m_resizeBottomLeft->hide();
+        if (m_resizeTop->isVisible()) m_resizeTop->hide();
+        if (m_resizeLeft->isVisible()) m_resizeLeft->hide();
+        if (m_resizeBottom->isVisible()) m_resizeBottom->hide();
+        if (m_resizeRight->isVisible()) m_resizeRight->hide();
     }
     else
     {
-        if (!m_ResizeTopLeft->isVisible()) m_ResizeTopLeft->show();
-        if (!m_ResizeTopRight->isVisible()) m_ResizeTopRight->show();
-        if (!m_ResizeBottomRight->isVisible()) m_ResizeBottomRight->show();
-        if (!m_ResizeBottomLeft->isVisible()) m_ResizeBottomLeft->show();
-        if (!m_ResizeTop->isVisible()) m_ResizeTop->show();
-        if (!m_ResizeLeft->isVisible()) m_ResizeLeft->show();
-        if (!m_ResizeBottom->isVisible()) m_ResizeBottom->show();
-        if (!m_ResizeRight->isVisible()) m_ResizeRight->show();
+        if (!m_resizeTopLeft->isVisible()) m_resizeTopLeft->show();
+        if (!m_resizeTopRight->isVisible()) m_resizeTopRight->show();
+        if (!m_resizeBottomRight->isVisible()) m_resizeBottomRight->show();
+        if (!m_resizeBottomLeft->isVisible()) m_resizeBottomLeft->show();
+        if (!m_resizeTop->isVisible()) m_resizeTop->show();
+        if (!m_resizeLeft->isVisible()) m_resizeLeft->show();
+        if (!m_resizeBottom->isVisible()) m_resizeBottom->show();
+        if (!m_resizeRight->isVisible()) m_resizeRight->show();
     }
 }
 
-
-void
-OfficeWindow::updateLayoutPadding()
+void OfficeWindow::updateLayoutPadding()
 {
-    QLayout* winLayout = layout();
-
-    // No drop shadow in maximized mode.
-    if (isMaximized())
+    if (layout() != nullptr)
     {
-        winLayout->setContentsMargins(1, TITLE_HEIGHT, 1, 1);
-    }
-    else
-    {
-        winLayout->setContentsMargins(
-                    DROP_SHADOW_PADDING + 1,
-                    TITLE_HEIGHT + DROP_SHADOW_PADDING,
-                    DROP_SHADOW_PADDING + 1,
-                    DROP_SHADOW_PADDING + 1);
-    }
-}
-
-
-QRect
-OfficeWindow::centerRect(const QPixmap& img, const QRect& rc)
-{
-    int dx = (rc.width()  - img.width())  / 2;
-    int dy = (rc.height() - img.height()) / 2;
-
-    QRect center;
-          center.moveLeft(rc.x() + dx);
-          center.moveTop(rc.y() + dy);
-          center.setWidth(img.width());
-          center.setHeight(img.height());
-
-    return center;
-}
-
-
-bool
-OfficeWindow::mouseMoveDrag(const QPoint& p)
-{
-    if (m_State == WindowState::Dragging /*&& m_DragRect.contains(p)*/)
-    {
-        auto g = mapToGlobal(p);
         if (isMaximized())
         {
-            // Resets the window position on dragging.
-            m_MaximState = WinButtonState::None;
-            m_State = WindowState::None;
-            showNormal();
-            updateLayoutPadding();
-            updateResizeRects();
+            // Disable drop shadow in maximize mode.
+            layout()->setContentsMargins(1, c_titleHeight, 1, 1);
         }
         else
         {
-            // Moves the window by the amount of dx/dy pixels.
-            move(g - m_InitialDragPos);
+            layout()->setContentsMargins(
+                c_shadowPadding + 1,
+                c_titleHeight + c_shadowPadding,
+                c_shadowPadding + 1,
+                c_shadowPadding + 1
+                );
+        }
+    }
+}
+
+QRect OfficeWindow::centerRectangle(const QPixmap& pm, const QRect& rc)
+{
+    int dx = (rc.width()  - pm.width())  / 2;
+    int dy = (rc.height() - pm.height()) / 2;
+
+    return QRect(rc.x() + dx, rc.y() + dy, pm.width(), pm.height());
+}
+
+bool OfficeWindow::mouseMoveDrag(const QPoint& pos)
+{
+    if (m_stateWindow == StateDrag)
+    {
+        auto globalPos = mapToGlobal(pos);
+        if (isMaximized())
+        {
+            m_stateMaximize = ButtonNone;
+            m_stateWindow = StateNone;
+
+            // The window is about to be restored. In order to avoid that all
+            // the titlebar's contents are invisible for a split second, we
+            // recalculate all the necessary things beforehand.
+            updateLayoutPadding();
+            updateResizeRectangles();
+
+            showNormal();
+        }
+        else
+        {
+            move(globalPos - m_dragPosition);
             updateGeometry();
         }
 
@@ -681,200 +675,191 @@ OfficeWindow::mouseMoveDrag(const QPoint& p)
     return false;
 }
 
-
-bool
-OfficeWindow::mouseMoveSpecial(const QPoint& p)
+bool OfficeWindow::mouseMoveSpecial(const QPoint& pos)
 {
-    // Switches from special state to pressed state.
-    if (m_CloseState == WinButtonState::Special && m_CloseRect.contains(p))
+    // Special <> press
+    if (m_stateClose == ButtonSpecial && m_closeRectangle.contains(pos))
     {
-        m_CloseState = WinButtonState::Pressed;
+        m_stateClose = ButtonPress;
         return true;
     }
-    else if (m_MaximState == WinButtonState::Special && m_MaximRect.contains(p))
+    else if (m_stateMaximize == ButtonSpecial && m_maximizeRectangle.contains(pos))
     {
-        m_MaximState = WinButtonState::Pressed;
+        m_stateMaximize = ButtonPress;
         return true;
     }
-    else if (m_MinimState == WinButtonState::Special && m_MinimRect.contains(p))
+    else if (m_stateMinimize == ButtonSpecial && m_minimizeRectangle.contains(pos))
     {
-        m_MinimState = WinButtonState::Pressed;
+        m_stateMinimize = ButtonPress;
         return true;
     }
 
-    // Switches from pressed state to special state.
-    if (m_CloseState == WinButtonState::Pressed && !m_CloseRect.contains(p))
+    // Press <> special
+    if (m_stateClose == ButtonPress && !m_closeRectangle.contains(pos))
     {
-        m_CloseState = WinButtonState::Special;
+        m_stateClose = ButtonSpecial;
         return true;
     }
-    else if (m_MaximState == WinButtonState::Pressed && !m_MaximRect.contains(p))
+    else if (m_stateMaximize == ButtonPress && !m_maximizeRectangle.contains(pos))
     {
-        m_MaximState = WinButtonState::Special;
+        m_stateMaximize = ButtonSpecial;
         return true;
     }
-    else if (m_MinimState == WinButtonState::Pressed && !m_MinimRect.contains(p))
+    else if (m_stateMinimize == ButtonPress && !m_minimizeRectangle.contains(pos))
     {
-        m_MinimState = WinButtonState::Special;
+        m_stateMinimize = ButtonSpecial;
         return true;
     }
 
     return false;
 }
 
-
-bool
-OfficeWindow::mouseMoveHitTest(const QPoint& p)
+bool OfficeWindow::mouseMoveHitTest(const QPoint& pos)
 {
-    // Changes the button into hovered state if
-    // the mouse pointer happens to hover it.
-    if (m_CloseState != WinButtonState::Pressed &&
-        m_CloseState != WinButtonState::Special &&
-        m_MaximState != WinButtonState::Pressed &&
-        m_MaximState != WinButtonState::Special &&
-        m_MinimState != WinButtonState::Pressed &&
-        m_MinimState != WinButtonState::Special)
+    // Changes the button into hovered state if the mouse pointer happens to
+    // hover it.
+    if (m_stateClose    != ButtonPress   &&
+        m_stateClose    != ButtonSpecial &&
+        m_stateMaximize != ButtonPress   &&
+        m_stateMaximize != ButtonSpecial &&
+        m_stateMinimize != ButtonPress   &&
+        m_stateMinimize != ButtonSpecial)
     {
-        // Determines whether one button has been hovered before.
-        // If yes, do not perform a repaint of the title bar.
-        bool initial = m_CloseState != WinButtonState::Hovered &&
-                       m_MaximState != WinButtonState::Hovered &&
-                       m_MinimState != WinButtonState::Hovered ;
+        // Determines whether one button has been hovered before. If yes, do not
+        // perform a repaint of the title bar.
+        bool state = m_stateClose    != ButtonHover &&
+                     m_stateMaximize != ButtonHover &&
+                     m_stateMinimize != ButtonHover;
 
-        // Resets all current states.
-        m_CloseState = WinButtonState::None;
-        m_MaximState = WinButtonState::None;
-        m_MinimState = WinButtonState::None;
+        m_stateClose    = ButtonNone;
+        m_stateMaximize = ButtonNone;
+        m_stateMinimize = ButtonNone;
 
-        // Determines whether there is any new state.
-        if (m_HasCloseBtn && m_CloseRect.contains(p))
+        if (OffHasNotFlag(m_flagsWindow, NoCloseButton) &&
+            m_closeRectangle.contains(pos))
         {
-            m_CloseState = WinButtonState::Hovered;
+            m_stateClose = ButtonHover;
             return true;
         }
-        else if (m_HasMaximBtn && m_MaximRect.contains(p))
+        else if (OffHasNotFlag(m_flagsWindow, NoMaximizeButton) &&
+            m_maximizeRectangle.contains(pos))
         {
-            m_MaximState = WinButtonState::Hovered;
+            m_stateMaximize = ButtonHover;
             return true;
         }
-        else if (m_HasMinimBtn && m_MinimRect.contains(p))
+        else if (OffHasNotFlag(m_flagsWindow, NoMinimizeButton) &&
+            m_minimizeRectangle.contains(pos))
         {
-            m_MinimState = WinButtonState::Hovered;
+            m_stateMinimize = ButtonHover;
             return true;
         }
 
-        return initial;
+        return state;
     }
 
     return false;
 }
 
-
-bool
-OfficeWindow::mousePressDrag(const QPoint& p)
+bool OfficeWindow::mousePressDrag(const QPoint& pos)
 {
-    // Activates dragging if the dragging rectangle
-    // is being pressed and moved later on.
-    if (m_DragRect.contains(p))
+    // Activates dragging if the dragging rectangle is being pressed and
+    // moved later on.
+    if (m_dragRectangle.contains(pos))
     {
-        m_InitialDragPos = p;
-        m_State = WindowState::Dragging;
-        return true;
-    }
+        m_dragPosition = pos;
+        m_stateWindow = StateDrag;
 
-    return false;
-}
-
-
-bool
-OfficeWindow::mousePressHitTest(const QPoint& p)
-{
-    // Determines whether one button has been pressed before.
-    // If yes, do not perform a repaint of the title bar.
-    bool initial = m_CloseState != WinButtonState::Pressed &&
-                   m_MaximState != WinButtonState::Pressed &&
-                   m_MinimState != WinButtonState::Pressed ;
-
-    // Resets all the current states.
-    m_CloseState = WinButtonState::None;
-    m_MaximState = WinButtonState::None;
-    m_MinimState = WinButtonState::None;
-
-    // Determines whether there is any new state.
-    if (m_HasCloseBtn && m_CloseRect.contains(p))
-    {
-        m_CloseState = WinButtonState::Pressed;
-        return true;
-    }
-    else if (m_HasMaximBtn && m_MaximRect.contains(p))
-    {
-        m_MaximState = WinButtonState::Pressed;
-        return true;
-    }
-    else if (m_HasMinimBtn && m_MinimRect.contains(p))
-    {
-        m_MinimState = WinButtonState::Pressed;
-        return true;
-    }
-
-    return initial;
-}
-
-
-bool
-OfficeWindow::mouseReleaseDrag(const QPoint&)
-{
-    if (m_State == WindowState::Dragging)
-    {
-        m_State = WindowState::None;
         return true;
     }
 
     return false;
 }
 
-
-bool
-OfficeWindow::mouseReleaseAction(const QPoint& p)
+bool OfficeWindow::mousePressHitTest(const QPoint& pos)
 {
-    if (m_CloseState == WinButtonState::Pressed ||
-        m_CloseState == WinButtonState::Special ||
-        m_MaximState == WinButtonState::Pressed ||
-        m_MaximState == WinButtonState::Special ||
-        m_MinimState == WinButtonState::Pressed ||
-        m_MinimState == WinButtonState::Special)
+    bool state = m_stateClose    != ButtonPress &&
+                 m_stateMaximize != ButtonPress &&
+                 m_stateMinimize != ButtonPress;
+
+    m_stateClose    = ButtonNone;
+    m_stateMaximize = ButtonNone;
+    m_stateMinimize = ButtonNone;
+
+    if (OffHasNotFlag(m_flagsWindow, NoCloseButton) &&
+        m_closeRectangle.contains(pos))
     {
-        // Executes certain actions based on the clicked button.
-        if (m_CloseState == WinButtonState::Pressed && m_CloseRect.contains(p))
+        m_stateClose = ButtonPress;
+        return true;
+    }
+    else if (OffHasNotFlag(m_flagsWindow, NoMaximizeButton) &&
+        m_maximizeRectangle.contains(pos))
+    {
+        m_stateMaximize = ButtonPress;
+        return true;
+    }
+    else if (OffHasNotFlag(m_flagsWindow, NoMinimizeButton) &&
+        m_minimizeRectangle.contains(pos))
+    {
+        m_stateMinimize = ButtonPress;
+        return true;
+    }
+
+    return state;
+}
+
+bool OfficeWindow::mouseReleaseDrag(const QPoint&)
+{
+    if (m_stateWindow == StateDrag)
+    {
+        m_stateWindow = StateNone;
+
+        return true;
+    }
+
+    return false;
+}
+
+bool OfficeWindow::mouseReleaseAction(const QPoint& pos)
+{
+    if (m_stateClose    == ButtonPress   ||
+        m_stateClose    == ButtonSpecial ||
+        m_stateMaximize == ButtonPress   ||
+        m_stateMaximize == ButtonSpecial ||
+        m_stateMinimize == ButtonPress   ||
+        m_stateMinimize == ButtonSpecial)
+    {
+        if (m_stateClose == ButtonPress && m_closeRectangle.contains(pos))
         {
             close();
         }
-        else if (m_MaximState == WinButtonState::Pressed && m_MaximRect.contains(p))
+        else if (m_stateMaximize == ButtonPress && m_maximizeRectangle.contains(pos))
         {
+            // The window is about to be maximized or restored. In order to
+            // avoid that all the titlebar's contents are invisible for a split
+            // second, we recalculate all the necessary things beforehand.
+            updateButtonRectangles();
+            updateResizeRectangles();
+            updateLayoutPadding();
+            updateVisibleTitle();
+
             if (isMaximized())
             {
                 showNormal();
-                updateResizeRects();
             }
             else
             {
                 showMaximized();
-                updateResizeRects();
             }
-
-            updateLayoutPadding();
-            update();
         }
-        else if (m_MinimState == WinButtonState::Pressed && m_MinimRect.contains(p))
+        else if (m_stateMinimize == ButtonPress && m_minimizeRectangle.contains(pos))
         {
-            showMinimized();
             updateLayoutPadding();
+            showMinimized();
         }
 
-        // Resets all the pressed states.
-        m_CloseState = WinButtonState::None;
-        m_MaximState  = WinButtonState::None;
-        m_MinimState  = WinButtonState::None;
+        m_stateClose    = ButtonNone;
+        m_stateMaximize = ButtonNone;
+        m_stateMinimize = ButtonNone;
 
         return true;
     }
@@ -882,115 +867,7 @@ OfficeWindow::mouseReleaseAction(const QPoint& p)
     return false;
 }
 
-
-bool
-OfficeWindow::isActive()
+bool OfficeWindow::isActive() const
 {
-    return isActiveWindow() || m_IsTooltipShown;
+    return isActiveWindow() || m_tooltipVisible;
 }
-
-
-WinResizeArea::WinResizeArea(OfficeWindow* window, WinResizeDirs dir)
-    : QWidget(window)
-    , m_Window(window)
-    , m_Direction(dir)
-{
-    bool hasHorizontal = (dir & WinResizeDir::Left) ||
-                         (dir & WinResizeDir::Right);
-
-    // Determines the QCursor to use.
-    if (hasHorizontal && (dir & WinResizeDir::Bottom))
-    {
-        if (dir & WinResizeDir::Left)
-            setCursor(Qt::SizeBDiagCursor);
-        else
-            setCursor(Qt::SizeFDiagCursor);
-    }
-    else if (hasHorizontal && (dir & WinResizeDir::Top))
-    {
-        if (dir & WinResizeDir::Left)
-            setCursor(Qt::SizeFDiagCursor);
-        else
-            setCursor(Qt::SizeBDiagCursor);
-    }
-    else if (hasHorizontal)
-    {
-        setCursor(Qt::SizeHorCursor);
-    }
-    else if ((dir & WinResizeDir::Top) || (dir & WinResizeDir::Bottom))
-    {
-        setCursor(Qt::SizeVerCursor);
-    }
-}
-
-
-void
-WinResizeArea::enterEvent(QEvent*)
-{
-    m_Window->m_CloseState = WinButtonState::None;
-    m_Window->m_MaximState = WinButtonState::None;
-    m_Window->m_MinimState = WinButtonState::None;
-    m_Window->repaintTitleBar();
-}
-
-
-void
-WinResizeArea::mousePressEvent(QMouseEvent* event)
-{
-    if (event->button() == Qt::LeftButton && m_Window->canResize())
-        m_Window->m_State = WindowState::Resizing;
-}
-
-
-void
-WinResizeArea::mouseReleaseEvent(QMouseEvent* event)
-{
-    if (event->button() == Qt::LeftButton && m_Window->canResize())
-    {
-        m_Window->m_State = WindowState::None;
-        m_Window->generateDropShadow();
-        m_Window->update();
-    }
-}
-
-
-void
-WinResizeArea::mouseMoveEvent(QMouseEvent* event)
-{
-    if (m_Window->m_State == WindowState::Resizing)
-    {
-        QPoint g = event->globalPos();
-        QRect r = m_Window->geometry();
-        QSize min = m_Window->minimumSize();
-        QSize max = m_Window->maximumSize();
-        QRect orig = r;
-
-        if (m_Direction & WinResizeDir::Left)
-            r.setLeft(g.x());
-        if (m_Direction & WinResizeDir::Right)
-            r.setRight(g.x());
-        if (m_Direction & WinResizeDir::Bottom)
-            r.setBottom(g.y());
-        if (m_Direction & WinResizeDir::Top)
-            r.setTop(g.y());
-
-        if (r.width() < min.width() || r.width() > max.width())
-        {
-            // Resets the horizontal geometry.
-            r.setLeft(orig.left());
-            r.setRight(orig.right());
-        }
-        if (r.height() < min.height() || r.height() > max.height())
-        {
-            // Resets the vertical geometry.
-            r.setTop(orig.top());
-            r.setBottom(orig.bottom());
-        }
-
-        m_Window->setGeometry(r);
-    }
-}
-
-
-// Static variable definition
-OfficeWindow* OfficeWindow::g_ActiveWindow = nullptr;
