@@ -60,7 +60,8 @@ public:
 signals:
 
     void clicked(WindowItem*);
-    //void tooltipShown();
+    void tooltipShowRequested(WindowItem*);
+    void tooltipHideRequested(WindowItem*);
 
 protected:
 

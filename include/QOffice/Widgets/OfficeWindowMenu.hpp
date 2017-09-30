@@ -26,6 +26,7 @@
 
 #include <QOffice/Widgets/OfficeWindowMenuItem.hpp>
 
+class OfficeTooltip;
 class OfficeWindow;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,7 +119,11 @@ signals:
 private slots:
 
     void onItemClicked(priv::WindowItem*);
-    void onHelpRequested(priv::WindowItem*);
+    void onHelpRequested();
+    void onShowTooltip(priv::WindowItem*);
+    void onHideTooltip(priv::WindowItem*);
+    void showTooltip();
+    void hideTooltip();
 
 private:
 
@@ -128,10 +133,11 @@ private:
     ////////////////////////////////////////////////////////////////////////////
     Type                     m_type;
     QList<priv::WindowItem*> m_items;
+    priv::WindowItem*        m_trigger;
     OfficeWindow*            m_parent;
     QLayout*                 m_layout;
-    //OfficeTooltip* m_tooltip;
-    //QTimer* m_timer;
+    OfficeTooltip*           m_tooltip;
+    QTimer*                  m_timer;
 
     friend class priv::WindowItem;
 

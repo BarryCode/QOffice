@@ -21,7 +21,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <QOffice/Design/OfficeImage.hpp>
+
+#include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
+#include <QGraphicsDropShadowEffect>
 #include <QImage>
+#include <QPainter>
 #include <QPixmap>
 
 QImage OfficeImage::convertToGrayscale(const QImage& original)
@@ -55,4 +60,37 @@ QImage OfficeImage::convertToGrayscale(const QImage& original)
 QPixmap OfficeImage::convertToGrayscale(const QPixmap& original)
 {
     return QPixmap::fromImage(convertToGrayscale(original.toImage()));
+}
+
+QPixmap OfficeImage::generateDropShadow(const QSize& size)
+{
+    QPixmap result(size);
+    result.fill(Qt::transparent);
+
+    QPainter painter(&result);
+    QPainterPath path;
+    QRectF roundedRect(
+        c_shadowPadding,
+        c_shadowPadding,
+        size.width()  - c_shadowPadding * 2,
+        size.height() - c_shadowPadding * 2
+        );
+
+    path.addRoundedRect(roundedRect, 4, 4);
+    painter.fillPath(path, Qt::black);
+
+    QGraphicsScene scene;
+    QGraphicsPixmapItem item(result);
+    QGraphicsDropShadowEffect shadow;
+
+    shadow.setBlurRadius(c_shadowPadding);
+    shadow.setOffset(c_shadowBlur, c_shadowBlur);
+    shadow.setColor(Qt::black);
+
+    item.setGraphicsEffect(&shadow);
+    scene.addItem(&item);
+    scene.render(&painter);
+    painter.end();
+
+    return result;
 }

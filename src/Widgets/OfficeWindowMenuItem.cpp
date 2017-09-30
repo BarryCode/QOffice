@@ -55,6 +55,8 @@ priv::WindowItem::WindowItem(
 {
     if (type == OfficeWindowMenu::LabelMenu)
     {
+        // The labels on the LabelMenu are links with underlined text. In order
+        // to make them look like "Hyperlinks", change the cursor to a hand.
         setCursor(Qt::PointingHandCursor);
     }
 
@@ -100,7 +102,7 @@ QSize priv::WindowItem::sizeHint() const
     }
     else if (m_type == OfficeWindowMenu::QuickMenu)
     {
-        return QSize(m_image.width() + 10, m_image.height() + 10);
+        return QSize(32, 26);
     }
 
     return QSize();
@@ -110,12 +112,16 @@ void priv::WindowItem::enterEvent(QEvent* event)
 {
     m_isHovered = true;
 
+    emit tooltipShowRequested(this);
+
     QWidget::enterEvent(event);
 }
 
 void priv::WindowItem::leaveEvent(QEvent* event)
 {
     m_isHovered = false;
+
+    emit tooltipHideRequested(this);
 
     QWidget::leaveEvent(event);
 }
@@ -146,6 +152,11 @@ void priv::WindowItem::paintEvent(QPaintEvent*)
     }
     else if (m_type == OfficeWindowMenu::QuickMenu)
     {
+        if (!m_parent->m_parent->isActive())
+        {
+            painter.setOpacity(0.5);
+        }
+
         auto accent = m_parent->m_parent->accent();
         if (m_isPressed)
         {
