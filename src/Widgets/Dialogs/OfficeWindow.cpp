@@ -82,11 +82,7 @@ OfficeWindow::OfficeWindow(QWidget* parent)
     setAttribute(Qt::WA_TranslucentBackground);
 
     m_windowLabelMenu->show();
-    m_windowLabelMenu->addItem("Item1", QPixmap(), "This item does this and that.");
-    m_windowLabelMenu->addItem("Item2", QPixmap(), "This item does nothing.");
-
     m_windowQuickMenu->show();
-    m_windowQuickMenu->addItem("Item1", QPixmap(":/qoffice/images/window/restore.png"));
 }
 
 bool OfficeWindow::hasCloseButton() const
