@@ -11,3 +11,5 @@ Button-Hover:
 ![](https://i.imgur.com/2dDQNTQ.png)  
 Window-Menu:  
 ![](https://i.imgur.com/xHvtBCD.png)  
+Tooltips:
+![](https://i.imgur.com/zS0ykib.png)
