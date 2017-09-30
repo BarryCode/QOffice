@@ -110,6 +110,16 @@ OfficeWindow::Flags OfficeWindow::flags() const
     return m_flagsWindow;
 }
 
+OfficeWindowMenu* OfficeWindow::labelMenu() const
+{
+    return m_windowLabelMenu;
+}
+
+OfficeWindowMenu* OfficeWindow::quickMenu() const
+{
+    return m_windowQuickMenu;
+}
+
 void OfficeWindow::setAccent(Office::Accent accent)
 {
     if (OfficeAccent::isValid(accent))

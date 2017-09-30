@@ -166,6 +166,22 @@ public:
     Flags flags() const;
 
     ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves the label menu associated to this window.
+    ///
+    /// \return The label menu. Items can be added to that menu afterwards.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    OfficeWindowMenu* labelMenu() const;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves the quick menu associated to this window.
+    ///
+    /// \return The quick menu. Items can be added to that menu afterwards.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    OfficeWindowMenu* quickMenu() const;
+
+    ////////////////////////////////////////////////////////////////////////////
     /// Specifies the accent for all widgets subordinated to this window.
     ///
     /// \param[in] accent The new accent to apply to all widgets.
@@ -334,10 +350,45 @@ OffEnumOperators(OfficeWindow::ResizeDirection)
 /// \class OfficeWindow
 /// \ingroup Widget
 ///
-/// $Detailedclassdesc
+/// While having functionality that is typical to windows, such as resize, drag,
+/// window buttons and title text, the OfficeWindow also contains two menus. One
+/// menu is called the "label menu" and is located on the left hand side of the
+/// window. It contains items that function as hyperlinks. One can connect to
+/// the signals they emit and do anything they like. The other menu is called
+/// the "quick menu" and is located on the right hand side of the window. It
+/// contains items that function as clickable image-buttons. One can connect to
+/// the signals they emit and do anything they like. Both of these menus are
+/// capable of showing tooltips for every item. The following example shows how
+/// to set up a simple OfficeWindow with some menu items.
 ///
 /// \code
-/// <example_code>
+/// #include <QOfficeWindow>
+/// #include <QApplication>
+///
+/// int main(int argc, char *argv[])
+/// {
+///     QApplication a(argc, argv);
+///     OfficeWindow w;
+///
+///     w.setWindowTitle("QOffice example");
+///     w.labelMenu()->addLabelItem(0, "Item1", "This is a dummy item.");
+///     w.quickMenu()->addQuickItem(0, QPixmap(""), "This is a dummy item.");
+///     w.show();
+///
+///     QObject::connect(w.labelMenu(), &OfficeWindowMenu::itemClicked, [&](int id)
+///         {
+///             qDebug() << "Item with id" << id << "was clicked.";
+///         });
+///     QObject::connect(w.labelMenu(), &OfficeWindowMenu::helpRequested, [&](int id)
+///         {
+///             qDebug() << "Help was requested from item with id" << id << ".";
+///         });
+///
+///     return a.exec();
+/// }
 /// \endcode
+///
+/// Now try to click on the item or request help when its tooltip is shown by
+/// pressing F1 or clicking the help text link.
 ///
 ////////////////////////////////////////////////////////////////////////////////
