@@ -40,12 +40,14 @@ QRect centerRectangle(const QPixmap& pm, const QRect& rc)
 priv::WindowItem::WindowItem(
     OfficeWindowMenu* parent,
     int type,
+    int id,
     const QString& text,
     const QPixmap& image,
     const QString& tooltip
     )
     : QWidget(parent)
     , m_type(type)
+    , m_id(id)
     , m_isHovered(false)
     , m_isPressed(false)
     , m_text(text)
@@ -62,6 +64,11 @@ priv::WindowItem::WindowItem(
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     setMouseTracking(true);
+}
+
+int priv::WindowItem::id() const
+{
+    return m_id;
 }
 
 const QString& priv::WindowItem::text() const

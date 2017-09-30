@@ -80,7 +80,90 @@ OfficeWindowMenu::OfficeWindowMenu(OfficeWindow* parent, Type type)
     setMouseTracking(true);
 }
 
+bool OfficeWindowMenu::addLabelItem(int id, const QString& t, const QString& tt)
+{
+    if (m_type != LabelMenu)
+    {
+        return false;
+    }
+
+    return addItem(id, t, QPixmap(), tt);
+}
+
+bool OfficeWindowMenu::addQuickItem(int id, const QPixmap& i, const QString &tt)
+{
+    if (m_type != QuickMenu)
+    {
+        return false;
+    }
+
+    return addItem(id, QString(), i, tt);
+}
+
+bool OfficeWindowMenu::removeItem(int id)
+{
+    for (auto* item : m_items)
+    {
+        if (item->id() == id)
+        {
+            m_items.removeOne(item);
+            m_layout->removeWidget(item);
+
+            delete item;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void OfficeWindowMenu::onItemClicked(priv::WindowItem* item)
+{
+    hideTooltip();
+
+    emit menuItemClicked(item->id());
+}
+
+void OfficeWindowMenu::onHelpRequested()
+{
+    emit helpRequested(m_tooltip->property("item").toInt());
+}
+
+void OfficeWindowMenu::onShowTooltip(priv::WindowItem* item)
+{
+    m_tooltip->setProperty("item", item->id());
+    m_trigger = item;
+    m_timer->start();
+}
+
+void OfficeWindowMenu::onHideTooltip(priv::WindowItem*)
+{
+    if (!m_tooltip->geometry().contains(QCursor::pos()))
+    {
+        hideTooltip();
+    }
+}
+
+void OfficeWindowMenu::showTooltip()
+{
+    QPoint pos = mapToGlobal(QPoint(m_trigger->width(), m_trigger->height()));
+    QSize size(300, 200);
+
+    m_tooltip->setGeometry(QRect(pos, size));
+    m_tooltip->setTitle(m_trigger->text());
+    m_tooltip->setText(m_trigger->tooltipText());
+    m_tooltip->show();
+    m_timer->stop();
+}
+
+void OfficeWindowMenu::hideTooltip()
+{
+    m_tooltip->hide();
+    m_timer->stop();
+}
+
 bool OfficeWindowMenu::addItem(
+    const int id,
     const QString& text,
     const QPixmap& img,
     const QString& tooltip
@@ -96,7 +179,7 @@ bool OfficeWindowMenu::addItem(
             return false;
     }
 
-    auto* item = new priv::WindowItem(this, m_type, text, img, tooltip);
+    auto* item = new priv::WindowItem(this, m_type, id, text, img, tooltip);
 
     m_items.append(item);
     m_layout->addWidget(item);
@@ -139,66 +222,4 @@ bool OfficeWindowMenu::addItem(
         );
 
     return true;
-}
-
-bool OfficeWindowMenu::removeItem(const QString& text)
-{
-    for (auto* item : m_items)
-    {
-        if (item->text() == text)
-        {
-            m_items.removeOne(item);
-            m_layout->removeWidget(item);
-
-            delete item;
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void OfficeWindowMenu::onItemClicked(priv::WindowItem* item)
-{
-    hideTooltip();
-
-    emit menuItemClicked(item->text());
-}
-
-void OfficeWindowMenu::onHelpRequested()
-{
-    emit helpRequested(m_tooltip->property("item").toString());
-}
-
-void OfficeWindowMenu::onShowTooltip(priv::WindowItem* item)
-{
-    m_tooltip->setProperty("item", item->text());
-    m_trigger = item;
-    m_timer->start();
-}
-
-void OfficeWindowMenu::onHideTooltip(priv::WindowItem*)
-{
-    if (!m_tooltip->geometry().contains(QCursor::pos()))
-    {
-        hideTooltip();
-    }
-}
-
-void OfficeWindowMenu::showTooltip()
-{
-    QPoint pos = mapToGlobal(QPoint(m_trigger->width(), m_trigger->height()));
-    QSize size(300, 200);
-
-    m_tooltip->setGeometry(QRect(pos, size));
-    m_tooltip->setTitle(m_trigger->text());
-    m_tooltip->setText(m_trigger->tooltipText());
-    m_tooltip->show();
-    m_timer->stop();
-}
-
-void OfficeWindowMenu::hideTooltip()
-{
-    m_tooltip->hide();
-    m_timer->stop();
 }

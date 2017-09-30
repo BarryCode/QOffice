@@ -66,55 +66,58 @@ public:
     OfficeWindowMenu(OfficeWindow* parent, Type type);
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Adds a new menu item with the given parameters.
+    /// Adds a label item to the window menu.
     ///
-    /// \param[in] text The displayed text of the menu item.
-    /// \param[in] img The image next to the text (optional).
-    /// \param[in] tooltip The tooltip text shown on mouse hover (optional).
-    /// \return False if the text already exists, true otherwise.
+    /// \param[in] id The unique identifier of the menu item.
+    /// \param[in] text The displayed text of the label.
+    /// \param[in] tooltip (opt) The tooltip text shown on mouse hover.
+    /// \return False if the ID already exists, true otherwise.
+    ///
+    /// \remarks Also returns false if this menu is not a label menu.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    bool addItem(
-        const QString& text,
-        const QPixmap& img = QPixmap(),
-        const QString& tooltip = QString()
-        );
+    bool addLabelItem(int id, const QString& text, const QString& tooltip = "");
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Adds a quick item to the window menu.
+    ///
+    /// \param[in] id The unique identifier of the menu item.
+    /// \param[in] icon The displayed icon.
+    /// \param[in] tooltip (opt) The tooltip text shown on mouse hover.
+    /// \return False if the ID already exists, true otherwise.
+    ///
+    /// \remarks Also returns false if this menu is not a quick menu.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    bool addQuickItem(int id, const QPixmap& icon, const QString& tooltip = "");
 
     ////////////////////////////////////////////////////////////////////////////
     /// Removes the menu item with the given text.
     ///
-    /// \param[in] text The text of the menu item to remove.
+    /// \param[in] id The unique identifier of the item to remove.
     /// \return True if item removed, false otherwise.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    bool removeItem(const QString& text);
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// Retrieves the desired size of this window menu.
-    ///
-    /// \return The requested width and height, in pixels.
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    //QSize sizeHint() const;
+    bool removeItem(int id);
 
 signals:
 
     ////////////////////////////////////////////////////////////////////////////
     /// This signal is emitted once the user clicks a menu item.
     ///
-    /// \param[in] text The text of the clicked item.
+    /// \param[in] id The unique identifier of the clicked item.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    void menuItemClicked(QString text);
+    void menuItemClicked(int id);
 
     ////////////////////////////////////////////////////////////////////////////
     /// This signal is emitted once the user requests help while the tooltip of
     /// a menu item is shown.
     ///
-    /// \param[in] text The text of the item which's tooltip requested help.
+    /// \param[in] id The unique identifier of the clicked item.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    void helpRequested(QString text);
+    void helpRequested(int id);
 
 private slots:
 
@@ -124,6 +127,12 @@ private slots:
     void onHideTooltip(priv::WindowItem*);
     void showTooltip();
     void hideTooltip();
+    bool addItem(
+        const int id,
+        const QString& t,
+        const QPixmap& i = QPixmap(),
+        const QString& tt = QString()
+        );
 
 private:
 
