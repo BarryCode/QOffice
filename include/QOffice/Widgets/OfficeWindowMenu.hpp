@@ -108,7 +108,7 @@ signals:
     /// \param[in] id The unique identifier of the clicked item.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    void menuItemClicked(int id);
+    void itemClicked(int id);
 
     ////////////////////////////////////////////////////////////////////////////
     /// This signal is emitted once the user requests help while the tooltip of
@@ -140,13 +140,12 @@ private:
     // Members
     //
     ////////////////////////////////////////////////////////////////////////////
-    Type                     m_type;
-    QList<priv::WindowItem*> m_items;
-    priv::WindowItem*        m_trigger;
-    OfficeWindow*            m_parent;
-    QLayout*                 m_layout;
-    OfficeTooltip*           m_tooltip;
-    QTimer*                  m_timer;
+    Type                     m_type;    ///< Defines the type of the menu.
+    QList<priv::WindowItem*> m_items;   ///< Holds all window items.
+    priv::WindowItem*        m_trigger; ///< Defines the current tooltip item.
+    OfficeWindow*            m_parent;  ///< Defines the parent office window.
+    OfficeTooltip*           m_tooltip; ///< Defines the tooltip for all items.
+    QTimer*                  m_timer;   ///< Defines the tooltip timer.
 
     friend class priv::WindowItem;
 
@@ -166,7 +165,30 @@ private:
 /// on hover).
 ///
 /// \code
-/// <example_code>
+/// const int idItem1 = 0;
+/// const int idItem2 = 0;
+///
+/// m_labelMenu = new OfficeWindowMenu(window, OfficeWindowMenu::LabelMenu);
+/// m_labelMenu->addLabelItem(idItem1, "Item1", "This item does this.");
+/// m_labelMenu->addLabelItem(idItem2, "Item2", "This item does that.");
+/// m_labelMenu->connect(m_labelMenu, &OfficeWindowMenu::itemClicked, this, [...]);
+/// \endcode
+///
+/// The OfficeWindowMenu::itemClicked signal will be emitted whenever the user
+/// clicks on a window menu item. The id of the item will be provided:
+///
+/// \code
+/// void itemClickedSlot(int id)
+/// {
+///     if (id == idItem1)
+///     {
+///         // do something
+///     }
+///     else if (id == idItem2)
+///     {
+///         // do something
+///     }
+/// }
 /// \endcode
 ///
 ////////////////////////////////////////////////////////////////////////////////

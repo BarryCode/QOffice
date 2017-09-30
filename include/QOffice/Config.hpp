@@ -85,6 +85,7 @@
 // Easy to use constructor macroes.
 #define OffDeclareCtor(type) type();
 #define OffDeclareDtor(type) virtual ~type();
+#define OffMustInherit(type) virtual ~type() = 0;
 #define OffDeclareCopy(type) type(const type& t); type& operator =(const type& t);
 #define OffDefaultCtor(type) type() = default;
 #define OffDefaultDtor(type) virtual ~type() = default;

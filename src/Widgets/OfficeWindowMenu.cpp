@@ -33,10 +33,11 @@ OfficeWindowMenu::OfficeWindowMenu(OfficeWindow* parent, Type type)
     : QWidget(parent),
       m_type(type)
     , m_parent(parent)
-    , m_layout(new QHBoxLayout(this))
     , m_tooltip(new OfficeTooltip())
     , m_timer(new QTimer(this))
 {
+    setLayout(new QHBoxLayout(this));
+
     // Prepare the timer that shows/hides the tooltip on demand.
     m_timer->setInterval(1000);
     m_tooltip->setHelpEnabled(true);
@@ -60,14 +61,14 @@ OfficeWindowMenu::OfficeWindowMenu(OfficeWindow* parent, Type type)
     // to each other, add a small horizontal margin.
     if (type == LabelMenu)
     {
-        m_layout->setContentsMargins(10,0,10,0);
+        layout()->setContentsMargins(10,0,10,0);
 
         // We do not want the item texts to be too close to one another.
-        m_layout->setSpacing(10);
+        layout()->setSpacing(10);
     }
     else if (type == QuickMenu)
     {
-        m_layout->setContentsMargins(0,0,10,0);
+        layout()->setContentsMargins(0,0,10,0);
     }
 
     // The menu's height will always be a fixed height (c_menuHeight). It may
@@ -75,8 +76,6 @@ OfficeWindowMenu::OfficeWindowMenu(OfficeWindow* parent, Type type)
     // space possible horizontally, as the titlebar is cramped.
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     setFixedHeight(c_menuHeight);
-
-    setLayout(m_layout);
     setMouseTracking(true);
 }
 
@@ -107,7 +106,7 @@ bool OfficeWindowMenu::removeItem(int id)
         if (item->id() == id)
         {
             m_items.removeOne(item);
-            m_layout->removeWidget(item);
+            layout()->removeWidget(item);
 
             delete item;
             return true;
@@ -121,7 +120,7 @@ void OfficeWindowMenu::onItemClicked(priv::WindowItem* item)
 {
     hideTooltip();
 
-    emit menuItemClicked(item->id());
+    emit itemClicked(item->id());
 }
 
 void OfficeWindowMenu::onHelpRequested()
@@ -182,7 +181,7 @@ bool OfficeWindowMenu::addItem(
     auto* item = new priv::WindowItem(this, m_type, id, text, img, tooltip);
 
     m_items.append(item);
-    m_layout->addWidget(item);
+    layout()->addWidget(item);
 
     // When a QWidget is already shown, adding a child to it does not
     // automatically show the child - we have to do it manually. The layout
@@ -196,7 +195,7 @@ bool OfficeWindowMenu::addItem(
         // For quick menus, we need the item to be aligned to top, because the
         // background color (it changes on hover and press) would be totally
         // misplaced otherwise.
-        m_layout->itemAt(m_layout->indexOf(item))->setAlignment(Qt::AlignTop);
+        layout()->itemAt(layout()->indexOf(item))->setAlignment(Qt::AlignTop);
     }
 
     // Make the menu receive signals from the new item.
