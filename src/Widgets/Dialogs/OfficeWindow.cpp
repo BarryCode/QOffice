@@ -21,12 +21,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <QOffice/Design/OfficeAccent.hpp>
+#include <QOffice/Design/OfficeImage.hpp>
 #include <QOffice/Design/OfficePalette.hpp>
 #include <QOffice/Widgets/Dialogs/OfficeWindow.hpp>
 
-#include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsDropShadowEffect>
 #include <QLayout>
 #include <QPainter>
 #include <QtEvents>
@@ -42,19 +40,16 @@ OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_left = OfficeWind
 OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_bottom = OfficeWindow::ResizeBottom)
 OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_right = OfficeWindow::ResizeRight)
 
-OffAnonymous(QOFFICE_CONSTEXPR int c_shadowSize = 5)
 OffAnonymous(QOFFICE_CONSTEXPR int c_titlePaddingX = 24)
 OffAnonymous(QOFFICE_CONSTEXPR int c_titlePaddingY = 10)
 OffAnonymous(QOFFICE_CONSTEXPR int c_windowButtonX = 11)
 OffAnonymous(QOFFICE_CONSTEXPR int c_windowButtonY = 9)
-OffAnonymous(QOFFICE_CONSTEXPR int c_titleHeight = 28)
+OffAnonymous(QOFFICE_CONSTEXPR int c_titleHeight   = 28)
 OffAnonymous(QOFFICE_CONSTEXPR int c_menuItemSpacing = 16)
-OffAnonymous(QOFFICE_CONSTEXPR int c_menuItemHeight = 16)
+OffAnonymous(QOFFICE_CONSTEXPR int c_menuItemHeight  = 16)
 OffAnonymous(QOFFICE_CONSTEXPR int c_menuIconY = 6)
-OffAnonymous(QOFFICE_CONSTEXPR int c_shadowPadding = c_shadowSize * 2)
-OffAnonymous(QOFFICE_CONSTEXPR int c_shadowBlur = -c_shadowSize / 4 + 1)
-OffAnonymous(QOFFICE_CONSTEXPR int c_iconPosX = c_windowButtonX + c_shadowPadding)
-OffAnonymous(QOFFICE_CONSTEXPR int c_iconPosY = c_windowButtonY + c_shadowPadding)
+OffAnonymous(QOFFICE_CONSTEXPR int c_iconPosX  = c_windowButtonX + c_shadowPadding)
+OffAnonymous(QOFFICE_CONSTEXPR int c_iconPosY  = c_windowButtonY + c_shadowPadding)
 
 OfficeWindow::OfficeWindow(QWidget* parent)
     : QWidget(parent)
@@ -83,12 +78,12 @@ OfficeWindow::OfficeWindow(QWidget* parent)
     setMouseTracking(true);
 
     // Create a frameless window with a translucent background for the shadow.
-    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+    setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
     setAttribute(Qt::WA_TranslucentBackground);
 
     m_windowLabelMenu->show();
-    m_windowLabelMenu->addItem("Item1");
-    m_windowLabelMenu->addItem("Item2");
+    m_windowLabelMenu->addItem("Item1", QPixmap(), "This item does this and that.");
+    m_windowLabelMenu->addItem("Item2", QPixmap(), "This item does nothing.");
 
     m_windowQuickMenu->show();
     m_windowQuickMenu->addItem("Item1", QPixmap(":/qoffice/images/window/restore.png"));
@@ -195,6 +190,16 @@ void OfficeWindow::setResizable(bool resizable)
     }
 }
 
+void OfficeWindow::setFlags(Flags flags)
+{
+    m_flagsWindow = flags;
+}
+
+OfficeWindow* OfficeWindow::activeWindow()
+{
+    return g_activeWindow;
+}
+
 void OfficeWindow::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
@@ -298,14 +303,12 @@ void OfficeWindow::mouseMoveEvent(QMouseEvent* event)
 
     // Performs several hit-tests. If one of these functions returns true,
     // the title bar will be redrawn.
-    if (mouseMoveDrag(pos))
+    if (!mouseMoveDrag(pos))
     {
-        return;
-    }
-
-    if (mouseMoveSpecial(pos) || mouseMoveHitTest(pos))
-    {
-        repaintTitleBar();
+        if (mouseMoveSpecial(pos) || mouseMoveHitTest(pos))
+        {
+            repaintTitleBar();
+        }
     }
 
     QWidget::mouseMoveEvent(event);
@@ -438,33 +441,7 @@ bool OfficeWindow::event(QEvent* event)
 
 void OfficeWindow::generateDropShadow()
 {
-    m_dropShadow = QPixmap(size());
-    m_dropShadow.fill(Qt::transparent);
-
-    QPainter painter(&m_dropShadow);
-    QPainterPath path;
-    QRectF roundedRect(
-        c_shadowPadding,
-        c_shadowPadding,
-        width()  - c_shadowPadding * 2,
-        height() - c_shadowPadding * 2
-        );
-
-    path.addRoundedRect(roundedRect, 4, 4);
-    painter.fillPath(path, Qt::black);
-
-    QGraphicsScene scene;
-    QGraphicsPixmapItem item(m_dropShadow);
-    QGraphicsDropShadowEffect shadow;
-
-    shadow.setBlurRadius(c_shadowSize * 2);
-    shadow.setOffset(c_shadowBlur, c_shadowBlur);
-    shadow.setColor(Qt::black);
-
-    item.setGraphicsEffect(&shadow);
-    scene.addItem(&item);
-    scene.render(&painter);
-    painter.end();
+    m_dropShadow = OfficeImage::generateDropShadow(size());
 }
 
 void OfficeWindow::repaintTitleBar()
@@ -563,8 +540,8 @@ void OfficeWindow::updateResizeRectangles()
         );
 
     m_windowQuickMenu->move(
-        padding,
-        padding
+        padding + 1,
+        padding + 1
         );
 
     m_clientRectangle.setRect(
@@ -678,9 +655,13 @@ bool OfficeWindow::mouseMoveDrag(const QPoint& pos)
             m_stateMaximize = ButtonNone;
             m_stateWindow = StateNone;
 
-            showNormal();
+            // The window is about to be restored. In order to avoid that all
+            // the titlebar's contents are invisible for a split second, we
+            // recalculate all the necessary things beforehand.
             updateLayoutPadding();
             updateResizeRectangles();
+
+            showNormal();
         }
         else
         {
@@ -853,6 +834,9 @@ bool OfficeWindow::mouseReleaseAction(const QPoint& pos)
         }
         else if (m_stateMaximize == ButtonPress && m_maximizeRectangle.contains(pos))
         {
+            // The window is about to be maximized or restored. In order to
+            // avoid that all the titlebar's contents are invisible for a split
+            // second, we recalculate all the necessary things beforehand.
             updateButtonRectangles();
             updateResizeRectangles();
             updateLayoutPadding();

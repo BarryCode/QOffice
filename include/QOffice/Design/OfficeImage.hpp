@@ -26,6 +26,10 @@
 
 #include <QOffice/Config.hpp>
 
+QOFFICE_CONSTEXPR int c_shadowSize    = 5;
+QOFFICE_CONSTEXPR int c_shadowPadding = +c_shadowSize * 2;
+QOFFICE_CONSTEXPR int c_shadowBlur    = -c_shadowSize / 4 + 1;
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeImage
 /// \brief Provides useful pixel manipulation functions for QImage and QPixmap.
@@ -47,7 +51,7 @@ public:
     /// \return A copy of the original image with a grayscale palette.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    QImage convertToGrayscale(const QImage& original);
+    static QImage convertToGrayscale(const QImage& original);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Converts an pixmap to grayscale, while keeping the original pixmap
@@ -59,7 +63,16 @@ public:
     /// \return A copy of the original pixmap with a grayscale palette.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    QPixmap convertToGrayscale(const QPixmap& original);
+    static QPixmap convertToGrayscale(const QPixmap& original);
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Generates a drop shadow of the given \p size.
+    ///
+    /// \param[in] size The size of the drop shadow.
+    /// \return The pixmap containing the shadow.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    static QPixmap generateDropShadow(const QSize& size);
 };
 
 #endif
