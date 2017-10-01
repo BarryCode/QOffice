@@ -36,7 +36,11 @@ OfficeMenuPanel::OfficeMenuPanel(QWidget* panelBar, OfficeMenuHeader* header)
     , m_text("Panel")
     , m_id(-1)
 {
+    m_layout->setSpacing(4);
+    m_layout->setContentsMargins(4,0,4,4);
+
     setLayout(m_layout);
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 }
 
 int OfficeMenuPanel::id() const
@@ -88,8 +92,6 @@ bool OfficeMenuPanel::insertItem(int id, OfficeMenuItem* item, int row, int colu
     }
 
     item->setId(id);
-    item->widget()->show();
-
     m_items.append(item);
     m_layout->addWidget(item->widget(), row, column);
 
@@ -108,8 +110,6 @@ bool OfficeMenuPanel::insertItem(
     }
 
     item->setId(id);
-    item->widget()->show();
-
     m_items.append(item);
     m_layout->addWidget(item->widget(), row, column, rowSpan, columnSpan);
 
@@ -130,6 +130,25 @@ bool OfficeMenuPanel::removeItem(int id)
     }
 
     return item != nullptr;
+}
+
+QSize OfficeMenuPanel::sizeHint() const
+{
+    auto lhint = m_layout->sizeHint();
+    auto width = fontMetrics().width(m_text);
+
+    if (width > lhint.width())
+    {
+        // If the text is bigger than the contents of the layout, the text
+        // would be cut off due to the lack of space. This hack ensures that
+        // the text is always fully visible, no matter what.
+        return QSize(width + 16, lhint.height());
+    }
+    else
+    {
+        return lhint;
+    }
+
 }
 
 void OfficeMenuPanel::paintEvent(QPaintEvent*)

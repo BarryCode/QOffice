@@ -84,7 +84,7 @@ public:
     /// \return The underlying widget that is rendered.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    virtual QWidget* widget() const = 0;
+    virtual QWidget* widget() = 0;
 
 protected:
 
