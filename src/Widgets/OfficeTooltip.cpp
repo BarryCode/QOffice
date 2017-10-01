@@ -39,6 +39,7 @@ OffAnonymous(QOFFICE_CONSTEXPR int c_separator  = 9)
 OfficeTooltip::OfficeTooltip(QWidget* parent)
     : QWidget(parent)
     , m_timer(new QTimer(this))
+    , m_waitTimer(new QTimer(this))
     , m_animation(new QPropertyAnimation(this))
     , m_activeWindow(nullptr)
     , m_heading("")
@@ -73,6 +74,13 @@ OfficeTooltip::OfficeTooltip(QWidget* parent)
         &QTimer::timeout,
         this,
         &OfficeTooltip::beginHideTooltip
+        );
+
+    QObject::connect(
+        m_waitTimer,
+        &QTimer::timeout,
+        this,
+        &OfficeTooltip::fadeInTooltip
         );
 }
 
@@ -111,6 +119,11 @@ int OfficeTooltip::duration() const
     return m_duration;
 }
 
+int OfficeTooltip::waitPeriod() const
+{
+    return m_waitPeriod;
+}
+
 void OfficeTooltip::setTitle(const QString& title)
 {
     m_heading = title;
@@ -144,6 +157,11 @@ void OfficeTooltip::setHelpKey(Qt::Key trigger)
 void OfficeTooltip::setDuration(int milliseconds)
 {
     m_duration = milliseconds;
+}
+
+void OfficeTooltip::setWaitPeriod(int milliseconds)
+{
+    m_waitPeriod = milliseconds;
 }
 
 void OfficeTooltip::paintEvent(QPaintEvent*)
@@ -266,7 +284,65 @@ void OfficeTooltip::keyPressEvent(QKeyEvent* event)
 
 void OfficeTooltip::showEvent(QShowEvent*)
 {
+    if (m_waitPeriod != 0)
+    {
+        m_waitTimer->setInterval(m_waitPeriod);
+        m_waitTimer->setSingleShot(true);
+        m_waitTimer->start();
+    }
+    else
+    {
+        fadeInTooltip();
+    }
+}
+
+void OfficeTooltip::hideEvent(QHideEvent*)
+{
+    if (m_activeWindow != nullptr)
+    {
+        m_activeWindow->m_tooltipVisible = false;
+    }
+
+    m_timer->stop();
+    m_waitTimer->stop();
+
+    m_opacity = 0.0;
+    m_isLinkHovered = false;
+
+    QObject::disconnect(
+        m_animation,
+        &QPropertyAnimation::finished,
+        this,
+        &OfficeTooltip::hide
+        );
+}
+
+void OfficeTooltip::leaveEvent(QEvent*)
+{
+    m_timer->setInterval(400);
+    m_timer->start();
+
+    unsetCursor();
+}
+
+void OfficeTooltip::beginHideTooltip()
+{
+    m_animation->setStartValue(1.0);
+    m_animation->setEndValue(0.0);
+    m_animation->start();
+
+    QObject::connect(
+        m_animation,
+        &QPropertyAnimation::finished,
+        this,
+        &OfficeTooltip::hide
+        );
+}
+
+void OfficeTooltip::fadeInTooltip()
+{
     m_timer->setInterval(m_duration);
+    m_timer->setSingleShot(true);
     m_timer->start();
 
     // Tells the active window that a tooltip was shown. This prevents the
@@ -290,54 +366,6 @@ void OfficeTooltip::showEvent(QShowEvent*)
     m_animation->setStartValue(0.0);
     m_animation->setEndValue(1.0);
     m_animation->start();
-}
-
-void OfficeTooltip::hideEvent(QHideEvent*)
-{
-    if (m_activeWindow != nullptr)
-    {
-        m_activeWindow->m_tooltipVisible = false;
-    }
-
-    m_timer->stop();
-    m_opacity = 0.0;
-    m_isLinkHovered = false;
-
-    QObject::disconnect(
-        m_animation,
-        &QPropertyAnimation::finished,
-        this,
-        &OfficeTooltip::finishHideTooltip
-        );
-}
-
-void OfficeTooltip::leaveEvent(QEvent*)
-{
-    m_timer->setInterval(400);
-    m_timer->start();
-
-    unsetCursor();
-}
-
-void OfficeTooltip::beginHideTooltip()
-{
-    m_animation->setStartValue(1.0);
-    m_animation->setEndValue(0.0);
-    m_animation->start();
-
-    QObject::connect(
-        m_animation,
-        &QPropertyAnimation::finished,
-        this,
-        &OfficeTooltip::finishHideTooltip
-        );
-}
-
-void OfficeTooltip::finishHideTooltip()
-{
-    m_timer->stop();
-
-    hide();
 }
 
 void OfficeTooltip::updateRectangles()

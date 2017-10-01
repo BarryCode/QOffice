@@ -110,6 +110,14 @@ public:
     int duration() const;
 
     ////////////////////////////////////////////////////////////////////////////
+    /// Defines the period to wait before the tooltip is actually shown.
+    ///
+    /// \return The wait period upon showing the tooltip.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    int waitPeriod() const;
+
+    ////////////////////////////////////////////////////////////////////////////
     /// Specifies the title of this tooltip.
     ///
     /// \param[in] title The new title.
@@ -165,6 +173,14 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     void setDuration(int milliseconds);
 
+    ////////////////////////////////////////////////////////////////////////////
+    /// Specifies the wait period before this tooltip is shown.
+    ///
+    /// \param[in] milliseconds The new wait period, in milliseconds.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void setWaitPeriod(int milliseconds);
+
 protected:
 
     virtual void paintEvent(QPaintEvent*) override;
@@ -182,7 +198,7 @@ signals:
 public slots:
 
     void beginHideTooltip();
-    void finishHideTooltip();
+    void fadeInTooltip();
 
 private:
 
@@ -200,6 +216,7 @@ private:
     //
     ////////////////////////////////////////////////////////////////////////////
     QTimer*             m_timer;
+    QTimer*             m_waitTimer;
     QPropertyAnimation* m_animation;
     OfficeWindow*       m_activeWindow;
     QString             m_heading;
@@ -207,6 +224,7 @@ private:
     QString             m_helpText;
     QPixmap             m_helpIcon;
     qint32              m_duration;
+    qint32              m_waitPeriod;
     Qt::Key             m_helpKey;
     QPixmap             m_dropShadow;
     QRect               m_clientRectangle;

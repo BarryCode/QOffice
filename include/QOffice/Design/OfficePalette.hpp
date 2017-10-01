@@ -28,7 +28,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficePalette
-/// \brief $Classdesc
+/// \brief Holds all palette entries QOffice uses.
 /// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
 /// \date September 23, 2017
 ///
