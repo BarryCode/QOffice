@@ -57,6 +57,7 @@ OfficeWindow::OfficeWindow(QWidget* parent)
     , m_tooltipVisible(false)
 {
     setGeometry(x(), y(), 600, 400);
+    setFocusPolicy(Qt::ClickFocus);
     setMouseTracking(true);
 
     // Create a frameless window with a translucent background for the shadow.
