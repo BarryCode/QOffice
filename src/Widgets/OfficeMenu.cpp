@@ -25,7 +25,7 @@
 #include <QOffice/Widgets/OfficeMenu.hpp>
 #include <QOffice/Widgets/OfficeMenuHeader.hpp>
 
-#include <QHBoxLayout>
+#include <QBoxLayout>
 #include <QMouseEvent>
 #include <QPainter>
 
@@ -35,17 +35,29 @@ OffAnonymous(QOFFICE_CONSTEXPR Qt::Alignment c_flags = Qt::AlignLeft | Qt::Align
 
 OfficeMenu::OfficeMenu(QWidget* parent)
     : QWidget(parent)
-    , m_layout(new QHBoxLayout(this))
+    , m_headerLayout(new QHBoxLayout)
+    , m_panelLayout(new QHBoxLayout)
     , m_isExpanded(false)
     , m_isPinned(false)
 {
-    m_layout->setContentsMargins(0,0,0,0);
-    m_layout->setMargin(0);
-    m_layout->setSpacing(2);
-    m_layout->addStretch(1);
+    QVBoxLayout* container = new QVBoxLayout(this);
+    container->setContentsMargins(0,0,0,0);
+    container->setMargin(0);
+    container->setSpacing(0);
+    container->addLayout(m_headerLayout);
+    container->addLayout(m_panelLayout);
+
+    m_headerLayout->setContentsMargins(0,0,0,0);
+    m_headerLayout->setMargin(0);
+    m_headerLayout->setSpacing(2);
+    m_headerLayout->addStretch(1);
+
+    m_panelLayout->setContentsMargins(0,0,0,0);
+    m_panelLayout->setMargin(0);
+    m_panelLayout->setSpacing(2);
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    setLayout(m_layout);
+    setLayout(container);
 }
 
 OfficeMenuHeader* OfficeMenu::headerById(int id) const
@@ -62,6 +74,22 @@ OfficeMenuHeader* OfficeMenu::headerById(int id) const
 OfficeMenuHeader* OfficeMenu::operator [](int id) const
 {
     return headerById(id);
+}
+
+bool OfficeMenu::isPinned() const
+{
+    return m_isPinned;
+}
+
+void OfficeMenu::setPinned(bool pinned)
+{
+    m_isPinned = pinned;
+    setFocus();
+
+    if (!pinned)
+    {
+        collapse();
+    }
 }
 
 OfficeMenuHeader* OfficeMenu::appendHeader(int id, const QString& text)
@@ -84,13 +112,13 @@ OfficeMenuHeader* OfficeMenu::insertHeader(int pos, int id, const QString& text)
         pos = m_headers.size();
     }
 
-    auto* header = new OfficeMenuHeader(this);
+    OfficeMenuHeader* header = new OfficeMenuHeader(this);
     header->setText(text);
     header->setId(id);
     header->show();
 
     m_headers.insert(pos, header);
-    m_layout->insertWidget(pos, header, 0, c_flags);
+    m_headerLayout->insertWidget(pos, header, 0, c_flags);
 
     return header;
 }
@@ -101,7 +129,7 @@ bool OfficeMenu::removeHeader(int id)
     if (header != nullptr)
     {
         m_headers.removeOne(header);
-        m_layout->removeWidget(header);
+        m_headerLayout->removeWidget(header);
 
         delete header;
     }
@@ -117,7 +145,7 @@ void OfficeMenu::expand(OfficeMenuHeader* toExpand)
         for (auto* header : m_headers)
         {
             if (header != toExpand)
-                header->collapse();
+                header->collapse(m_panelLayout, false);
         }
 
         // Increases the height of the menu. Why? Because children, that are
@@ -128,7 +156,8 @@ void OfficeMenu::expand(OfficeMenuHeader* toExpand)
         setFixedHeight(c_expandedHeight);
         setFocus();
 
-        toExpand->expand();
+        toExpand->expand(m_panelLayout, m_isExpanded);
+
         m_isExpanded = true;
     }
 }
@@ -138,11 +167,8 @@ void OfficeMenu::collapse()
     // Collapses all headers.
     for (auto* header : m_headers)
     {
-        header->collapse();
+        header->collapse(m_panelLayout, m_isExpanded);
     }
-
-    resize(width(), c_collapsedHeight);
-    setFixedHeight(c_collapsedHeight);
 
     m_isExpanded = false;
 }
@@ -163,16 +189,6 @@ void OfficeMenu::paintEvent(QPaintEvent*)
     QRect background(0, 0, width(), c_collapsedHeight);
 
     painter.fillRect(background, OfficeAccent::color(accent()));
-
-    if (m_isExpanded)
-    {
-        const QPoint bottomLeft  = rect().bottomLeft()  - QPoint(0,1);
-        const QPoint bottomRight = rect().bottomRight() - QPoint(0,1);
-        const QColor& color = OfficePalette::color(OfficePalette::MenuSeparator);
-
-        painter.setPen(color);
-        painter.drawLine(bottomLeft, bottomRight);
-    }
 }
 
 void OfficeMenu::focusOutEvent(QFocusEvent* event)
