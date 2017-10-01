@@ -5,5 +5,7 @@
         <file>qoffice/images/window/min.png</file>
         <file>qoffice/images/window/restore.png</file>
         <file>qoffice/images/widgets/tooltip_help.png</file>
+        <file>qoffice/images/widgets/menu_collapse.png</file>
+        <file>qoffice/images/widgets/menu_sticky.png</file>
     </qresource>
 </RCC>
