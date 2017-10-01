@@ -28,6 +28,7 @@
 
 class OfficeTooltip;
 class OfficeWindow;
+namespace priv { class Titlebar; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeWindowMenu
@@ -59,62 +60,65 @@ public:
     /// Initializes a new instance of the OfficeWindowMenu while the given
     /// \p parent is specified as owner of this widget.
     ///
-    /// \param[in] parent The window that owns this menu.
+    /// \param[in] parent The window titlebar that owns this menu.
     /// \param[in] type The window type.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    OfficeWindowMenu(OfficeWindow* parent, Type type);
+    OfficeWindowMenu(priv::Titlebar* parent, Type type);
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Adds a new menu item with the given parameters.
+    /// Adds a label item to the window menu.
     ///
-    /// \param[in] text The displayed text of the menu item.
-    /// \param[in] img The image next to the text (optional).
-    /// \param[in] tooltip The tooltip text shown on mouse hover (optional).
-    /// \return False if the text already exists, true otherwise.
+    /// \param[in] id The unique identifier of the menu item.
+    /// \param[in] text The displayed text of the label.
+    /// \param[in] tooltip (opt) The tooltip text shown on mouse hover.
+    /// \return False if the ID already exists, true otherwise.
+    ///
+    /// \remarks Also returns false if this menu is not a label menu.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    bool addItem(
-        const QString& text,
-        const QPixmap& img = QPixmap(),
-        const QString& tooltip = QString()
-        );
+    bool addLabelItem(int id, const QString& text, const QString& tooltip = "");
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Adds a quick item to the window menu.
+    ///
+    /// \param[in] id The unique identifier of the menu item.
+    /// \param[in] icon The displayed icon.
+    /// \param[in] tooltip (opt) The tooltip text shown on mouse hover.
+    /// \return False if the ID already exists, true otherwise.
+    ///
+    /// \remarks Also returns false if this menu is not a quick menu.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    bool addQuickItem(int id, const QPixmap& icon, const QString& tooltip = "");
 
     ////////////////////////////////////////////////////////////////////////////
     /// Removes the menu item with the given text.
     ///
-    /// \param[in] text The text of the menu item to remove.
+    /// \param[in] id The unique identifier of the item to remove.
     /// \return True if item removed, false otherwise.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    bool removeItem(const QString& text);
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// Retrieves the desired size of this window menu.
-    ///
-    /// \return The requested width and height, in pixels.
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    //QSize sizeHint() const;
+    bool removeItem(int id);
 
 signals:
 
     ////////////////////////////////////////////////////////////////////////////
     /// This signal is emitted once the user clicks a menu item.
     ///
-    /// \param[in] text The text of the clicked item.
+    /// \param[in] id The unique identifier of the clicked item.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    void menuItemClicked(QString text);
+    void itemClicked(int id);
 
     ////////////////////////////////////////////////////////////////////////////
     /// This signal is emitted once the user requests help while the tooltip of
     /// a menu item is shown.
     ///
-    /// \param[in] text The text of the item which's tooltip requested help.
+    /// \param[in] id The unique identifier of the clicked item.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    void helpRequested(QString text);
+    void helpRequested(int id);
 
 private slots:
 
@@ -124,6 +128,12 @@ private slots:
     void onHideTooltip(priv::WindowItem*);
     void showTooltip();
     void hideTooltip();
+    bool addItem(
+        const int id,
+        const QString& t,
+        const QPixmap& i = QPixmap(),
+        const QString& tt = QString()
+        );
 
 private:
 
@@ -131,15 +141,15 @@ private:
     // Members
     //
     ////////////////////////////////////////////////////////////////////////////
-    Type                     m_type;
-    QList<priv::WindowItem*> m_items;
-    priv::WindowItem*        m_trigger;
-    OfficeWindow*            m_parent;
-    QLayout*                 m_layout;
-    OfficeTooltip*           m_tooltip;
-    QTimer*                  m_timer;
+    Type                     m_type;    ///< Defines the type of the menu.
+    QList<priv::WindowItem*> m_items;   ///< Holds all window items.
+    priv::WindowItem*        m_trigger; ///< Defines the current tooltip item.
+    OfficeWindow*            m_parent;  ///< Defines the parent office window.
+    OfficeTooltip*           m_tooltip; ///< Defines the tooltip for all items.
+    QTimer*                  m_timer;   ///< Defines the tooltip timer.
 
     friend class priv::WindowItem;
+    friend class OfficeWindow;
 
     Q_OBJECT
 };
@@ -157,7 +167,30 @@ private:
 /// on hover).
 ///
 /// \code
-/// <example_code>
+/// const int idItem1 = 0;
+/// const int idItem2 = 0;
+///
+/// m_labelMenu = new OfficeWindowMenu(window, OfficeWindowMenu::LabelMenu);
+/// m_labelMenu->addLabelItem(idItem1, "Item1", "This item does this.");
+/// m_labelMenu->addLabelItem(idItem2, "Item2", "This item does that.");
+/// m_labelMenu->connect(m_labelMenu, &OfficeWindowMenu::itemClicked, this, [...]);
+/// \endcode
+///
+/// The OfficeWindowMenu::itemClicked signal will be emitted whenever the user
+/// clicks on a window menu item. The id of the item will be provided:
+///
+/// \code
+/// void itemClickedSlot(int id)
+/// {
+///     if (id == idItem1)
+///     {
+///         // do something
+///     }
+///     else if (id == idItem2)
+///     {
+///         // do something
+///     }
+/// }
 /// \endcode
 ///
 ////////////////////////////////////////////////////////////////////////////////

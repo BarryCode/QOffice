@@ -27,6 +27,7 @@
 #include <QOffice/Widgets/OfficeWidget.hpp>
 #include <QOffice/Widgets/OfficeWindowMenu.hpp>
 #include <QOffice/Widgets/Dialogs/OfficeWindowResizeArea.hpp>
+#include <QOffice/Widgets/Dialogs/OfficeWindowTitlebar.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeWindow
@@ -53,45 +54,6 @@ public:
         NoResize         = 0x0008,
         NoMaximize       = 0x0010,
         NoMenu           = 0x0020
-    };
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Defines the states for the window buttons in the top-right.
-    /// \enum ButtonState
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    enum ButtonState
-    {
-        ButtonNone,
-        ButtonHover,
-        ButtonPress,
-        ButtonSpecial
-    };
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Defines the states for various window actions.
-    /// \enum WindowState
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    enum WindowState
-    {
-        StateNone,
-        StateDrag,
-        StateResize
-    };
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Defines the resize directions for the window.
-    /// \enum ResizeDirection
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    enum ResizeDirection
-    {
-        ResizeNone   = 0x0000,
-        ResizeLeft   = 0x0001,
-        ResizeTop    = 0x0002,
-        ResizeRight  = 0x0004,
-        ResizeBottom = 0x0008
     };
 
     OffDefaultDtor(OfficeWindow)
@@ -166,6 +128,22 @@ public:
     Flags flags() const;
 
     ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves the label menu associated to this window.
+    ///
+    /// \return The label menu. Items can be added to that menu afterwards.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    OfficeWindowMenu* labelMenu() const;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves the quick menu associated to this window.
+    ///
+    /// \return The quick menu. Items can be added to that menu afterwards.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    OfficeWindowMenu* quickMenu() const;
+
+    ////////////////////////////////////////////////////////////////////////////
     /// Specifies the accent for all widgets subordinated to this window.
     ///
     /// \param[in] accent The new accent to apply to all widgets.
@@ -235,18 +213,30 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     static OfficeWindow* activeWindow();
 
+    enum WindowState
+    {
+        StateNone,
+        StateDrag,
+        StateResize
+    };
+
+    enum ResizeDirection
+    {
+        ResizeNone   = 0x0000,
+        ResizeLeft   = 0x0001,
+        ResizeTop    = 0x0002,
+        ResizeRight  = 0x0004,
+        ResizeBottom = 0x0008
+    };
+
 protected:
 
+    virtual void accentUpdateEvent() override;
     virtual void paintEvent(QPaintEvent*) override;
     virtual void resizeEvent(QResizeEvent*) override;
-    virtual void mouseMoveEvent(QMouseEvent*) override;
-    virtual void mousePressEvent(QMouseEvent*) override;
-    virtual void mouseReleaseEvent(QMouseEvent*) override;
-    virtual void mouseDoubleClickEvent(QMouseEvent*) override;
     virtual void focusInEvent(QFocusEvent*) override;
     virtual void focusOutEvent(QFocusEvent*) override;
     virtual void showEvent(QShowEvent*) override;
-    virtual void leaveEvent(QEvent*) override;
     virtual bool event(QEvent*) override;
 
 private:
@@ -256,47 +246,12 @@ private:
     //
     ////////////////////////////////////////////////////////////////////////////
     void generateDropShadow();
-    void repaintTitleBar();
-    void updateButtonRectangles();
     void updateResizeRectangles();
-    void updateVisibleTitle();
     void updateResizeWidgets();
     void updateLayoutPadding();
-    bool mouseMoveDrag(const QPoint&);
-    bool mouseMoveSpecial(const QPoint&);
-    bool mouseMoveHitTest(const QPoint&);
-    bool mousePressDrag(const QPoint&);
-    bool mousePressHitTest(const QPoint&);
-    bool mouseReleaseDrag(const QPoint&);
-    bool mouseReleaseAction(const QPoint&);
-    QRect centerRectangle(const QPixmap&, const QRect&);
 
     ////////////////////////////////////////////////////////////////////////////
-    // Members 1
-    //
-    ////////////////////////////////////////////////////////////////////////////
-    ButtonState m_stateClose;
-    ButtonState m_stateMaximize;
-    ButtonState m_stateMinimize;
-    WindowState m_stateWindow;
-    Flags       m_flagsWindow;
-    QPixmap     m_dropShadow;
-    QPixmap     m_imageClose;
-    QPixmap     m_imageMaximize;
-    QPixmap     m_imageMinimize;
-    QPixmap     m_imageRestore;
-    QString     m_visibleTitle;
-    QPoint      m_dragPosition;
-    QRect       m_clientRectangle;
-    QRect       m_titleRectangle;
-    QRect       m_dragRectangle;
-    QRect       m_closeRectangle;
-    QRect       m_maximizeRectangle;
-    QRect       m_minimizeRectangle;
-    bool        m_tooltipVisible;
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Members 2
+    // Members
     //
     ////////////////////////////////////////////////////////////////////////////
     priv::ResizeArea* m_resizeTopLeft;
@@ -307,8 +262,12 @@ private:
     priv::ResizeArea* m_resizeLeft;
     priv::ResizeArea* m_resizeBottom;
     priv::ResizeArea* m_resizeRight;
-    OfficeWindowMenu* m_windowLabelMenu;
-    OfficeWindowMenu* m_windowQuickMenu;
+    priv::Titlebar*   m_titleBar;
+    WindowState       m_stateWindow;
+    Flags             m_flagsWindow;
+    QPixmap           m_dropShadow;
+    QRect             m_clientRectangle;
+    bool              m_tooltipVisible;
 
     ////////////////////////////////////////////////////////////////////////////
     // Metadata
@@ -322,6 +281,7 @@ private:
     Q_PROPERTY(Office::Accent Accent READ accent WRITE setAccent)
 
     friend class priv::ResizeArea;
+    friend class priv::Titlebar;
     friend class OfficeTooltip;
 };
 
@@ -334,10 +294,45 @@ OffEnumOperators(OfficeWindow::ResizeDirection)
 /// \class OfficeWindow
 /// \ingroup Widget
 ///
-/// $Detailedclassdesc
+/// While having functionality that is typical to windows, such as resize, drag,
+/// window buttons and title text, the OfficeWindow also contains two menus. One
+/// menu is called the "label menu" and is located on the left hand side of the
+/// window. It contains items that function as hyperlinks. One can connect to
+/// the signals they emit and do anything they like. The other menu is called
+/// the "quick menu" and is located on the right hand side of the window. It
+/// contains items that function as clickable image-buttons. One can connect to
+/// the signals they emit and do anything they like. Both of these menus are
+/// capable of showing tooltips for every item. The following example shows how
+/// to set up a simple OfficeWindow with some menu items.
 ///
 /// \code
-/// <example_code>
+/// #include <QOfficeWindow>
+/// #include <QApplication>
+///
+/// int main(int argc, char *argv[])
+/// {
+///     QApplication a(argc, argv);
+///     OfficeWindow w;
+///
+///     w.setWindowTitle("QOffice example");
+///     w.labelMenu()->addLabelItem(0, "Item1", "This is a dummy item.");
+///     w.quickMenu()->addQuickItem(0, QPixmap(""), "This is a dummy item.");
+///     w.show();
+///
+///     QObject::connect(w.labelMenu(), &OfficeWindowMenu::itemClicked, [&](int id)
+///         {
+///             qDebug() << "Item with id" << id << "was clicked.";
+///         });
+///     QObject::connect(w.labelMenu(), &OfficeWindowMenu::helpRequested, [&](int id)
+///         {
+///             qDebug() << "Help was requested from item with id" << id << ".";
+///         });
+///
+///     return a.exec();
+/// }
 /// \endcode
+///
+/// Now try to click on the item or request help when its tooltip is shown by
+/// pressing F1 or clicking the help text link.
 ///
 ////////////////////////////////////////////////////////////////////////////////

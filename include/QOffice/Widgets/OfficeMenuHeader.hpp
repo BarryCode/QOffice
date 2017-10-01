@@ -21,168 +21,178 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef QOFFICE_WIDGETS_OFFICETOOLTIP_HPP
-#define QOFFICE_WIDGETS_OFFICETOOLTIP_HPP
+#ifndef QOFFICE_WIDGET_OFFICEMENUHEADER_HPP
+#define QOFFICE_WIDGET_OFFICEMENUHEADER_HPP
 
 #include <QOffice/Config.hpp>
 #include <QWidget>
 
-class OfficeWindow;
+class OfficeMenu;
+class OfficeMenuPanel;
+class QHBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeTooltip
-/// \brief OfficeTooltipdesc
+/// \class OfficeMenuHeader
+/// \brief OfficeMenuHeaderdesc
 /// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
 /// \date September 30, 2017
 ///
 ////////////////////////////////////////////////////////////////////////////////
-class QOFFICE_WIDGET_API OfficeTooltip : public QWidget
+class QOFFICE_WIDGET_API OfficeMenuHeader : public QWidget
 {
 public:
 
-    OffDefaultDtor(OfficeTooltip)
-    OffDisableCopy(OfficeTooltip)
-    OffDisableMove(OfficeTooltip)
+    OffDefaultDtor(OfficeMenuHeader)
+    OffDisableCopy(OfficeMenuHeader)
+    OffDisableMove(OfficeMenuHeader)
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Initializes a new instance of OfficeTooltip and specifies the given
-    /// \p parent as widget the tooltip is shown on.
+    /// Initializes a new instance of OfficeMenuHeader and specifies the \p
+    /// parent of this header.
     ///
-    /// \param parent The widget to show this tooltip on.
+    /// \param[in] parent The ::OfficeMenu this header belongs to.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    OfficeTooltip(QWidget* parent = nullptr);
+    OfficeMenuHeader(OfficeMenu* parent);
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Retrieves the title of this tooltip.
+    /// Retrieves the unique identifier of this object.
     ///
-    /// \return The title of this tooltip.
+    /// \return The unique identifier.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    const QString& title() const;
+    int id() const;
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Retrieves the text of this tooltip.
+    /// Determines whether this item is selected and expanded.
     ///
-    /// \return The text of this tooltip.
+    /// \return True if this item is selected, false otherwise.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    bool isSelected() const;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves the displayed text of this header.
+    ///
+    /// \return The text of this header.
     ///
     ////////////////////////////////////////////////////////////////////////////
     const QString& text() const;
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Determines whether the help section is enabled.
+    /// Retrieves the parent menu of this header.
     ///
-    /// \return True if help is enabled, false otherwise.
+    /// \return The parent menu.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    bool isHelpEnabled() const;
+    OfficeMenu* menu() const;
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Retrieves the help text of this tooltip.
+    /// Retrieves the panel that has the specified \p id.
     ///
-    /// \return The help text of this tooltip.
+    /// \param[in] id The id of the panel to fetch.
+    /// \return The pointer to the panel with the given \p id.
+    ///
+    /// \remarks Yields nullptr if the given \p id is invalid.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    const QString& helpText() const;
+    OfficeMenuPanel* panelById(int id) const;
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Retrieves the help icon of this tooltip.
+    /// Retrieves the panel that has the specified \p id. Is equivalent to
+    /// calling OfficeMenuHeader::panelById(id).
     ///
-    /// \return The help icon of this tooltip.
+    /// \param[in] id The id of the panel to fetch.
+    /// \return The pointer to the panel with the given \p id.
+    ///
+    /// \remarks Yields nullptr if the given \p id is invalid.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    const QPixmap& helpIcon() const;
+    OfficeMenuPanel* operator [](int id) const;
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Retrieves the key that triggers the helpRequested signal.
+    /// Specifies the unique identifier of this object.
     ///
-    /// \return The triggering key for help.
+    /// \param[in] id The new unique identifier.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    Qt::Key helpKey() const;
+    void setId(int id);
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Retrieves the duration this tooltip is shown.
+    /// Specifies the displayed text of this header.
     ///
-    /// \return The display duration.
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    int duration() const;
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// Specifies the title of this tooltip.
-    ///
-    /// \param[in] title The new title.
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    void setTitle(const QString& title);
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// Specifies the text of this tooltip.
-    ///
-    /// \param[in] text The new text.
+    /// \param[in] text New displayed text.
     ///
     ////////////////////////////////////////////////////////////////////////////
     void setText(const QString& text);
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Specifies whether the help section should be enabled.
+    /// Appends a new panel to this header item.
     ///
-    /// \param[in] enabled True to enable the help section, false otherwise.
+    /// \param[in] id The unique identifier of the new panel.
+    /// \param[in] text The displayed text of the new panel.
+    ///
+    /// \return The pointer to the newly created ::OfficeMenuPanel.
+    ///
+    /// \remarks If the given \p id already exists, nullptr is returned.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    void setHelpEnabled(bool enabled);
+    OfficeMenuPanel* appendPanel(int id, const QString& text);
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Specifies the help text of this tooltip.
+    /// Inserts a new panel into this header item. If the given position is
+    /// invalid, this is equivalent to calling OfficeMenuHeader::appendPanel.
     ///
-    /// \param[in] text The new help text.
+    /// \param[in] pos The position to insert the new panel to.
+    /// \param[in] id The unique identifier of the new panel.
+    /// \param[in] text The displayed text of the new panel.
+    ///
+    /// \return The pointer to the newly created ::OfficeMenuPanel.
+    ///
+    /// \remarks If the given \p id already exists, nullptr is returned.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    void setHelpText(const QString& text);
+    OfficeMenuPanel* insertPanel(int pos, int id, const QString& text);
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Specifies the help icon of this tooltip.
+    /// Removes the panel with the specified \p id.
     ///
-    /// \param[in] icon The new help icon.
+    /// \param[in] id The id of the panel to remove.
+    /// \return True if successfully removed, false otherwise.
+    ///
+    /// \remarks Yields false if the given \p id is invalid.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    void setHelpIcon(const QPixmap& icon);
+    bool removePanel(int id);
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Specifies the triggering key for help.
+    /// Retrieves the preferred size for this header.
     ///
-    /// \param[in] trigger The key that triggers the helpRequested signal.
+    /// \return The preferred widget size.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    void setHelpKey(Qt::Key trigger);
+    QSize sizeHint() const override;
+
+signals:
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Specifies the duration this tooltip is shown.
-    ///
-    /// \param[in] milliseconds The new display duration, in milliseconds.
+    /// This signal is emitted once this header is expanded.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    void setDuration(int milliseconds);
+    void headerExpanded();
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// This signal is emitted once this header is collapsed.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void headerCollapsed();
 
 protected:
 
     virtual void paintEvent(QPaintEvent*) override;
-    virtual void mouseMoveEvent(QMouseEvent*) override;
-    virtual void mousePressEvent(QMouseEvent*) override;
-    virtual void keyPressEvent(QKeyEvent*) override;
-    virtual void showEvent(QShowEvent*) override;
-    virtual void hideEvent(QHideEvent*) override;
+    virtual void enterEvent(QEvent*) override;
     virtual void leaveEvent(QEvent*) override;
-
-signals:
-
-    void helpRequested();
-
-public slots:
-
-    void beginHideTooltip();
-    void finishHideTooltip();
+    virtual void mousePressEvent(QMouseEvent*) override;
 
 private:
 
@@ -190,67 +200,41 @@ private:
     // Functions
     //
     ////////////////////////////////////////////////////////////////////////////
-    void updateRectangles();
-    void generateDropShadow();
-    qreal opacity() const;
-    void setOpacity(qreal opacity);
+    QHBoxLayout* barLayout();
+    void expand();
+    void collapse();
 
     ////////////////////////////////////////////////////////////////////////////
     // Members
     //
     ////////////////////////////////////////////////////////////////////////////
-    QTimer*             m_timer;
-    QPropertyAnimation* m_animation;
-    OfficeWindow*       m_activeWindow;
-    QString             m_heading;
-    QString             m_bodyText;
-    QString             m_helpText;
-    QPixmap             m_helpIcon;
-    qint32              m_duration;
-    Qt::Key             m_helpKey;
-    QPixmap             m_dropShadow;
-    QRect               m_clientRectangle;
-    QRect               m_borderRectangle;
-    QRect               m_headingRectangle;
-    QRect               m_bodyRectangle;
-    QRect               m_iconRectangle;
-    QRect               m_helpRectangle;
-    QRect               m_sepaRectangle;
-    qreal               m_opacity;
-    bool                m_isHelpEnabled;
-    bool                m_isLinkHovered;
+    OfficeMenu*             m_parent;     ///< Defines the parent office menu.
+    QWidget*                m_panelBar;   ///< Defines the panel bar widget.
+    QList<OfficeMenuPanel*> m_panels;     ///< Holds all panels of this header.
+    QString                 m_text;       ///< Defines the displayed header text.
+    bool                    m_isHovered;  ///< Determines whether its hovered.
+    bool                    m_isSelected; ///< Determines whether its selected.
+    int                     m_id;         ///< Defines the unique ID.
 
     ////////////////////////////////////////////////////////////////////////////
     // Metadata
     //
     ////////////////////////////////////////////////////////////////////////////
     Q_OBJECT
-    Q_PROPERTY(qreal Opacity READ opacity WRITE setOpacity)
+
+    friend class OfficeMenu;
 };
 
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeTooltip
+/// \class OfficeMenuHeader
 /// \ingroup Widget
 ///
-/// This class shows modern tooltips and allows one to customize the title, the
-/// body text and the help text along with the help icon and help trigger key. A
-/// default help icon is already provided, but it can be changed, if desired.
-/// One should use it as follows:
+/// $Detailedclassdesc
 ///
 /// \code
-/// m_tooltip->connect(m_tooltip, &OfficeTooltip::helpRequested, this, [...]);
-/// m_tooltip->setTitle("Open");
-/// m_tooltip->setText("Opens an existing file with read-write access.");
-/// m_tooltip->setHelpText("Press F1 to receive help.");
-/// m_tooltip->setHelpKey(Qt::Key_F1);
-/// m_tooltip->setHelpEnabled(true);
-/// m_tooltip->setDuration(5000); // in msec
-/// m_tooltip->show();
+/// <example_code>
 /// \endcode
-///
-/// The helpRequested signal is emitted once the help key was pressed or the
-/// help text (that acts like a hyperlink) was clicked.
 ///
 ////////////////////////////////////////////////////////////////////////////////

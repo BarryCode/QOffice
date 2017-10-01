@@ -23,20 +23,22 @@
 #include <QOffice/Widgets/OfficeTooltip.hpp>
 #include <QOffice/Widgets/OfficeWindowMenu.hpp>
 #include <QOffice/Widgets/Dialogs/OfficeWindow.hpp>
+#include <QOffice/Widgets/Dialogs/OfficeWindowTitlebar.hpp>
 
 #include <QHBoxLayout>
 #include <QtEvents>
 
 OffAnonymous(QOFFICE_CONSTEXPR int c_menuHeight = 28)
 
-OfficeWindowMenu::OfficeWindowMenu(OfficeWindow* parent, Type type)
+OfficeWindowMenu::OfficeWindowMenu(priv::Titlebar* parent, Type type)
     : QWidget(parent),
       m_type(type)
-    , m_parent(parent)
-    , m_layout(new QHBoxLayout(this))
+    , m_parent(parent->m_window)
     , m_tooltip(new OfficeTooltip())
     , m_timer(new QTimer(this))
 {
+    setLayout(new QHBoxLayout(this));
+
     // Prepare the timer that shows/hides the tooltip on demand.
     m_timer->setInterval(1000);
     m_tooltip->setHelpEnabled(true);
@@ -60,14 +62,14 @@ OfficeWindowMenu::OfficeWindowMenu(OfficeWindow* parent, Type type)
     // to each other, add a small horizontal margin.
     if (type == LabelMenu)
     {
-        m_layout->setContentsMargins(10,0,10,0);
+        layout()->setContentsMargins(10,0,10,0);
 
         // We do not want the item texts to be too close to one another.
-        m_layout->setSpacing(10);
+        layout()->setSpacing(10);
     }
     else if (type == QuickMenu)
     {
-        m_layout->setContentsMargins(0,0,10,0);
+        layout()->setContentsMargins(0,0,10,0);
     }
 
     // The menu's height will always be a fixed height (c_menuHeight). It may
@@ -75,12 +77,91 @@ OfficeWindowMenu::OfficeWindowMenu(OfficeWindow* parent, Type type)
     // space possible horizontally, as the titlebar is cramped.
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     setFixedHeight(c_menuHeight);
-
-    setLayout(m_layout);
     setMouseTracking(true);
 }
 
+bool OfficeWindowMenu::addLabelItem(int id, const QString& t, const QString& tt)
+{
+    if (m_type != LabelMenu)
+    {
+        return false;
+    }
+
+    return addItem(id, t, QPixmap(), tt);
+}
+
+bool OfficeWindowMenu::addQuickItem(int id, const QPixmap& i, const QString &tt)
+{
+    if (m_type != QuickMenu)
+    {
+        return false;
+    }
+
+    return addItem(id, QString(), i, tt);
+}
+
+bool OfficeWindowMenu::removeItem(int id)
+{
+    for (auto* item : m_items)
+    {
+        if (item->id() == id)
+        {
+            m_items.removeOne(item);
+            layout()->removeWidget(item);
+
+            delete item;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void OfficeWindowMenu::onItemClicked(priv::WindowItem* item)
+{
+    emit itemClicked(item->id());
+}
+
+void OfficeWindowMenu::onHelpRequested()
+{
+    emit helpRequested(m_tooltip->property("item").toInt());
+}
+
+void OfficeWindowMenu::onShowTooltip(priv::WindowItem* item)
+{
+    m_tooltip->setProperty("item", item->id());
+    m_trigger = item;
+    m_timer->start();
+}
+
+void OfficeWindowMenu::onHideTooltip(priv::WindowItem*)
+{
+    if (!m_tooltip->isVisible() || !m_tooltip->geometry().contains(QCursor::pos()))
+    {
+        hideTooltip();
+    }
+}
+
+void OfficeWindowMenu::showTooltip()
+{
+    QPoint pos = mapToGlobal(QPoint(m_trigger->width(), m_trigger->height()));
+    QSize size(300, 200);
+
+    m_tooltip->setGeometry(QRect(pos, size));
+    m_tooltip->setTitle(m_trigger->text());
+    m_tooltip->setText(m_trigger->tooltipText());
+    m_tooltip->show();
+    m_timer->stop();
+}
+
+void OfficeWindowMenu::hideTooltip()
+{
+    m_tooltip->hide();
+    m_timer->stop();
+}
+
 bool OfficeWindowMenu::addItem(
+    const int id,
     const QString& text,
     const QPixmap& img,
     const QString& tooltip
@@ -96,10 +177,10 @@ bool OfficeWindowMenu::addItem(
             return false;
     }
 
-    auto* item = new priv::WindowItem(this, m_type, text, img, tooltip);
+    auto* item = new priv::WindowItem(this, m_type, id, text, img, tooltip);
 
     m_items.append(item);
-    m_layout->addWidget(item);
+    layout()->addWidget(item);
 
     // When a QWidget is already shown, adding a child to it does not
     // automatically show the child - we have to do it manually. The layout
@@ -113,7 +194,7 @@ bool OfficeWindowMenu::addItem(
         // For quick menus, we need the item to be aligned to top, because the
         // background color (it changes on hover and press) would be totally
         // misplaced otherwise.
-        m_layout->itemAt(m_layout->indexOf(item))->setAlignment(Qt::AlignTop);
+        layout()->itemAt(layout()->indexOf(item))->setAlignment(Qt::AlignTop);
     }
 
     // Make the menu receive signals from the new item.
@@ -139,66 +220,4 @@ bool OfficeWindowMenu::addItem(
         );
 
     return true;
-}
-
-bool OfficeWindowMenu::removeItem(const QString& text)
-{
-    for (auto* item : m_items)
-    {
-        if (item->text() == text)
-        {
-            m_items.removeOne(item);
-            m_layout->removeWidget(item);
-
-            delete item;
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void OfficeWindowMenu::onItemClicked(priv::WindowItem* item)
-{
-    hideTooltip();
-
-    emit menuItemClicked(item->text());
-}
-
-void OfficeWindowMenu::onHelpRequested()
-{
-    emit helpRequested(m_tooltip->property("item").toString());
-}
-
-void OfficeWindowMenu::onShowTooltip(priv::WindowItem* item)
-{
-    m_tooltip->setProperty("item", item->text());
-    m_trigger = item;
-    m_timer->start();
-}
-
-void OfficeWindowMenu::onHideTooltip(priv::WindowItem*)
-{
-    if (!m_tooltip->geometry().contains(QCursor::pos()))
-    {
-        hideTooltip();
-    }
-}
-
-void OfficeWindowMenu::showTooltip()
-{
-    QPoint pos = mapToGlobal(QPoint(m_trigger->width(), m_trigger->height()));
-    QSize size(300, 200);
-
-    m_tooltip->setGeometry(QRect(pos, size));
-    m_tooltip->setTitle(m_trigger->text());
-    m_tooltip->setText(m_trigger->tooltipText());
-    m_tooltip->show();
-    m_timer->stop();
-}
-
-void OfficeWindowMenu::hideTooltip()
-{
-    m_tooltip->hide();
-    m_timer->stop();
 }

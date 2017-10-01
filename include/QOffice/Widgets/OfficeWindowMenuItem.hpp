@@ -38,6 +38,7 @@ public:
     WindowItem(
         OfficeWindowMenu* parent,
         int type,
+        int id,
         const QString& text,
         const QPixmap& image = QPixmap(),
         const QString& tooltip = QString()
@@ -47,6 +48,7 @@ public:
     OffDisableCopy(WindowItem)
     OffDisableMove(WindowItem)
 
+    int id() const;
     const QString& text() const;
     const QPixmap& image() const;
     const QString& tooltipText() const;
@@ -73,13 +75,14 @@ protected:
 
 private:
 
-    int               m_type;
-    bool              m_isHovered;
-    bool              m_isPressed;
-    QString           m_text;
-    QPixmap           m_image;
-    QString           m_tooltip;
-    OfficeWindowMenu* m_parent;
+    int               m_type;      ///< Defines the type of the parent menu.
+    int               m_id;        ///< Defines the unique item identifier.
+    bool              m_isHovered; ///< Determines whether the item is hovered.
+    bool              m_isPressed; ///< Determines whether the item is pressed.
+    QString           m_text;      ///< Defines the displayed item text.
+    QPixmap           m_image;     ///< Defines the displayed item image.
+    QString           m_tooltip;   ///< Defines the tooltip text.
+    OfficeWindowMenu* m_parent;    ///< Defines the parent window menu.
 
     Q_OBJECT
 };

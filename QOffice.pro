@@ -71,7 +71,12 @@ HEADERS += include/QOffice/Config.hpp \
            include/QOffice/Design/Office.hpp \
            include/QOffice/Widgets/OfficeWindowMenu.hpp \
            include/QOffice/Widgets/OfficeWindowMenuItem.hpp \
-           include/QOffice/Widgets/OfficeTooltip.hpp
+           include/QOffice/Widgets/OfficeTooltip.hpp \
+           include/QOffice/Widgets/OfficeMenu.hpp \
+           include/QOffice/Widgets/OfficeMenuHeader.hpp \
+           include/QOffice/Widgets/OfficeMenuPanel.hpp \
+           include/QOffice/Widgets/OfficeMenuItem.hpp \
+    include/QOffice/Widgets/Dialogs/OfficeWindowTitlebar.hpp
 
 ###########################################################
 # SOURCE FILES
@@ -90,7 +95,12 @@ SOURCES += src/Exceptions/OfficeAccentException.cpp \
            src/Widgets/Dialogs/OfficeWindow.cpp \
            src/Widgets/OfficeWindowMenu.cpp \
            src/Widgets/OfficeWindowMenuItem.cpp \
-           src/Widgets/OfficeTooltip.cpp
+           src/Widgets/OfficeTooltip.cpp \
+           src/Widgets/OfficeMenu.cpp \
+           src/Widgets/OfficeMenuHeader.cpp \
+           src/Widgets/OfficeMenuPanel.cpp \
+           src/Widgets/OfficeMenuItem.cpp \
+    src/Widgets/Dialogs/OfficeWindowTitlebar.cpp
 
 ################################################################################
 ## OUTPUT
