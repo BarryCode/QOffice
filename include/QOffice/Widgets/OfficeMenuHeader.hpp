@@ -29,6 +29,7 @@
 
 class OfficeMenu;
 class OfficeMenuPanel;
+class QGraphicsOpacityEffect;
 class QHBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -194,27 +195,35 @@ protected:
     virtual void leaveEvent(QEvent*) override;
     virtual void mousePressEvent(QMouseEvent*) override;
 
+private slots:
+
+    void animationInFinished();
+    void animationOutFinished();
+
 private:
 
     ////////////////////////////////////////////////////////////////////////////
     // Functions
     //
     ////////////////////////////////////////////////////////////////////////////
-    QHBoxLayout* barLayout();
-    void expand();
-    void collapse();
+    void expand(QHBoxLayout*,bool);
+    void collapse(QHBoxLayout*,bool);
 
     ////////////////////////////////////////////////////////////////////////////
     // Members
     //
     ////////////////////////////////////////////////////////////////////////////
-    OfficeMenu*             m_parent;     ///< Defines the parent office menu.
-    QWidget*                m_panelBar;   ///< Defines the panel bar widget.
-    QList<OfficeMenuPanel*> m_panels;     ///< Holds all panels of this header.
-    QString                 m_text;       ///< Defines the displayed header text.
-    bool                    m_isHovered;  ///< Determines whether its hovered.
-    bool                    m_isSelected; ///< Determines whether its selected.
-    int                     m_id;         ///< Defines the unique ID.
+    OfficeMenu*             m_parent;       ///< Defines the parent office menu.
+    QWidget*                m_panelBar;     ///< Defines the panel bar widget.
+    QHBoxLayout*            m_panelLayout;  ///< Defines the panel layout.
+    QGraphicsOpacityEffect* m_effectIn;     ///< Defines the fade in opac effect.
+    QPropertyAnimation*     m_animationIn;  ///< Defines the fade in animation.
+    QPropertyAnimation*     m_animationOut; ///< Defines the fade out animation.
+    QList<OfficeMenuPanel*> m_panels;       ///< Holds all panels of this header.
+    QString                 m_text;         ///< Defines the displayed header text.
+    bool                    m_isHovered;    ///< Determines whether its hovered.
+    bool                    m_isSelected;   ///< Determines whether its selected.
+    int                     m_id;           ///< Defines the unique ID.
 
     ////////////////////////////////////////////////////////////////////////////
     // Metadata

@@ -25,7 +25,9 @@
 #include <QOffice/Widgets/OfficeMenu.hpp>
 #include <QOffice/Widgets/OfficeMenuHeader.hpp>
 #include <QOffice/Widgets/OfficeMenuPanel.hpp>
+#include <QOffice/Widgets/OfficeMenuStickyButton.hpp>
 
+#include <QGraphicsEffect>
 #include <QHBoxLayout>
 #include <QMouseEvent>
 #include <QPainter>
@@ -33,22 +35,70 @@
 OffAnonymous(QOFFICE_CONSTEXPR int c_headerHeight = 30)
 OffAnonymous(QOFFICE_CONSTEXPR int c_panelHeight  = 90)
 OffAnonymous(QOFFICE_CONSTEXPR int c_textPadding  = 30)
+OffAnonymous(QOFFICE_CONSTEXPR int c_space = 10000)
 
 OfficeMenuHeader::OfficeMenuHeader(OfficeMenu* parent)
     : QWidget(parent)
     , m_parent(parent)
     , m_panelBar(new QWidget(parent))
+    , m_panelLayout(new QHBoxLayout)
+    , m_effectIn(new QGraphicsOpacityEffect(m_panelBar))
+    , m_animationIn(new QPropertyAnimation(m_panelBar, "size"))
+    , m_animationOut(new QPropertyAnimation(m_panelBar, "size"))
     , m_text("Header")
     , m_isHovered(false)
     , m_isSelected(false)
     , m_id(-1)
 {
-    m_panelBar->hide();
-    m_panelBar->setLayout(new QHBoxLayout(m_panelBar));
-    m_panelBar->setFixedHeight(c_panelHeight);
+    m_panelBar->setStyleSheet("QWidget { border-bottom: 1px solid #d5d5d5; }");
 
-    barLayout()->setSpacing(4);
-    barLayout()->setContentsMargins(0,0,0,0);
+    // Split the layout up into two separate layouts. This is needed for the
+    // sticky button to always stay on the bottom right.
+    QHBoxLayout* stickyLayout = new QHBoxLayout;
+    stickyLayout->setSpacing(2);
+    stickyLayout->setMargin(0);
+    stickyLayout->setContentsMargins(0,0,0,0);
+
+    // Put the sticky button into a separate layout.
+    QHBoxLayout* buttonLayout = new QHBoxLayout;
+    buttonLayout->setMargin(0);
+    buttonLayout->setContentsMargins(0,0,0,0);
+    buttonLayout->setSizeConstraint(QLayout::SetFixedSize);
+    buttonLayout->addWidget(new priv::StickyButton(this), 0, Qt::AlignBottom);
+
+    QSpacerItem* spacer = new QSpacerItem(
+        c_space, 0,
+        QSizePolicy::Expanding,
+        QSizePolicy::Expanding
+        );
+
+    m_panelBar->hide();
+    m_panelBar->setGraphicsEffect(m_effectIn);
+    m_panelBar->setAutoFillBackground(true);
+    m_panelBar->setLayout(stickyLayout);
+    m_panelBar->resize(0, 0);
+
+    m_panelLayout->setSpacing(4);
+    m_panelLayout->setContentsMargins(0,0,0,0);
+    m_panelLayout->setSizeConstraint(QLayout::SetMaximumSize);
+
+    stickyLayout->addLayout(m_panelLayout);
+    stickyLayout->addSpacerItem(spacer);
+    stickyLayout->addLayout(buttonLayout);
+
+    QObject::connect(
+        m_animationIn,
+        &QPropertyAnimation::finished,
+        this,
+        &OfficeMenuHeader::animationInFinished
+        );
+
+    QObject::connect(
+        m_animationOut,
+        &QPropertyAnimation::finished,
+        this,
+        &OfficeMenuHeader::animationOutFinished
+        );
 }
 
 int OfficeMenuHeader::id() const
@@ -112,6 +162,7 @@ OfficeMenuPanel* OfficeMenuHeader::insertPanel(int pos, int id, const QString& t
     }
 
     // Ensures that the given position is in range of the item list.
+    // We subtract 1 because the sticky button is always the last item.
     if (pos < 0 || pos >= m_panels.size())
     {
         pos = m_panels.size();
@@ -123,7 +174,7 @@ OfficeMenuPanel* OfficeMenuHeader::insertPanel(int pos, int id, const QString& t
     panel->show();
 
     m_panels.insert(pos, panel);
-    barLayout()->insertWidget(pos, panel, 0);
+    m_panelLayout->insertWidget(pos, panel, 0);
 
     return panel;
 }
@@ -134,7 +185,7 @@ bool OfficeMenuHeader::removePanel(int id)
     if (panel != nullptr)
     {
         m_panels.removeOne(panel);
-        barLayout()->removeWidget(panel);
+        m_panelLayout->removeWidget(panel);
 
         delete panel;
     }
@@ -195,30 +246,74 @@ void OfficeMenuHeader::leaveEvent(QEvent* event)
 
 void OfficeMenuHeader::mousePressEvent(QMouseEvent* event)
 {
-    if (event->button() == Qt::LeftButton)
+    if (event->button() == Qt::LeftButton && !m_isSelected)
     {
         m_parent->expand(this);
     }
 }
 
-QHBoxLayout* OfficeMenuHeader::barLayout()
+void OfficeMenuHeader::animationInFinished()
 {
-    return static_cast<QHBoxLayout*>(m_panelBar->layout());
 }
 
-void OfficeMenuHeader::expand()
+void OfficeMenuHeader::animationOutFinished()
 {
-    m_panelBar->show();
-    m_panelBar->move(0, c_headerHeight);
+    m_parent->resize(width(), c_headerHeight);
+    m_parent->setFixedHeight(c_headerHeight);
+}
+
+void OfficeMenuHeader::expand(QHBoxLayout* panel, bool isExpanded)
+{
+    panel->addWidget(m_panelBar, 0, Qt::AlignLeft);
+
+    if (!isExpanded)
+    {
+        // Huge hack: QWidget::show appearantly resizes the widget immediately,
+        // no matter what I do. Even explicit calls to QWidget::resize or
+        // QWidget::updateGeometry failed. This behaviour caused the widget to
+        // be visible at full height for a split second, before the QProperty-
+        // Animation kicked in and changed the QWidget::height to zero.
+        m_effectIn->setOpacity(0.0);
+        m_panelBar->show();
+
+        // This undesirable effect can only be eliminated by hiding the widget
+        // visually (via QGraphicsOpacityEffect) for a split second, too.
+        QTimer::singleShot(100, [&]() { m_effectIn->setOpacity(1.0); });
+
+        // The menu is not pinned yet, therefore show it using an animation.
+        m_animationIn->setDuration(200);
+        m_animationIn->setStartValue(QSize(m_panelBar->width(), 0));
+        m_animationIn->setEndValue(QSize(m_panelBar->width(), c_panelHeight));
+        m_animationIn->start();
+    }
+    else
+    {
+        m_panelBar->show();
+    }
+
     m_isSelected = true;
     update();
 
     emit headerExpanded();
 }
 
-void OfficeMenuHeader::collapse()
+void OfficeMenuHeader::collapse(QHBoxLayout* panel, bool isExpanded)
 {
-    m_panelBar->hide();
+    panel->removeWidget(m_panelBar);
+
+    if (isExpanded && m_isSelected)
+    {
+        // Hides the menu using a smooth animation.
+        m_animationOut->setDuration(200);
+        m_animationOut->setStartValue(QSize(m_panelBar->width(), c_panelHeight));
+        m_animationOut->setEndValue(QSize(m_panelBar->width(), 0));
+        m_animationOut->start();
+    }
+    else
+    {
+        m_panelBar->hide();
+    }
+
     m_isSelected = false;
     update();
 
