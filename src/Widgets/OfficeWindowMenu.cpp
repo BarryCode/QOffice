@@ -35,21 +35,13 @@ OfficeWindowMenu::OfficeWindowMenu(priv::Titlebar* parent, Type type)
       m_type(type)
     , m_parent(parent->m_window)
     , m_tooltip(new OfficeTooltip())
-    , m_timer(new QTimer(this))
 {
     setLayout(new QHBoxLayout(this));
 
     // Prepare the timer that shows/hides the tooltip on demand.
-    m_timer->setInterval(1000);
     m_tooltip->setHelpEnabled(true);
     m_tooltip->setHelpText(tr("Press F1 to receive help."));
-
-    QObject::connect(
-        m_timer,
-        &QTimer::timeout,
-        this,
-        &OfficeWindowMenu::showTooltip
-        );
+    m_tooltip->setWaitPeriod(1000);
 
     QObject::connect(
         m_tooltip,
@@ -117,6 +109,11 @@ bool OfficeWindowMenu::removeItem(int id)
     return false;
 }
 
+void OfficeWindowMenu::leaveEvent(QEvent*)
+{
+    m_tooltip->hide();
+}
+
 void OfficeWindowMenu::onItemClicked(priv::WindowItem* item)
 {
     emit itemClicked(item->id());
@@ -129,35 +126,22 @@ void OfficeWindowMenu::onHelpRequested()
 
 void OfficeWindowMenu::onShowTooltip(priv::WindowItem* item)
 {
+    QPoint pos = mapToGlobal(QPoint(item->width(), item->height()));
+    QSize size(300, 200);
+
     m_tooltip->setProperty("item", item->id());
-    m_trigger = item;
-    m_timer->start();
+    m_tooltip->setGeometry(QRect(pos, size));
+    m_tooltip->setTitle(item->text());
+    m_tooltip->setText(item->tooltipText());
+    m_tooltip->show();
 }
 
 void OfficeWindowMenu::onHideTooltip(priv::WindowItem*)
 {
     if (!m_tooltip->isVisible() || !m_tooltip->geometry().contains(QCursor::pos()))
     {
-        hideTooltip();
+        m_tooltip->hide();
     }
-}
-
-void OfficeWindowMenu::showTooltip()
-{
-    QPoint pos = mapToGlobal(QPoint(m_trigger->width(), m_trigger->height()));
-    QSize size(300, 200);
-
-    m_tooltip->setGeometry(QRect(pos, size));
-    m_tooltip->setTitle(m_trigger->text());
-    m_tooltip->setText(m_trigger->tooltipText());
-    m_tooltip->show();
-    m_timer->stop();
-}
-
-void OfficeWindowMenu::hideTooltip()
-{
-    m_tooltip->hide();
-    m_timer->stop();
 }
 
 bool OfficeWindowMenu::addItem(

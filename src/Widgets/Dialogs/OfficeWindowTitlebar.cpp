@@ -48,9 +48,6 @@ priv::Titlebar::Titlebar(OfficeWindow* window)
     , m_imageRestore(QPixmap(":/qoffice/images/window/restore.png"))
 {
     setMouseTracking(true);
-
-    m_windowLabelMenu->show();
-    m_windowQuickMenu->show();
 }
 
 void priv::Titlebar::paintEvent(QPaintEvent*)

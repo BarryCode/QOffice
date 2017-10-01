@@ -120,14 +120,16 @@ signals:
     ////////////////////////////////////////////////////////////////////////////
     void helpRequested(int id);
 
+protected:
+
+    virtual void leaveEvent(QEvent*) override;
+
 private slots:
 
     void onItemClicked(priv::WindowItem*);
     void onHelpRequested();
     void onShowTooltip(priv::WindowItem*);
     void onHideTooltip(priv::WindowItem*);
-    void showTooltip();
-    void hideTooltip();
     bool addItem(
         const int id,
         const QString& t,
@@ -143,10 +145,8 @@ private:
     ////////////////////////////////////////////////////////////////////////////
     Type                     m_type;    ///< Defines the type of the menu.
     QList<priv::WindowItem*> m_items;   ///< Holds all window items.
-    priv::WindowItem*        m_trigger; ///< Defines the current tooltip item.
     OfficeWindow*            m_parent;  ///< Defines the parent office window.
     OfficeTooltip*           m_tooltip; ///< Defines the tooltip for all items.
-    QTimer*                  m_timer;   ///< Defines the tooltip timer.
 
     friend class priv::WindowItem;
     friend class OfficeWindow;
