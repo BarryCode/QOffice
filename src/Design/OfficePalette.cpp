@@ -21,8 +21,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <QOffice/Design/OfficePalette.hpp>
-#include <QOffice/Exceptions/OfficePaletteException.hpp>
-
 #include <QColor>
 
 OffAnonymous(QColor g_palette[OfficePalette::MaximumRole] =
@@ -44,7 +42,7 @@ const QColor& OfficePalette::color(PaletteRole role)
 {
     if (!isValid(role))
     {
-        throw OfficePaletteException(OffCurrentFunc, static_cast<int>(role));
+        role = PaletteRole::Background;
     }
 
     return g_palette[role];

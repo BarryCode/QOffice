@@ -21,7 +21,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <QOffice/Design/OfficeFont.hpp>
-#include <QOffice/Exceptions/OfficeFontWeightException.hpp>
 
 #include <QFontDatabase>
 #include <QMutex>
@@ -35,7 +34,7 @@ const QFont& OfficeFont::font(Weight weight, float pointSize)
     auto weightValue = static_cast<int>(weight);
     if (!isValid(weight))
     {
-        throw OfficeFontweightException(OffCurrentFunc, weightValue);
+        weight = Regular;
     }
 
     // Determines whether the combination of weight and pointSize exists.

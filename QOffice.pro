@@ -27,11 +27,14 @@ win32 {
     QMAKE_TARGET_COPYRIGHT   = Copyright (C) 2016-2018 Nicolas Kogler
 }
 
-###########################################################
+####################################################### ####
 # COMPILER SETTINGS
 #
 ###########################################################
-gcc {
+msvc {
+    QMAKE_CXXFLAGS += /EHsc
+} gcc {
+    QMAKE_CXXFLAGS += -fno-exceptions
     QMAKE_LFLAGS += -static-libgcc -static-libstdc++
 }
 
@@ -57,15 +60,11 @@ RESOURCES += resources/qoffice_plugins.qrc \
 #
 ###########################################################
 HEADERS += include/QOffice/Config.hpp \
-           include/QOffice/Exceptions/OfficePaletteException.hpp \
-           include/QOffice/Exceptions/OfficeImageException.hpp \
-           include/QOffice/Exceptions/OfficeAccentException.hpp \
            include/QOffice/Widgets/OfficeWidget.hpp \
            include/QOffice/Design/OfficeAccent.hpp \
            include/QOffice/Design/OfficePalette.hpp \
            include/QOffice/Design/OfficeImage.hpp \
            include/QOffice/Design/OfficeFont.hpp \
-           include/QOffice/Exceptions/OfficeFontWeightException.hpp \
            include/QOffice/Widgets/Dialogs/OfficeWindow.hpp \
            include/QOffice/Widgets/Dialogs/OfficeWindowResizeArea.hpp \
            include/QOffice/Design/Office.hpp \
@@ -84,15 +83,11 @@ HEADERS += include/QOffice/Config.hpp \
 # SOURCE FILES
 #
 ###########################################################
-SOURCES += src/Exceptions/OfficeAccentException.cpp \
-           src/Exceptions/OfficePaletteException.cpp \
-           src/Exceptions/OfficeImageException.cpp \
-           src/Widgets/OfficeWidget.cpp \
+SOURCES += src/Widgets/OfficeWidget.cpp \
            src/Design/OfficeAccent.cpp \
            src/Design/OfficePalette.cpp \
            src/Design/OfficeImage.cpp \
            src/Design/OfficeFont.cpp \
-           src/Exceptions/OfficeFontWeightException.cpp \
            src/Widgets/Dialogs/OfficeWindowResizeArea.cpp \
            src/Widgets/Dialogs/OfficeWindow.cpp \
            src/Widgets/OfficeWindowMenu.cpp \

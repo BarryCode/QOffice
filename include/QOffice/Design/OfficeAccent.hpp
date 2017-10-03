@@ -148,8 +148,4 @@ public:
 /// }
 /// \endcode
 ///
-/// If you always use the virtual OfficeWidget::accent method, you do not need
-/// to handle exceptions, as OfficeWidget::setAccent always ensures that the
-/// provided accent is in range 0 <= x <= Office::CustomAccent.
-///
 ////////////////////////////////////////////////////////////////////////////////

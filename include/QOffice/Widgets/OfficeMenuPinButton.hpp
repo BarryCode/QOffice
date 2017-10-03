@@ -36,7 +36,7 @@ class PinButton : public QWidget
 {
 public:
 
-    OffDefaultDtor(PinButton)
+    OffDeclareDtor(PinButton)
     OffDisableCopy(PinButton)
     OffDisableMove(PinButton)
 

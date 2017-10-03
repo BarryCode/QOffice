@@ -21,7 +21,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <QOffice/Design/OfficeAccent.hpp>
-#include <QOffice/Exceptions/OfficeAccentException.hpp>
 
 OffAnonymous(QColor g_colors[Office::CustomAccent+1] =
 {
@@ -37,7 +36,7 @@ const QColor& OfficeAccent::color(Office::Accent accent)
 {
     if (!isValid(accent))
     {
-        throw OfficeAccentException(OffCurrentFunc, static_cast<int>(accent));
+        accent = Office::BlueAccent;
     }
 
     return g_colors[accent];
@@ -47,7 +46,7 @@ const QColor OfficeAccent::lightColor(Office::Accent accent)
 {
     if (!isValid(accent))
     {
-        throw OfficeAccentException(OffCurrentFunc, static_cast<int>(accent));
+        accent = Office::BlueAccent;
     }
 
     return g_colors[accent].lighter(130);
@@ -57,7 +56,7 @@ const QColor OfficeAccent::veryLightColor(Office::Accent accent)
 {
     if (!isValid(accent))
     {
-        throw OfficeAccentException(OffCurrentFunc, static_cast<int>(accent));
+        accent = Office::BlueAccent;
     }
 
     return g_colors[accent].lighter(200);
@@ -67,7 +66,7 @@ const QColor OfficeAccent::darkColor(Office::Accent accent)
 {
     if (!isValid(accent))
     {
-        throw OfficeAccentException(OffCurrentFunc, static_cast<int>(accent));
+        accent = Office::BlueAccent;
     }
 
     return g_colors[accent].darker(130);
@@ -77,7 +76,7 @@ const QColor OfficeAccent::veryDarkColor(Office::Accent accent)
 {
     if (!isValid(accent))
     {
-        throw OfficeAccentException(OffCurrentFunc, static_cast<int>(accent));
+        accent = Office::BlueAccent;
     }
 
     return g_colors[accent].darker(200);
