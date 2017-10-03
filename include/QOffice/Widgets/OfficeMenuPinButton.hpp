@@ -52,10 +52,6 @@ protected:
     virtual void mousePressEvent(QMouseEvent*) override;
     virtual void mouseReleaseEvent(QMouseEvent*) override;
 
-private slots:
-
-    void onTooltipShown();
-
 private:
 
     ////////////////////////////////////////////////////////////////////////////
@@ -68,8 +64,6 @@ private:
     QPixmap           m_imgCollapse;
     bool              m_isHovered;
     bool              m_isPressed;
-
-    Q_OBJECT
 };
 }
 

@@ -47,13 +47,6 @@ priv::PinButton::PinButton(OfficeMenuHeader* parent)
 
     m_tooltip->setWaitPeriod(1000);
     m_tooltip->setHelpEnabled(false);
-
-    QObject::connect(
-        m_tooltip,
-        &OfficeTooltip::tooltipShown,
-        this,
-        &PinButton::onTooltipShown
-        );
 }
 
 QSize priv::PinButton::sizeHint() const
@@ -105,8 +98,8 @@ void priv::PinButton::enterEvent(QEvent* event)
     // causing it to collapse. We temporarily "pin" the menu for that purpose.
     m_parent->menu()->m_isTooltipShown = true;
     m_tooltip->show();
-
     m_isHovered = true;
+
     update();
 
     QWidget::enterEvent(event);
@@ -114,8 +107,8 @@ void priv::PinButton::enterEvent(QEvent* event)
 
 void priv::PinButton::leaveEvent(QEvent* event)
 {
-    m_tooltip->hide();
     m_parent->menu()->m_isTooltipShown = false;
+    m_tooltip->hide();
     m_isHovered = false;
 
     update();
@@ -147,9 +140,4 @@ void priv::PinButton::mouseReleaseEvent(QMouseEvent* event)
     update();
 
     QWidget::mouseReleaseEvent(event);
-}
-
-void priv::PinButton::onTooltipShown()
-{
-    //m_parent->menu()->setPinned(m_oldState, false);
 }

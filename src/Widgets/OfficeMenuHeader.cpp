@@ -163,13 +163,12 @@ OfficeMenuPanel* OfficeMenuHeader::insertPanel(int pos, int id, const QString& t
     }
 
     // Ensures that the given position is in range of the item list.
-    // We subtract 1 because the sticky button is always the last item.
     if (pos < 0 || pos >= m_panels.size())
     {
         pos = m_panels.size();
     }
 
-    auto* panel = new OfficeMenuPanel(m_panelBar, this);
+    OfficeMenuPanel* panel = new OfficeMenuPanel(m_panelBar, this);
     panel->setText(text);
     panel->setId(id);
     panel->show();
