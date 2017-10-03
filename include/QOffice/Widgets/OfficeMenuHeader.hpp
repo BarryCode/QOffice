@@ -31,6 +31,7 @@ class OfficeMenu;
 class OfficeMenuPanel;
 class QGraphicsOpacityEffect;
 class QHBoxLayout;
+namespace priv { class PanelBar; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeMenuHeader
@@ -214,7 +215,7 @@ private:
     //
     ////////////////////////////////////////////////////////////////////////////
     OfficeMenu*             m_parent;       ///< Defines the parent office menu.
-    QWidget*                m_panelBar;     ///< Defines the panel bar widget.
+    priv::PanelBar*         m_panelBar;     ///< Defines the panel bar widget.
     QHBoxLayout*            m_panelLayout;  ///< Defines the panel layout.
     QGraphicsOpacityEffect* m_effectIn;     ///< Defines the fade in opac effect.
     QPropertyAnimation*     m_animationIn;  ///< Defines the fade in animation.

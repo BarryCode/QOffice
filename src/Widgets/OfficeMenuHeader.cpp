@@ -3,7 +3,7 @@
 // QOffice - The office framework for Qt
 // Copyright (C) 2016-2018 Nicolas Kogler
 //
-// This file is part of the $Module module.
+// This file is part of the Widget module.
 //
 // QOffice is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -25,7 +25,8 @@
 #include <QOffice/Widgets/OfficeMenu.hpp>
 #include <QOffice/Widgets/OfficeMenuHeader.hpp>
 #include <QOffice/Widgets/OfficeMenuPanel.hpp>
-#include <QOffice/Widgets/OfficeMenuStickyButton.hpp>
+#include <QOffice/Widgets/OfficeMenuPanelBar.hpp>
+#include <QOffice/Widgets/OfficeMenuPinButton.hpp>
 
 #include <QGraphicsEffect>
 #include <QHBoxLayout>
@@ -40,7 +41,7 @@ OffAnonymous(QOFFICE_CONSTEXPR int c_space = 10000)
 OfficeMenuHeader::OfficeMenuHeader(OfficeMenu* parent)
     : QWidget(parent)
     , m_parent(parent)
-    , m_panelBar(new QWidget(parent))
+    , m_panelBar(new priv::PanelBar(parent))
     , m_panelLayout(new QHBoxLayout)
     , m_effectIn(new QGraphicsOpacityEffect(m_panelBar))
     , m_animationIn(new QPropertyAnimation(m_panelBar, "size"))
@@ -64,7 +65,7 @@ OfficeMenuHeader::OfficeMenuHeader(OfficeMenu* parent)
     buttonLayout->setMargin(0);
     buttonLayout->setContentsMargins(0,0,0,0);
     buttonLayout->setSizeConstraint(QLayout::SetFixedSize);
-    buttonLayout->addWidget(new priv::StickyButton(this), 0, Qt::AlignBottom);
+    buttonLayout->addWidget(new priv::PinButton(this), 0, Qt::AlignBottom);
 
     QSpacerItem* spacer = new QSpacerItem(
         c_space, 0,
@@ -282,8 +283,8 @@ void OfficeMenuHeader::expand(QHBoxLayout* panel, bool isExpanded)
 
         // The menu is not pinned yet, therefore show it using an animation.
         m_animationIn->setDuration(200);
-        m_animationIn->setStartValue(QSize(m_panelBar->width(), 0));
-        m_animationIn->setEndValue(QSize(m_panelBar->width(), c_panelHeight));
+        m_animationIn->setStartValue(QSize(m_parent->width(), 0));
+        m_animationIn->setEndValue(QSize(m_parent->width(), c_panelHeight));
         m_animationIn->start();
     }
     else
@@ -305,8 +306,8 @@ void OfficeMenuHeader::collapse(QHBoxLayout* panel, bool isExpanded)
     {
         // Hides the menu using a smooth animation.
         m_animationOut->setDuration(200);
-        m_animationOut->setStartValue(QSize(m_panelBar->width(), c_panelHeight));
-        m_animationOut->setEndValue(QSize(m_panelBar->width(), 0));
+        m_animationOut->setStartValue(QSize(m_parent->width(), c_panelHeight));
+        m_animationOut->setEndValue(QSize(m_parent->width(), 0));
         m_animationOut->start();
     }
     else
