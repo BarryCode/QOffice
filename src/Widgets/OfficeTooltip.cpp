@@ -3,7 +3,7 @@
 // QOffice - The office framework for Qt
 // Copyright (C) 2016-2018 Nicolas Kogler
 //
-// This file is part of the $Module module.
+// This file is part of the Widget module.
 //
 // QOffice is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -48,7 +48,7 @@ OfficeTooltip::OfficeTooltip(QWidget* parent)
     , m_helpIcon(":/qoffice/images/widgets/tooltip_help.png")
     , m_duration(4000)
     , m_helpKey(Qt::Key_F1)
-    , m_opacity(1.0)
+    , m_opacity(0.0)
     , m_isHelpEnabled(false)
     , m_isLinkHovered(false)
 {
@@ -308,6 +308,7 @@ void OfficeTooltip::hideEvent(QHideEvent*)
 
     m_opacity = 0.0;
     m_isLinkHovered = false;
+    m_activeWindow  = nullptr;
 
     QObject::disconnect(
         m_animation,
@@ -335,8 +336,15 @@ void OfficeTooltip::beginHideTooltip()
         m_animation,
         &QPropertyAnimation::finished,
         this,
-        &OfficeTooltip::hide
+        &OfficeTooltip::emitTooltipHidden
         );
+}
+
+void OfficeTooltip::emitTooltipHidden()
+{
+    hide();
+
+    emit tooltipHidden();
 }
 
 void OfficeTooltip::fadeInTooltip()
@@ -366,6 +374,8 @@ void OfficeTooltip::fadeInTooltip()
     m_animation->setStartValue(0.0);
     m_animation->setEndValue(1.0);
     m_animation->start();
+
+    emit tooltipShown();
 }
 
 void OfficeTooltip::updateRectangles()

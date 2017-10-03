@@ -193,11 +193,14 @@ protected:
 
 signals:
 
+    void tooltipShown();
+    void tooltipHidden();
     void helpRequested();
 
 public slots:
 
     void beginHideTooltip();
+    void emitTooltipHidden();
     void fadeInTooltip();
 
 private:
