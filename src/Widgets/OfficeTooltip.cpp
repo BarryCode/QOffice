@@ -25,9 +25,12 @@
 #include <QOffice/Widgets/OfficeTooltip.hpp>
 #include <QOffice/Widgets/Dialogs/OfficeWindow.hpp>
 
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QScreen>
 
 OffAnonymous(QOFFICE_CONSTEXPR int c_margin  = c_shadowPadding + 10)
 OffAnonymous(QOFFICE_CONSTEXPR int c_padding = c_margin * 2)
@@ -36,8 +39,8 @@ OffAnonymous(QOFFICE_CONSTEXPR int c_iconMargin = 8)
 OffAnonymous(QOFFICE_CONSTEXPR int c_helpMargin = 7)
 OffAnonymous(QOFFICE_CONSTEXPR int c_separator  = 9)
 
-OfficeTooltip::OfficeTooltip(QWidget* parent)
-    : QWidget(parent)
+OfficeTooltip::OfficeTooltip()
+    : QWidget(nullptr)
     , m_timer(new QTimer(this))
     , m_waitTimer(new QTimer(this))
     , m_animation(new QPropertyAnimation(this))
@@ -284,8 +287,25 @@ void OfficeTooltip::keyPressEvent(QKeyEvent* event)
 
 void OfficeTooltip::showEvent(QShowEvent*)
 {
+    auto* desktop = QApplication::desktop();
+    for (int i = 0; i < desktop->screenCount(); i++)
+    {
+        QWidget* screen = desktop->screen(i);
+
+        // Iterates through every screen until (eventually) the tooltip's
+        // geometry exceeds the current screen's geometry. If that is the case,
+        // we must correct its geometry in a way it perfectly fits the screen.
+        if (geometry().right() > screen->geometry().right())
+        {
+            move(x() + screen->geometry().right() - geometry().right(), y());
+            break;
+        }
+    }
+
     if (m_waitPeriod != 0)
     {
+        // If we specified a wait period, we do not fade in the tooltip yet. The
+        // actual widget, however, will be practically shown nonetheless.
         m_waitTimer->setInterval(m_waitPeriod);
         m_waitTimer->setSingleShot(true);
         m_waitTimer->start();

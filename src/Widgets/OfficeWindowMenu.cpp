@@ -34,7 +34,7 @@ OfficeWindowMenu::OfficeWindowMenu(priv::Titlebar* parent, Type type)
     : QWidget(parent),
       m_type(type)
     , m_parent(parent->m_window)
-    , m_tooltip(new OfficeTooltip())
+    , m_tooltip(new OfficeTooltip)
 {
     setLayout(new QHBoxLayout(this));
 
@@ -70,6 +70,11 @@ OfficeWindowMenu::OfficeWindowMenu(priv::Titlebar* parent, Type type)
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     setFixedHeight(c_menuHeight);
     setMouseTracking(true);
+}
+
+OfficeWindowMenu::~OfficeWindowMenu()
+{
+    delete m_tooltip;
 }
 
 bool OfficeWindowMenu::addLabelItem(int id, const QString& t, const QString& tt)

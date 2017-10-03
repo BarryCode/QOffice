@@ -49,6 +49,11 @@ priv::PinButton::PinButton(OfficeMenuHeader* parent)
     m_tooltip->setHelpEnabled(false);
 }
 
+priv::PinButton::~PinButton()
+{
+    delete m_tooltip;
+}
+
 QSize priv::PinButton::sizeHint() const
 {
     return QSize(30, 16);

@@ -52,7 +52,7 @@ public:
         QuickMenu
     };
 
-    OffDefaultDtor(OfficeWindowMenu)
+    OffDeclareDtor(OfficeWindowMenu)
     OffDisableCopy(OfficeWindowMenu)
     OffDisableMove(OfficeWindowMenu)
 

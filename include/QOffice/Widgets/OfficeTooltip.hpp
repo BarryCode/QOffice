@@ -40,18 +40,10 @@ class QOFFICE_WIDGET_API OfficeTooltip : public QWidget
 {
 public:
 
+    OffDeclareCtor(OfficeTooltip)
     OffDefaultDtor(OfficeTooltip)
     OffDisableCopy(OfficeTooltip)
     OffDisableMove(OfficeTooltip)
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// Initializes a new instance of OfficeTooltip and specifies the given
-    /// \p parent as widget the tooltip is shown on.
-    ///
-    /// \param parent The widget to show this tooltip on.
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    OfficeTooltip(QWidget* parent = nullptr);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Retrieves the title of this tooltip.
