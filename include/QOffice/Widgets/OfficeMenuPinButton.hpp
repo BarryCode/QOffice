@@ -21,8 +21,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef QOFFICE_WIDGETS_OFFICEMENUSTICKYBUTTON_HPP
-#define QOFFICE_WIDGETS_OFFICEMENUSTICKYBUTTON_HPP
+#ifndef QOFFICE_WIDGETS_OFFICEMENUPINBUTTON_HPP
+#define QOFFICE_WIDGETS_OFFICEMENUPINBUTTON_HPP
 
 #include <QOffice/Config.hpp>
 #include <QWidget>
@@ -32,14 +32,15 @@ class OfficeTooltip;
 
 namespace priv
 {
-class StickyButton : public QWidget
+class PinButton : public QWidget
 {
 public:
-    OffDefaultDtor(StickyButton)
-    OffDisableCopy(StickyButton)
-    OffDisableMove(StickyButton)
 
-    StickyButton(OfficeMenuHeader* parent);
+    OffDefaultDtor(PinButton)
+    OffDisableCopy(PinButton)
+    OffDisableMove(PinButton)
+
+    PinButton(OfficeMenuHeader* parent);
 
     QSize sizeHint() const override;
 
@@ -50,6 +51,10 @@ protected:
     virtual void leaveEvent(QEvent*) override;
     virtual void mousePressEvent(QMouseEvent*) override;
     virtual void mouseReleaseEvent(QMouseEvent*) override;
+
+private slots:
+
+    void onTooltipShown();
 
 private:
 
@@ -63,6 +68,8 @@ private:
     QPixmap           m_imgCollapse;
     bool              m_isHovered;
     bool              m_isPressed;
+
+    Q_OBJECT
 };
 }
 
