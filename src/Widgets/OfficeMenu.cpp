@@ -3,7 +3,7 @@
 // QOffice - The office framework for Qt
 // Copyright (C) 2016-2018 Nicolas Kogler
 //
-// This file is part of the $Module module.
+// This file is part of the Widget module.
 //
 // QOffice is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -39,6 +39,7 @@ OfficeMenu::OfficeMenu(QWidget* parent)
     , m_panelLayout(new QHBoxLayout)
     , m_isExpanded(false)
     , m_isPinned(false)
+    , m_isTooltipShown(false)
 {
     QVBoxLayout* container = new QVBoxLayout(this);
     container->setContentsMargins(0,0,0,0);
@@ -56,7 +57,7 @@ OfficeMenu::OfficeMenu(QWidget* parent)
     m_panelLayout->setMargin(0);
     m_panelLayout->setSpacing(2);
 
-    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     setLayout(container);
 }
 
@@ -81,12 +82,12 @@ bool OfficeMenu::isPinned() const
     return m_isPinned;
 }
 
-void OfficeMenu::setPinned(bool pinned)
+void OfficeMenu::setPinned(bool pinned, bool c)
 {
     m_isPinned = pinned;
     setFocus();
 
-    if (!pinned)
+    if (!pinned && c)
     {
         collapse();
     }
@@ -193,7 +194,7 @@ void OfficeMenu::paintEvent(QPaintEvent*)
 
 void OfficeMenu::focusOutEvent(QFocusEvent* event)
 {
-    if (!m_isPinned)
+    if (!m_isPinned && !m_isTooltipShown)
     {
         // If the ribbon is not pinned, it should collapse when we focus a
         // different widget with our mouse.

@@ -255,10 +255,14 @@ void OfficeWindow::focusInEvent(QFocusEvent*)
 
 void OfficeWindow::focusOutEvent(QFocusEvent*)
 {
-    if (g_activeWindow == this)
-    {
-        g_activeWindow = nullptr;
-    }
+    // g_activeWindow holds the window that was active the latest now in order
+    // to fix the bug that tooltips deactivate the window in sub-widgets. That
+    // happens because focusing other widgets triggers this function before the
+    // actual tooltip is even shown.
+    //if (g_activeWindow == this)
+    //{
+    //    g_activeWindow = nullptr;
+    //}
 }
 
 void OfficeWindow::showEvent(QShowEvent* event)

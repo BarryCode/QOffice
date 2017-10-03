@@ -30,6 +30,7 @@
 class OfficeMenuHeader;
 class OfficeMenuEvent;
 class QHBoxLayout;
+namespace priv { class PinButton; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeMenu
@@ -89,10 +90,11 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     /// Specifies whether this menu should be pinned.
     ///
-    /// \param pinned True to pin, false otherwise.
+    /// \param[in] pinned True to pin, false otherwise.
+    /// \param[in] collapse True to collapse the menu, if \p pinned is false.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    void setPinned(bool pinned);
+    void setPinned(bool pinned, bool collapse = true);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Appends a header item to the menu.
@@ -183,12 +185,15 @@ private:
     QHBoxLayout*             m_panelLayout;
     bool                     m_isExpanded;
     bool                     m_isPinned;
+    bool                     m_isTooltipShown;
 
     ////////////////////////////////////////////////////////////////////////////
     // Metadata
     //
     ////////////////////////////////////////////////////////////////////////////
     Q_OBJECT
+
+    friend class priv::PinButton;
 };
 
 #endif

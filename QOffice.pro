@@ -77,7 +77,8 @@ HEADERS += include/QOffice/Config.hpp \
            include/QOffice/Widgets/OfficeMenuPanel.hpp \
            include/QOffice/Widgets/OfficeMenuItem.hpp \
            include/QOffice/Widgets/Dialogs/OfficeWindowTitlebar.hpp \
-           include/QOffice/Widgets/OfficeMenuStickyButton.hpp
+           include/QOffice/Widgets/OfficeMenuPinButton.hpp \
+           include/QOffice/Widgets/OfficeMenuPanelBar.hpp
 
 ###########################################################
 # SOURCE FILES
@@ -102,7 +103,8 @@ SOURCES += src/Exceptions/OfficeAccentException.cpp \
            src/Widgets/OfficeMenuPanel.cpp \
            src/Widgets/OfficeMenuItem.cpp \
            src/Widgets/Dialogs/OfficeWindowTitlebar.cpp \
-           src/Widgets/OfficeMenuStickyButton.cpp
+           src/Widgets/OfficeMenuPinButton.cpp \
+           src/Widgets/OfficeMenuPanelBar.cpp
 
 ################################################################################
 ## OUTPUT
