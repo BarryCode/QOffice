@@ -192,7 +192,6 @@ signals:
 public slots:
 
     void beginHideTooltip();
-    void beginHideTooltipTimed();
     void emitTooltipHidden();
     void fadeInTooltip();
 
@@ -213,7 +212,8 @@ private:
     ////////////////////////////////////////////////////////////////////////////
     QTimer*             m_timer;
     QTimer*             m_waitTimer;
-    QPropertyAnimation* m_animation;
+    QPropertyAnimation* m_showAnimation;
+    QPropertyAnimation* m_hideAnimation;
     OfficeWindow*       m_activeWindow;
     QString             m_heading;
     QString             m_bodyText;
@@ -231,7 +231,6 @@ private:
     QRect               m_helpRectangle;
     QRect               m_sepaRectangle;
     qreal               m_opacity;
-    bool                m_isVisible;
     bool                m_isHelpEnabled;
     bool                m_isLinkHovered;
 

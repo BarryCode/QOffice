@@ -43,7 +43,8 @@ OfficeTooltip::OfficeTooltip()
     : QWidget(nullptr)
     , m_timer(new QTimer(this))
     , m_waitTimer(new QTimer(this))
-    , m_animation(new QPropertyAnimation(this))
+    , m_showAnimation(new QPropertyAnimation(this, "Opacity"))
+    , m_hideAnimation(new QPropertyAnimation(this, "Opacity"))
     , m_activeWindow(nullptr)
     , m_heading("")
     , m_bodyText("Text")
@@ -52,22 +53,37 @@ OfficeTooltip::OfficeTooltip()
     , m_duration(4000)
     , m_helpKey(Qt::Key_F1)
     , m_opacity(0.0)
-    , m_isVisible(false)
     , m_isHelpEnabled(false)
     , m_isLinkHovered(false)
 {
+    m_timer->setSingleShot(true);
+    m_waitTimer->setSingleShot(true);
+
     // Tells Qt that our widget is a tooltip and should be frameless.
     setWindowFlags(Qt::ToolTip | Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
     setMouseTracking(true);
 
-    m_animation->setTargetObject(this);
-    m_animation->setPropertyName(QByteArray("Opacity"));
-    m_animation->setDuration(200);
+    // Show animation
+    m_showAnimation->setDuration(200);
+    m_showAnimation->setStartValue(0.0);
+    m_showAnimation->setEndValue(1.0);
+
+    // Hide animation
+    m_hideAnimation->setDuration(200);
+    m_hideAnimation->setStartValue(1.0);
+    m_hideAnimation->setEndValue(0.0);
 
     // Need to use old syntax since update() has overloads :(
     QObject::connect(
-        m_animation,
+        m_showAnimation,
+        SIGNAL(valueChanged(QVariant)),
+        this,
+        SLOT(update())
+        );
+
+    QObject::connect(
+        m_hideAnimation,
         SIGNAL(valueChanged(QVariant)),
         this,
         SLOT(update())
@@ -77,7 +93,7 @@ OfficeTooltip::OfficeTooltip()
         m_timer,
         &QTimer::timeout,
         this,
-        &OfficeTooltip::beginHideTooltipTimed
+        &OfficeTooltip::beginHideTooltip
         );
 
     QObject::connect(
@@ -88,7 +104,7 @@ OfficeTooltip::OfficeTooltip()
         );
 
     QObject::connect(
-        m_animation,
+        m_hideAnimation,
         &QPropertyAnimation::finished,
         this,
         &OfficeTooltip::emitTooltipHidden
@@ -315,7 +331,6 @@ void OfficeTooltip::showEvent(QShowEvent*)
         // If we specified a wait period, we do not fade in the tooltip yet. The
         // actual widget, however, will be practically shown nonetheless.
         m_waitTimer->setInterval(m_waitPeriod);
-        m_waitTimer->setSingleShot(true);
         m_waitTimer->start();
     }
     else
@@ -333,6 +348,8 @@ void OfficeTooltip::hideEvent(QHideEvent*)
 
     m_timer->stop();
     m_waitTimer->stop();
+    m_showAnimation->stop();
+    m_hideAnimation->stop();
 
     m_opacity = 0.0;
     m_isLinkHovered = false;
@@ -341,8 +358,6 @@ void OfficeTooltip::hideEvent(QHideEvent*)
 
 void OfficeTooltip::leaveEvent(QEvent*)
 {
-    m_isVisible = false;
-
     m_timer->setInterval(400);
     m_timer->start();
 
@@ -351,41 +366,19 @@ void OfficeTooltip::leaveEvent(QEvent*)
 
 void OfficeTooltip::beginHideTooltip()
 {
-    if (!m_isVisible)
-    {
-        m_timer->stop();
-
-        m_animation->setStartValue(1.0);
-        m_animation->setEndValue(0.0);
-        m_animation->start();
-    }
-}
-
-void OfficeTooltip::beginHideTooltipTimed()
-{
-    // Fix: Somehow, QObject::disconnect does not do its job when it comes to
-    // the QPropertyAnimation::finished signal. This makes the tooltip
-    // disappear immediately after it has been faded in, but only under certain
-    // circumstances. To avoid this alltogether, use a new member variable.
-    m_isVisible = false;
-    beginHideTooltip();
+    m_hideAnimation->start();
 }
 
 void OfficeTooltip::emitTooltipHidden()
 {
-    if (!m_isVisible)
-    {
-        hide();
+    hide();
 
-        emit tooltipHidden();
-    }
+    emit tooltipHidden();
 }
 
 void OfficeTooltip::fadeInTooltip()
 {
-    m_timer->stop();
     m_timer->setInterval(m_duration);
-    m_timer->setSingleShot(true);
     m_timer->start();
 
     updateRectangles();
@@ -416,11 +409,7 @@ void OfficeTooltip::fadeInTooltip()
     setFocus(Qt::PopupFocusReason);
 
     m_opacity = 0.0;
-    m_isVisible = true;
-
-    m_animation->setStartValue(0.0);
-    m_animation->setEndValue(1.0);
-    m_animation->start();
+    m_showAnimation->start();
 
     emit tooltipShown();
 }
