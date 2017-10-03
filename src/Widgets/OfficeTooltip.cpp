@@ -52,6 +52,7 @@ OfficeTooltip::OfficeTooltip()
     , m_duration(4000)
     , m_helpKey(Qt::Key_F1)
     , m_opacity(0.0)
+    , m_isVisible(false)
     , m_isHelpEnabled(false)
     , m_isLinkHovered(false)
 {
@@ -76,7 +77,7 @@ OfficeTooltip::OfficeTooltip()
         m_timer,
         &QTimer::timeout,
         this,
-        &OfficeTooltip::beginHideTooltip
+        &OfficeTooltip::beginHideTooltipTimed
         );
 
     QObject::connect(
@@ -84,6 +85,13 @@ OfficeTooltip::OfficeTooltip()
         &QTimer::timeout,
         this,
         &OfficeTooltip::fadeInTooltip
+        );
+
+    QObject::connect(
+        m_animation,
+        &QPropertyAnimation::finished,
+        this,
+        &OfficeTooltip::emitTooltipHidden
         );
 }
 
@@ -329,17 +337,12 @@ void OfficeTooltip::hideEvent(QHideEvent*)
     m_opacity = 0.0;
     m_isLinkHovered = false;
     m_activeWindow  = nullptr;
-
-    QObject::disconnect(
-        m_animation,
-        &QPropertyAnimation::finished,
-        this,
-        &OfficeTooltip::hide
-        );
 }
 
 void OfficeTooltip::leaveEvent(QEvent*)
 {
+    m_isVisible = false;
+
     m_timer->setInterval(400);
     m_timer->start();
 
@@ -348,30 +351,44 @@ void OfficeTooltip::leaveEvent(QEvent*)
 
 void OfficeTooltip::beginHideTooltip()
 {
-    m_animation->setStartValue(1.0);
-    m_animation->setEndValue(0.0);
-    m_animation->start();
+    if (!m_isVisible)
+    {
+        m_timer->stop();
 
-    QObject::connect(
-        m_animation,
-        &QPropertyAnimation::finished,
-        this,
-        &OfficeTooltip::emitTooltipHidden
-        );
+        m_animation->setStartValue(1.0);
+        m_animation->setEndValue(0.0);
+        m_animation->start();
+    }
+}
+
+void OfficeTooltip::beginHideTooltipTimed()
+{
+    // Fix: Somehow, QObject::disconnect does not do its job when it comes to
+    // the QPropertyAnimation::finished signal. This makes the tooltip
+    // disappear immediately after it has been faded in, but only under certain
+    // circumstances. To avoid this alltogether, use a new member variable.
+    m_isVisible = false;
+    beginHideTooltip();
 }
 
 void OfficeTooltip::emitTooltipHidden()
 {
-    hide();
+    if (!m_isVisible)
+    {
+        hide();
 
-    emit tooltipHidden();
+        emit tooltipHidden();
+    }
 }
 
 void OfficeTooltip::fadeInTooltip()
 {
+    m_timer->stop();
     m_timer->setInterval(m_duration);
     m_timer->setSingleShot(true);
     m_timer->start();
+
+    updateRectangles();
 
     // Tells the active window that a tooltip was shown. This prevents the
     // OfficeWindow from rendering in "deactivated mode".
@@ -384,13 +401,23 @@ void OfficeTooltip::fadeInTooltip()
         m_activeWindow = OfficeWindow::activeWindow();
     }
 
-    updateRectangles();
-    activateWindow();
+    // Hack: On windows, activateWindow() will not always work. Quote from the
+    // Qt docs: "This is because Microsoft does not allow an application to
+    // interrupt what the user is currently doing in another application".
+    // Therefore, we need to forcefully activate the application before we
+    // activate the tooltip-window.
+    if (m_activeWindow != nullptr)
+    {
+        m_activeWindow->activateWindow();
+        m_activeWindow->setFocus();
+    }
 
-    // Tells Qt that our newly shown tooltip should get the focus.
+    activateWindow();
     setFocus(Qt::PopupFocusReason);
 
     m_opacity = 0.0;
+    m_isVisible = true;
+
     m_animation->setStartValue(0.0);
     m_animation->setEndValue(1.0);
     m_animation->start();

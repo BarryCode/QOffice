@@ -192,6 +192,7 @@ signals:
 public slots:
 
     void beginHideTooltip();
+    void beginHideTooltipTimed();
     void emitTooltipHidden();
     void fadeInTooltip();
 
@@ -230,6 +231,7 @@ private:
     QRect               m_helpRectangle;
     QRect               m_sepaRectangle;
     qreal               m_opacity;
+    bool                m_isVisible;
     bool                m_isHelpEnabled;
     bool                m_isLinkHovered;
 
