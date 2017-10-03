@@ -3,7 +3,7 @@
 // QOffice - The office framework for Qt
 // Copyright (C) 2016-2018 Nicolas Kogler
 //
-// This file is part of the $Module module.
+// This file is part of the Widget module.
 //
 // QOffice is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
