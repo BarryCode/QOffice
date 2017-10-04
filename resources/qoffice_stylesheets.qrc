@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qoffice/stylesheets/OfficeTextbox.css</file>
+    </qresource>
+</RCC>

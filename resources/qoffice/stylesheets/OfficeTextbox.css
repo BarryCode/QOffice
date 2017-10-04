@@ -1,0 +1,12 @@
+QTextEdit {
+    background-color: %0;
+    border: 1px solid %1;
+}
+
+QTextEdit:hover {
+    border: 1px solid %2;
+}
+
+QTextEdit:focus {
+    border: 1px solid %2;
+}
