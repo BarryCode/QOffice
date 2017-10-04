@@ -32,6 +32,9 @@
 
 #include <QtCore>
 
+#define MSVC_2015 1900
+#define MSVC_2017 2000
+
 #if defined(QOFFICE_BUILD_STATIC)
     // If you want to statically link against QOffice, contact a lawyer to
     // retrieve information about the LGPL and what you can do or can not do.
@@ -55,7 +58,7 @@
     #endif
 #endif
 
-#if defined(Q_CC_MSVC)
+#if defined(Q_CC_MSVC) && Q_CC_MSVC < MSVC_2015
     // MSVC is missing some C++11 keywords.
     #define QOFFICE_NOEXCEPT
     #define QOFFICE_CONSTEXPR const
@@ -66,13 +69,13 @@
 
 // Bitwise operators for strong- and weak-type enums.
 #define OffEnumOperators(flags) \
-    inline flags operator |  (flags l,flags r) { return (flags) (static_cast<int>(l) | static_cast<int>(r)); } \
-    inline flags operator &  (flags l,flags r) { return (flags) (static_cast<int>(l) & static_cast<int>(r)); } \
-    inline flags operator ^  (flags l,flags r) { return (flags) (static_cast<int>(l) ^ static_cast<int>(r)); } \
-    inline flags operator ~  (flags f)         { return (flags) (static_cast<int>(f)); } \
-    inline void  operator |= (flags& l,flags r) { l = l | r; } \
-    inline void  operator &= (flags& l,flags r) { l = l & r; } \
-    inline void  operator ^= (flags& l,flags r) { l = l ^ r; }
+    QOFFICE_CONSTEXPR inline flags operator |  (flags l,flags r) { return (flags) (static_cast<int>(l) | static_cast<int>(r)); } \
+    QOFFICE_CONSTEXPR inline flags operator &  (flags l,flags r) { return (flags) (static_cast<int>(l) & static_cast<int>(r)); } \
+    QOFFICE_CONSTEXPR inline flags operator ^  (flags l,flags r) { return (flags) (static_cast<int>(l) ^ static_cast<int>(r)); } \
+    QOFFICE_CONSTEXPR inline flags operator ~  (flags f)         { return (flags) (static_cast<int>(f)); } \
+    QOFFICE_CONSTEXPR inline void  operator |= (flags& l,flags r) { l = l | r; } \
+    QOFFICE_CONSTEXPR inline void  operator &= (flags& l,flags r) { l = l & r; } \
+    QOFFICE_CONSTEXPR inline void  operator ^= (flags& l,flags r) { l = l ^ r; }
 
 #define OffHasFlag(value,flag)    (value & flag) != 0
 #define OffHasNotFlag(value,flag) (value & flag) == 0
