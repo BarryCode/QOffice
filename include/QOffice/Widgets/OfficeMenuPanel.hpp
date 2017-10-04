@@ -27,6 +27,7 @@
 #include <QOffice/Config.hpp>
 #include <QWidget>
 
+class OfficeMenu;
 class OfficeMenuHeader;
 class OfficeMenuItem;
 class QGridLayout;
@@ -195,6 +196,7 @@ private:
     ////////////////////////////////////////////////////////////////////////////
     Q_OBJECT
 
+    friend class OfficeMenu;
     friend class OfficeMenuHeader;
 };
 

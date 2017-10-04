@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <QOffice/Widgets/OfficeMenu.hpp>
-//#include <QOffice/Widgets/OfficeMenuEvent.hpp>
+#include <QOffice/Widgets/OfficeMenuEvent.hpp>
 #include <QOffice/Widgets/OfficeMenuHeader.hpp>
 #include <QOffice/Widgets/OfficeMenuItem.hpp>
 #include <QOffice/Widgets/OfficeMenuPanel.hpp>
@@ -53,6 +53,27 @@ void OfficeMenuItem::emitItemEvent(OfficeMenuEvent* event)
         m_parent->header() != nullptr &&
         m_parent->header()->menu() != nullptr)
     {
-        emit m_parent->header()->menu()->itemEvent(event);
+        OfficeMenu* menu = m_parent->header()->menu();
+
+        if (event->type() == OfficeMenuEvent::TextChanged)
+        {
+            emit menu->textChangedEvent(
+                static_cast<OfficeMenuTextChangedEvent*>(event));
+        }
+        else if (event->type() == OfficeMenuEvent::ButtonClicked)
+        {
+            emit menu->buttonClickedEvent(
+                static_cast<OfficeMenuButtonClickedEvent*>(event));
+        }
+        else if (event->type() == OfficeMenuEvent::ComboboxItemChanged ||
+                 event->type() == OfficeMenuEvent::DropdownItemChanged)
+        {
+            emit menu->itemChangedEvent(
+                static_cast<OfficeMenuItemChangedEvent*>(event));
+        }
+        else
+        {
+            emit m_parent->header()->menu()->itemEvent(event);
+        }
     }
 }

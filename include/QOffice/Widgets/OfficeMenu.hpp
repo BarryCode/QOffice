@@ -27,8 +27,12 @@
 #include <QOffice/Widgets/OfficeWidget.hpp>
 #include <QWidget>
 
-class OfficeMenuHeader;
 class OfficeMenuEvent;
+class OfficeMenuTextChangedEvent;
+class OfficeMenuButtonClickedEvent;
+class OfficeMenuItemChangedEvent;
+class OfficeMenuHeader;
+class OfficeMenuItem;
 class QHBoxLayout;
 namespace priv { class PinButton; }
 
@@ -66,6 +70,24 @@ public:
     ///
     ////////////////////////////////////////////////////////////////////////////
     OfficeMenuHeader* headerById(int id) const;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Retrieves a pointer to the item with the given \p itemId. If one of
+    /// \p headerId or \p panelId is -1, the item with the given ID will be
+    /// searched dynamically. Note that this can add a significant overhead and
+    /// might not even be accurate, since item IDs can theoretically be
+    /// identical across different panels and headers.
+    ///
+    /// \remarks This is equivalent to calling
+    ///          menu->headerById(hid)->panelById(pid)->itemById(iid);
+    ///
+    /// \param[in] headerId The header id that contains the panel for the item.
+    /// \param[in] panelId The panel id that contains the item.
+    /// \param[in] itemId The unique item id within the panel.
+    /// \return The pointer to the item or nullptr otherwise.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    OfficeMenuItem* itemById(int headerId, int panelId, int itemId) const;
 
     ////////////////////////////////////////////////////////////////////////////
     /// Retrieves a pointer to the header item with the given \p id. A call to
@@ -161,12 +183,37 @@ signals:
     /// This signal is emitted if the user interacted with a menu item inside a
     /// ::OfficeMenuPanel. That can be entering text in a textbox, clicking a
     /// button or choosing a drop-down menu item. It is recommended to read the
-    /// documentation on ::OfficeMenuEvent carefully.
+    /// documentation on ::OfficeMenuEvent carefully. This is the generic signal
+    /// for all event types. Custom events must be handled here.
     ///
     /// \param[in] event Contains useful information about the action.
     ///
     ////////////////////////////////////////////////////////////////////////////
     void itemEvent(OfficeMenuEvent* event);
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// This signal is emitted if the user changes text in an e.g. textbox.
+    ///
+    /// \param[in] event Contains information about the text event.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void textChangedEvent(OfficeMenuTextChangedEvent* event);
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// This signal is emitted if the user clicks an e.g. button.
+    ///
+    /// \param[in] event Contains information about the button event.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void buttonClickedEvent(OfficeMenuButtonClickedEvent* event);
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// This signal is emitted if the user changes an item in an e.g. drop-down.
+    ///
+    /// \param[in] event Contains information about the item event.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    void itemChangedEvent(OfficeMenuItemChangedEvent* event);
 
 protected:
 

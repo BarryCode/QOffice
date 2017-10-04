@@ -24,6 +24,8 @@
 #include <QOffice/Design/OfficePalette.hpp>
 #include <QOffice/Widgets/OfficeMenu.hpp>
 #include <QOffice/Widgets/OfficeMenuHeader.hpp>
+#include <QOffice/Widgets/OfficeMenuItem.hpp>
+#include <QOffice/Widgets/OfficeMenuPanel.hpp>
 
 #include <QBoxLayout>
 #include <QMouseEvent>
@@ -67,6 +69,35 @@ OfficeMenuHeader* OfficeMenu::headerById(int id) const
     {
         if (header->id() == id)
             return header;
+    }
+
+    return nullptr;
+}
+
+OfficeMenuItem* OfficeMenu::itemById(int headerId, int panelId, int itemId) const
+{
+    if (headerId != -1 && panelId != -1)
+    {
+        auto* header = headerById(headerId);
+        if (header != nullptr)
+        {
+            auto* panel = header->panelById(panelId);
+            if (panel != nullptr)
+            {
+                return panel->itemById(itemId);
+            }
+        }
+    }
+    else
+    {
+        // The user requested a dynamic search (sigh).
+        for (auto* header : m_headers)
+        for (auto* panel : header->m_panels)
+        for (auto* item : panel->m_items)
+        {
+            if (item->id() == itemId)
+                return item;
+        }
     }
 
     return nullptr;
