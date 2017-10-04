@@ -20,13 +20,21 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <QOffice/Design/OfficePalette.hpp>
 #include <QOffice/Widgets/OfficeMenu.hpp>
 #include <QOffice/Widgets/OfficeMenuPanelBar.hpp>
 
 priv::PanelBar::PanelBar(OfficeMenu* parent)
     : QWidget(parent)
 {
+    QString css = "QWidget { border-bottom: 1px solid %0; }";
+    QString color = Office::colorToHex(
+                OfficePalette::color(
+                OfficePalette::MenuSeparator
+                ));
+
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+    setStyleSheet(css.arg(color));
 }
 
 QSize priv::PanelBar::sizeHint() const

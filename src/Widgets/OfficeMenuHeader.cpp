@@ -51,8 +51,6 @@ OfficeMenuHeader::OfficeMenuHeader(OfficeMenu* parent)
     , m_isSelected(false)
     , m_id(-1)
 {
-    m_panelBar->setStyleSheet("QWidget { border-bottom: 1px solid #d5d5d5; }");
-
     // Split the layout up into two separate layouts. This is needed for the
     // sticky button to always stay on the bottom right.
     QHBoxLayout* stickyLayout = new QHBoxLayout;

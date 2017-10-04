@@ -3,7 +3,7 @@
 // QOffice - The office framework for Qt
 // Copyright (C) 2016-2018 Nicolas Kogler
 //
-// This file is part of the Design module.
+// This file is part of the $Module module.
 //
 // QOffice is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -20,40 +20,29 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QOffice/Design/OfficePalette.hpp>
-#include <QColor>
+#include <QOffice/Design/Office.hpp>
 
-OffAnonymous(QColor g_palette[OfficePalette::MaximumRole] =
+static QString Office::colorToHex(const QColor& color)
 {
-    QColor(0xf1f1f1),
-    QColor(0x666666),
-    QColor(0x989898),
-    QColor(0xbebebe),
-    QColor(0xffffff),
-    QColor(0xe1e1e1),
-    QColor(0x5c5c5c),
-    QColor(0x336699),
-    QColor(0xd5d5d5),
-    QColor(0xc5c5c5),
-    QColor(0xaeaeae),
-    QColor(0x969696)
-})
+    auto a = QString::number(color.alpha(), 16);
+    auto r = QString::number(color.red(),   16);
+    auto g = QString::number(color.green(), 16);
+    auto b = QString::number(color.blue(),  16);
 
-const QColor& OfficePalette::color(PaletteRole role)
-{
-    if (!isValid(role))
-    {
-        role = PaletteRole::Background;
-    }
-
-    return g_palette[role];
+    return '#' + a + r + g + b;
 }
 
-bool OfficePalette::isValid(PaletteRole role)
+static QString Office::loadStyleSheet(const QString& name)
 {
-    auto value = static_cast<int>(role);
+    static QString basePath = QStringLiteral(":/qoffice/stylesheets/");
+    static QString extension = QStringLiteral(".css");
 
-    // The MaximumRole will _always_ be the last enum entry, so we can safely
-    // determine whether 0 <= value < MaximumRole.
-    return value >= 0 && value < MaximumRole;
+    // Builds the path (basePath + name + .css).
+    QFile file(basePath + name + extension);
+    if (!file.open(QFile::ReadOnly))
+    {
+        return QString();
+    }
+
+    return QTextStream(&file).readAll();
 }

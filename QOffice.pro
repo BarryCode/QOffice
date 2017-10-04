@@ -53,7 +53,8 @@ INCLUDEPATH += include \
 RESOURCES += resources/qoffice_plugins.qrc \
              resources/qoffice_images.qrc \
              resources/qoffice_editors.qrc \
-             resources/qoffice_fonts.qrc
+             resources/qoffice_fonts.qrc \
+    resources/qoffice_stylesheets.qrc
 
 ###########################################################
 # HEADER FILES
@@ -78,7 +79,8 @@ HEADERS += include/QOffice/Config.hpp \
            include/QOffice/Widgets/Dialogs/OfficeWindowTitlebar.hpp \
            include/QOffice/Widgets/OfficeMenuPinButton.hpp \
            include/QOffice/Widgets/OfficeMenuPanelBar.hpp \
-           include/QOffice/Widgets/OfficeMenuEvent.hpp
+           include/QOffice/Widgets/OfficeMenuEvent.hpp \
+    include/QOffice/Widgets/OfficeTextbox.hpp
 
 ###########################################################
 # SOURCE FILES
@@ -101,7 +103,9 @@ SOURCES += src/Widgets/OfficeWidget.cpp \
            src/Widgets/Dialogs/OfficeWindowTitlebar.cpp \
            src/Widgets/OfficeMenuPinButton.cpp \
            src/Widgets/OfficeMenuPanelBar.cpp \
-           src/Widgets/OfficeMenuEvent.cpp
+           src/Widgets/OfficeMenuEvent.cpp \
+    src/Design/Office.cpp \
+    src/Widgets/OfficeTextbox.cpp
 
 ################################################################################
 ## OUTPUT

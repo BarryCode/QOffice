@@ -25,6 +25,8 @@
 #define QOFFICE_DESIGN_OFFICE_HPP
 
 #include <QOffice/Config.hpp>
+
+#include <QColor>
 #include <QObject>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +54,24 @@ public:
         PurpleAccent,
         CustomAccent
     };
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Converts a QColor to a hexadecimal representation of that color.
+    ///
+    /// \param[in] color Color to convert.
+    /// \return The hex as string. A hash character is prepended.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    static QString colorToHex(const QColor& color);
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Loads the stylesheet with the given name from the QOffice resources.
+    ///
+    /// \param[in] name Name of the stylesheet, without extension.
+    /// \return The contents of the stylesheet.
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+    static QString loadStyleSheet(const QString& name);
 
 private:
 
