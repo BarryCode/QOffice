@@ -77,7 +77,8 @@ HEADERS += include/QOffice/Config.hpp \
            include/QOffice/Widgets/OfficeMenuItem.hpp \
            include/QOffice/Widgets/Dialogs/OfficeWindowTitlebar.hpp \
            include/QOffice/Widgets/OfficeMenuPinButton.hpp \
-           include/QOffice/Widgets/OfficeMenuPanelBar.hpp
+           include/QOffice/Widgets/OfficeMenuPanelBar.hpp \
+           include/QOffice/Widgets/OfficeMenuEvent.hpp
 
 ###########################################################
 # SOURCE FILES
@@ -99,7 +100,8 @@ SOURCES += src/Widgets/OfficeWidget.cpp \
            src/Widgets/OfficeMenuItem.cpp \
            src/Widgets/Dialogs/OfficeWindowTitlebar.cpp \
            src/Widgets/OfficeMenuPinButton.cpp \
-           src/Widgets/OfficeMenuPanelBar.cpp
+           src/Widgets/OfficeMenuPanelBar.cpp \
+           src/Widgets/OfficeMenuEvent.cpp
 
 ################################################################################
 ## OUTPUT
