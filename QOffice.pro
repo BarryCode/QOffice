@@ -80,7 +80,9 @@ HEADERS += include/QOffice/Config.hpp \
            include/QOffice/Widgets/OfficeMenuPinButton.hpp \
            include/QOffice/Widgets/OfficeMenuPanelBar.hpp \
            include/QOffice/Widgets/OfficeMenuEvent.hpp \
-    include/QOffice/Widgets/OfficeTextbox.hpp
+           include/QOffice/Widgets/OfficeTextbox.hpp \
+           include/QOffice/Widgets/MenuItems/OfficeMenuTextboxItem.hpp \
+           include/QOffice/Widgets/OfficeLineEdit.hpp
 
 ###########################################################
 # SOURCE FILES
@@ -104,8 +106,10 @@ SOURCES += src/Widgets/OfficeWidget.cpp \
            src/Widgets/OfficeMenuPinButton.cpp \
            src/Widgets/OfficeMenuPanelBar.cpp \
            src/Widgets/OfficeMenuEvent.cpp \
-    src/Design/Office.cpp \
-    src/Widgets/OfficeTextbox.cpp
+           src/Design/Office.cpp \
+           src/Widgets/OfficeTextbox.cpp \
+           src/Widgets/MenuItems/OfficeMenuTextboxItem.cpp \
+           src/Widgets/OfficeLineEdit.cpp
 
 ################################################################################
 ## OUTPUT

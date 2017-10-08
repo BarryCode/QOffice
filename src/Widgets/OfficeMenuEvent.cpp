@@ -54,9 +54,10 @@ void OfficeMenuEvent::ignore()
 }
 
 OfficeMenuTextChangedEvent::OfficeMenuTextChangedEvent(
-    OfficeMenuEvent::Type type, int id,
-    const QString &oldT, const QString &newT
-    ) : OfficeMenuEvent(type, id)
+    int id,
+    const QString &oldT,
+    const QString &newT
+    ) : OfficeMenuEvent(OfficeMenuEvent::TextChanged, id)
       , m_oldText(oldT)
       , m_newText(newT)
 {
@@ -73,9 +74,10 @@ QString OfficeMenuTextChangedEvent::currentText() const
 }
 
 OfficeMenuButtonClickedEvent::OfficeMenuButtonClickedEvent(
-    OfficeMenuEvent::Type type, int id,
-    bool toggable, bool toggled
-    ) : OfficeMenuEvent(type, id)
+    int id,
+    bool toggable,
+    bool toggled
+    ) : OfficeMenuEvent(OfficeMenuEvent::ButtonClicked, id)
       , m_isToggable(toggable)
       , m_isToggled(toggled)
 {
@@ -92,9 +94,11 @@ bool OfficeMenuButtonClickedEvent::isToggled() const
 }
 
 OfficeMenuItemChangedEvent::OfficeMenuItemChangedEvent(
-    OfficeMenuEvent::Type type, int id, int index,
-    const QString &text, const QVariant &value
-    ) : OfficeMenuEvent(type, id)
+    int id,
+    int index,
+    const QString &text,
+    const QVariant &value
+    ) : OfficeMenuEvent(OfficeMenuEvent::ItemChanged, id)
       , m_index(index)
       , m_text(text)
       , m_value(value)

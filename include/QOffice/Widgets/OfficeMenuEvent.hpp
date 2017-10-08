@@ -47,8 +47,7 @@ public:
         Invalid = -1,
         TextChanged,
         ButtonClicked,
-        DropdownItemChanged,
-        ComboboxItemChanged,
+        ItemChanged,
         UserEvent
     };
 
@@ -128,18 +127,14 @@ public:
     OffDisableMove(OfficeMenuTextChangedEvent)
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Constructs a new OfficeMenuTextChangedEvent of the given type.
+    /// Constructs a new OfficeMenuTextChangedEvent.
     ///
-    /// \param[in] type The type of the event.
     /// \param[in] id The unique identifier of the item.
     /// \param[in] oldT The previous text.
     /// \param[in] newT The current text.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    OfficeMenuTextChangedEvent(
-        OfficeMenuEvent::Type type, int id,
-        const QString& oldT, const QString& newT
-        );
+    OfficeMenuTextChangedEvent(int id, const QString& oldT, const QString& newT);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Retrieves the previous text.
@@ -183,18 +178,14 @@ public:
     OffDisableMove(OfficeMenuButtonClickedEvent)
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Constructs a new OfficeMenuButtonClickedEvent of the given type.
+    /// Constructs a new OfficeMenuButtonClickedEvent.
     ///
-    /// \param[in] type The type of the event.
     /// \param[in] id The unique identifier of the item.
     /// \param[in] toggable Specifies whether the button is toggable.
     /// \param[in] toggled Specifies whether the button is toggled.
     ///
     ////////////////////////////////////////////////////////////////////////////
-    OfficeMenuButtonClickedEvent(
-        OfficeMenuEvent::Type type, int id,
-        bool toggable, bool toggled
-        );
+    OfficeMenuButtonClickedEvent(int id, bool toggable, bool toggled);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Determines whether the button is toggable.
@@ -239,9 +230,8 @@ public:
     OffDisableMove(OfficeMenuItemChangedEvent)
 
     ////////////////////////////////////////////////////////////////////////////
-    /// Constructs a new OfficeMenuItemChangedEvent of the given type.
+    /// Constructs a new OfficeMenuItemChangedEvent.
     ///
-    /// \param[in] type The type of the event.
     /// \param[in] id The unique identifier of the item.
     /// \param[in] index The index of the item in the collection.
     /// \param[in] text The displayed text of the item.
@@ -249,8 +239,10 @@ public:
     ///
     ////////////////////////////////////////////////////////////////////////////
     OfficeMenuItemChangedEvent(
-        OfficeMenuEvent::Type type, int id, int index,
-        const QString& text, const QVariant& value
+        int id,
+        int index,
+        const QString& text,
+        const QVariant& value
         );
 
     ////////////////////////////////////////////////////////////////////////////
