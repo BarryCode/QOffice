@@ -124,20 +124,6 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     /// Inserts a new menu item into the panel.
     ///
-    /// \param id     The unique identifier of the item to insert.
-    /// \param item   The new item to be inserted into the panel.
-    /// \param row    The layout row to insert item to.
-    /// \param column The layout column to insert item to.
-    /// \return True if successfully inserted, false otherwise.
-    ///
-    /// \remarks Yields false if the id already exists.
-    ///
-    ////////////////////////////////////////////////////////////////////////////
-    bool insertItem(int id, OfficeMenuItem* item, int row, int column);
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// Inserts a new menu item into the panel.
-    ///
     /// \param id         The unique identifier of the item to insert.
     /// \param item       The new item to be inserted into the panel.
     /// \param row        The layout row to insert item to.
@@ -152,8 +138,7 @@ public:
     bool insertItem(
         int id, OfficeMenuItem* item,
         int row, int column,
-        int rowSpan, int columnSpan
-        );
+        int rowSpan = 1, int columnSpan = 1);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Removes a menu item from the panel.

@@ -25,6 +25,7 @@
 #define QOFFICE_WIDGET_OFFICEMENUITEM_HPP
 
 #include <QOffice/Config.hpp>
+#include <QObject>
 
 class OfficeMenuEvent;
 class OfficeMenuPanel;
@@ -135,12 +136,14 @@ private:
 ///
 ///     QWidget* widget() const override { return this; }
 /// };
+/// \endcode
 ///
 /// This simple example displays a QPushButton in the panel and forwards the
 /// click event on it to the OfficeMenu::itemEvent signal through emitItemEvent.
 ///
 /// Most of the items also directly allow you to connect slots to signals. Take
 /// a look at the documentation of the item in question.
+///
 /// \endcode
 ///
 ////////////////////////////////////////////////////////////////////////////////

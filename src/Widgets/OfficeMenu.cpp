@@ -27,6 +27,7 @@
 #include <QOffice/Widgets/OfficeMenuItem.hpp>
 #include <QOffice/Widgets/OfficeMenuPanel.hpp>
 
+#include <QApplication>
 #include <QBoxLayout>
 #include <QMouseEvent>
 #include <QPainter>
@@ -61,6 +62,9 @@ OfficeMenu::OfficeMenu(QWidget* parent)
 
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     setLayout(container);
+
+    setFocusPolicy(Qt::ClickFocus);
+    setProperty("qoffice_menu", true);
 }
 
 OfficeMenuHeader* OfficeMenu::headerById(int id) const
@@ -225,12 +229,46 @@ void OfficeMenu::paintEvent(QPaintEvent*)
 
 void OfficeMenu::focusOutEvent(QFocusEvent* event)
 {
-    if (!m_isPinned && !m_isTooltipShown)
+    collapseOnFocusLost();
+
+    QWidget::focusOutEvent(event);
+}
+
+bool OfficeMenu::eventFilter(QObject* obj, QEvent* event)
+{
+    if (event->type() == QEvent::FocusOut)
+    {
+        collapseOnFocusLost();
+
+        return true;
+    }
+
+    return QObject::eventFilter(obj, event);
+}
+
+void OfficeMenu::collapseOnFocusLost()
+{
+    bool focusOverride = false;
+
+    // Hack: Normally, the menu collapses when focusing any other widget than
+    // the menu. This is not always desired, though, since many of the panel
+    // items are widgets that require focus (textbox, combobox, ...). Widgets
+    // that define 'qoffice_menu_item=true' through their properties are
+    // whitelisted by the OfficeMenu and will not cause it to collapse.
+    auto* focus = QApplication::focusWidget();
+    if (focus != nullptr)
+    {
+        if (focus->property("qoffice_menu_item").toBool() ||
+            focus->property("qoffice_menu").toBool())
+        {
+            focusOverride = true;
+        }
+    }
+
+    if (!focusOverride && !m_isPinned && !m_isTooltipShown)
     {
         // If the ribbon is not pinned, it should collapse when we focus a
         // different widget with our mouse.
         collapse();
     }
-
-    QWidget::focusOutEvent(event);
 }

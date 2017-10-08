@@ -220,8 +220,11 @@ protected:
     virtual void accentUpdateEvent() override;
     virtual void paintEvent(QPaintEvent*) override;
     virtual void focusOutEvent(QFocusEvent*) override;
+    virtual bool eventFilter(QObject*, QEvent*) override;
 
 private:
+
+    void collapseOnFocusLost();
 
     ////////////////////////////////////////////////////////////////////////////
     // Members

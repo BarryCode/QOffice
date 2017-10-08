@@ -26,6 +26,8 @@
 #include <QOffice/Widgets/OfficeMenuItem.hpp>
 #include <QOffice/Widgets/OfficeMenuPanel.hpp>
 
+#include <QApplication>
+
 int OfficeMenuItem::id() const
 {
     return m_id;
@@ -65,8 +67,7 @@ void OfficeMenuItem::emitItemEvent(OfficeMenuEvent* event)
             emit menu->buttonClickedEvent(
                 static_cast<OfficeMenuButtonClickedEvent*>(event));
         }
-        else if (event->type() == OfficeMenuEvent::ComboboxItemChanged ||
-                 event->type() == OfficeMenuEvent::DropdownItemChanged)
+        else if (event->type() == OfficeMenuEvent::ItemChanged)
         {
             emit menu->itemChangedEvent(
                 static_cast<OfficeMenuItemChangedEvent*>(event));

@@ -27,14 +27,23 @@
 priv::PanelBar::PanelBar(OfficeMenu* parent)
     : QWidget(parent)
 {
-    QString css = "QWidget { border-bottom: 1px solid %0; }";
-    QString color = Office::colorToHex(
+    QString css = Office::loadStyleSheet("OfficeMenuPanelBar");
+    QString color1 = Office::colorToHex(
                 OfficePalette::color(
                 OfficePalette::MenuSeparator
                 ));
+    QString color2 = Office::colorToHex(
+                OfficePalette::color(
+                OfficePalette::Background
+                ));
 
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-    setStyleSheet(css.arg(color));
+    setStyleSheet(css.arg(color1, color2));
+
+    // Hack: Treat panel bar as menu, for the focus-out events.
+    setFocusPolicy(Qt::ClickFocus);
+    setProperty("qoffice_menu", true);
+    installEventFilter(parent);
 }
 
 QSize priv::PanelBar::sizeHint() const

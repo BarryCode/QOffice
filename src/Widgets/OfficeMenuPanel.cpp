@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <QOffice/Design/OfficePalette.hpp>
+#include <QOffice/Widgets/OfficeMenu.hpp>
 #include <QOffice/Widgets/OfficeMenuItem.hpp>
 #include <QOffice/Widgets/OfficeMenuPanel.hpp>
 #include <QOffice/Widgets/OfficeMenuHeader.hpp>
@@ -37,7 +38,7 @@ OfficeMenuPanel::OfficeMenuPanel(QWidget* panelBar, OfficeMenuHeader* header)
     , m_id(-1)
 {
     m_layout->setSpacing(4);
-    m_layout->setContentsMargins(4,0,4,4);
+    m_layout->setContentsMargins(4,0,4,18);
 
     setLayout(m_layout);
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
@@ -84,20 +85,6 @@ void OfficeMenuPanel::setText(const QString& text)
     m_text = text;
 }
 
-bool OfficeMenuPanel::insertItem(int id, OfficeMenuItem* item, int row, int column)
-{
-    if (item->widget() == nullptr || itemById(id) != nullptr)
-    {
-        return false;
-    }
-
-    item->setId(id);
-    m_items.append(item);
-    m_layout->addWidget(item->widget(), row, column);
-
-    return true;
-}
-
 bool OfficeMenuPanel::insertItem(
     int id, OfficeMenuItem* item,
     int row, int column,
@@ -110,6 +97,10 @@ bool OfficeMenuPanel::insertItem(
     }
 
     item->setId(id);
+    item->setPanel(this);
+    item->widget()->setProperty("qoffice_menu_item", true);
+    item->widget()->installEventFilter(header()->menu());
+
     m_items.append(item);
     m_layout->addWidget(item->widget(), row, column, rowSpan, columnSpan);
 
