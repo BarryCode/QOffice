@@ -27,8 +27,6 @@
 #include <QOffice/Config.hpp>
 #include <QTextEdit>
 
-class OfficeMenuTextChangedEvent;
-
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeTextbox
 /// \brief Defines a textbox in the office style.
@@ -108,23 +106,12 @@ private slots:
 private:
 
     ////////////////////////////////////////////////////////////////////////////
-    // Functions
-    //
-    ////////////////////////////////////////////////////////////////////////////
-    bool canInputAscii(const QString& s);
-    bool canInputNumber(const QString& s);
-    bool canInputInteger(const QString& s);
-    bool canInputFloat(const QString& s);
-    bool canInputHex(const QString& s);
-    bool canInputOctal(const QString& s);
-    bool canInputBinary(const QString& s);
-
-    ////////////////////////////////////////////////////////////////////////////
     // Members
     //
     ////////////////////////////////////////////////////////////////////////////
     Format m_format;    ///< Defines the format of this textbox.
     QString m_previous; ///< Defines the previous text.
+    bool m_hasTyped;    ///< Determines whether the user has typed anything.
 
     ////////////////////////////////////////////////////////////////////////////
     // Metadata
