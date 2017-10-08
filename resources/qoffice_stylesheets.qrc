@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>qoffice/stylesheets/OfficeTextbox.css</file>
+        <file>qoffice/stylesheets/OfficeMenuPanelBar.css</file>
+        <file>qoffice/stylesheets/OfficeLineEdit.css</file>
     </qresource>
 </RCC>
