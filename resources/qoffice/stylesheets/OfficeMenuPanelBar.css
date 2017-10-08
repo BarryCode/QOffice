@@ -1,0 +1,5 @@
+QWidget
+{
+    border-bottom: 1px solid %0;
+    background-color: %1;
+}
