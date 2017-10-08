@@ -22,7 +22,7 @@
 
 #include <QOffice/Design/Office.hpp>
 
-static QString Office::colorToHex(const QColor& color)
+QString Office::colorToHex(const QColor& color)
 {
     auto a = QString::number(color.alpha(), 16);
     auto r = QString::number(color.red(),   16);
@@ -32,7 +32,7 @@ static QString Office::colorToHex(const QColor& color)
     return '#' + a + r + g + b;
 }
 
-static QString Office::loadStyleSheet(const QString& name)
+QString Office::loadStyleSheet(const QString& name)
 {
     static QString basePath = QStringLiteral(":/qoffice/stylesheets/");
     static QString extension = QStringLiteral(".css");
@@ -45,4 +45,69 @@ static QString Office::loadStyleSheet(const QString& name)
     }
 
     return QTextStream(&file).readAll();
+}
+
+bool Office::isAscii(const QString& str)
+{
+    foreach (const QChar c, str)
+    {
+        if (c.unicode() > 127)
+            return false;
+    }
+
+    return true;
+}
+
+bool Office::isInteger(const QString& str)
+{
+    foreach (const QChar c, str)
+    {
+        if (!c.isDigit())
+            return false;
+    }
+
+    return true;
+}
+
+bool Office::isDecimal(const QString& str)
+{
+    bool success;
+
+    // Tries to convert the entire string (since doubles have a complex ruleset
+    // of what to appear and when) and sets 'success' to true if successful.
+    str.toDouble(&success);
+
+    return success;
+}
+
+bool Office::isNumber(const QString& str)
+{
+    return isInteger(str) || isDecimal(str);
+}
+
+bool Office::isHexadecimal(const QString& str)
+{
+    bool success;
+
+    str.toULongLong(&success, 16);
+
+    return success;
+}
+
+bool Office::isOctal(const QString& str)
+{
+    bool success;
+
+    str.toULongLong(&success, 8);
+
+    return success;
+}
+
+bool Office::isBinary(const QString& str)
+{
+    bool success;
+
+    str.toULongLong(&success, 2);
+
+    return success;
 }
