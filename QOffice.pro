@@ -54,7 +54,7 @@ RESOURCES += resources/qoffice_plugins.qrc \
              resources/qoffice_images.qrc \
              resources/qoffice_editors.qrc \
              resources/qoffice_fonts.qrc \
-    resources/qoffice_stylesheets.qrc
+             resources/qoffice_stylesheets.qrc
 
 ###########################################################
 # HEADER FILES
@@ -115,7 +115,7 @@ SOURCES += src/Widgets/OfficeWidget.cpp \
 ## OUTPUT
 ##
 ################################################################################
-include(platforms.pri)
+include(platforms/platforms.pri)
 message(Writing library to: $${PWD}/bin/$${kgl_path})
 
 DESTDIR     = $${PWD}/bin/$${kgl_path}
