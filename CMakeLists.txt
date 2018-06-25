@@ -30,7 +30,7 @@ if (QOFFICE_BUILD_SHARED AND UNIX)
     set(QOFFICE_LIBRARY qoffice)
 else()
     # windows needs static library names. We use the major version as suffix
-    # since we want to keep Neutron binary compatible within each major version.
+    # since we want to keep QOffice binary compatible within each major version.
     set(QOFFICE_LIBRARY qoffice${QOFFICE_VERSION_MAJOR})
 endif()
 
