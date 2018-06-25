@@ -38,6 +38,7 @@ CMakeLists.txt.user
 
 # templates
 resources/templates/**
+templates/**
 
 # bin
 bin/**

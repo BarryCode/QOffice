@@ -31,12 +31,13 @@ class OfficeMenu;
 class OfficeMenuPanel;
 class QGraphicsOpacityEffect;
 class QHBoxLayout;
+
 namespace priv { class PanelBar; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeMenuHeader
-/// \brief OfficeMenuHeaderdesc
-/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \brief Defines the header of an office menu.
+/// \author Nicolas Kogler
 /// \date September 30, 2017
 ///
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,45 +204,24 @@ private slots:
 
 private:
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Functions
-    ////////////////////////////////////////////////////////////////////////////
     void expand(QHBoxLayout*,bool);
     void collapse(QHBoxLayout*,bool);
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Members
-    ////////////////////////////////////////////////////////////////////////////
-    OfficeMenu*             m_parent;       ///< Defines the parent office menu.
-    priv::PanelBar*         m_panelBar;     ///< Defines the panel bar widget.
-    QHBoxLayout*            m_panelLayout;  ///< Defines the panel layout.
-    QGraphicsOpacityEffect* m_effectIn;     ///< Defines the fade in opac effect.
-    QPropertyAnimation*     m_animationIn;  ///< Defines the fade in animation.
-    QPropertyAnimation*     m_animationOut; ///< Defines the fade out animation.
-    QList<OfficeMenuPanel*> m_panels;       ///< Holds all panels of this header.
-    QString                 m_text;         ///< Defines the displayed header text.
-    bool                    m_isHovered;    ///< Determines whether its hovered.
-    bool                    m_isSelected;   ///< Determines whether its selected.
-    int                     m_id;           ///< Defines the unique ID.
+    OfficeMenu*             m_parent;
+    priv::PanelBar*         m_panelBar;
+    QHBoxLayout*            m_panelLayout;
+    QGraphicsOpacityEffect* m_effectIn;
+    QPropertyAnimation*     m_animationIn;
+    QPropertyAnimation*     m_animationOut;
+    QList<OfficeMenuPanel*> m_panels;
+    QString                 m_text;
+    bool                    m_isHovered;
+    bool                    m_isSelected;
+    int                     m_id;
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Metadata
-    ////////////////////////////////////////////////////////////////////////////
     Q_OBJECT
 
     friend class OfficeMenu;
 };
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeMenuHeader
-/// \ingroup Widget
-///
-/// $Detailedclassdesc
-///
-/// \code
-/// <example_code>
-/// \endcode
-///
-////////////////////////////////////////////////////////////////////////////////

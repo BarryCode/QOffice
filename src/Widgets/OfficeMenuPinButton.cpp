@@ -29,7 +29,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 
-OffAnonymous(bool g_isSticky = false)
+static bool g_isSticky = false;
 
 priv::PinButton::PinButton(OfficeMenuHeader* parent)
     : QWidget(parent)

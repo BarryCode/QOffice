@@ -30,9 +30,23 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeMenuTextboxItem
+/// \ingroup Widget
+///
 /// \brief Defines a single-line textbox on the menu.
-/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \author Nicolas Kogler
 /// \date October 8, 2017
+///
+/// This menu item will emit a OfficeMenuEvent::TextChanged event when it's
+/// contents were altered. For example, use as follows:
+///
+/// \code
+/// QObject::connect(officeMenu, &OfficeMenu::textChangedEvent,
+///     [] (OfficeMenuTextChangedEvent* event)
+///         {
+///             qDebug() << event->currentText();
+///         }
+///     );
+/// \endcode
 ///
 ////////////////////////////////////////////////////////////////////////////////
 class QOFFICE_WIDGET_API OfficeMenuTextboxItem
@@ -62,21 +76,3 @@ private slots:
 };
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeMenuTextboxItem
-/// \ingroup Widget
-///
-/// This menu item will emit a OfficeMenuEvent::TextChanged event when it's
-/// contents were altered. For example, use as follows:
-///
-/// \code
-/// QObject::connect(officeMenu, &OfficeMenu::textChangedEvent,
-///     [] (OfficeMenuTextChangedEvent* event)
-///         {
-///             qDebug() << event->currentText();
-///         }
-///     );
-/// \endcode
-///
-////////////////////////////////////////////////////////////////////////////////

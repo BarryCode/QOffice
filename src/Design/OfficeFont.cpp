@@ -25,9 +25,42 @@
 #include <QFontDatabase>
 #include <QMutex>
 
-OffAnonymous(QMutex g_mutex)
-OffAnonymous(QMap<int,int> g_indices)
-OffAnonymous(QMap<uint,QFont> g_fonts)
+static QMutex g_mutex;
+static QMap<int, int> g_indices;
+static QMap<uint, QFont> g_fonts;
+
+static uint generateKey(int weight, float pointSize)
+{
+    // Multiplies the size by two in order to avoid half-point sizes.
+    uint size = static_cast<uint>(pointSize * 2);
+
+    // With this encoding, theoretically around 256 fonts and more are possible,
+    // with all of them having various sizes.
+    return (weight << 16) | size;
+}
+
+static QString fontPath(int weight)
+{
+    QString baseString(":/qoffice/fonts/Font-%0.ttf");
+
+    // The fonts are named Font-0, Font-1, and so on in order to dynamically
+    // load fonts from resources given a font weight enum value.
+    return baseString.arg(QString::number(weight));
+}
+
+static bool indexExists(int index)
+{
+    QMutexLocker locker(&g_mutex);
+
+    return g_indices.contains(index);
+}
+
+static bool fontExists(int key)
+{
+    QMutexLocker locker(&g_mutex);
+
+    return g_fonts.contains(key);
+}
 
 const QFont& OfficeFont::font(Weight weight, float pointSize)
 {
@@ -90,37 +123,4 @@ const QFont& OfficeFont::font(Weight weight, float pointSize)
 bool OfficeFont::isValid(int weight)
 {
     return weight >= 0 && weight < MaximumWeight;
-}
-
-uint OfficeFont::generateKey(int weight, float pointSize)
-{
-    // Multiplies the size by two in order to avoid half-point sizes.
-    uint size = static_cast<uint>(pointSize * 2);
-
-    // With this encoding, theoretically around 256 fonts and more are possible,
-    // with all of them having various sizes.
-    return (weight << 16) | size;
-}
-
-QString OfficeFont::fontPath(int weight)
-{
-    QString baseString(":/qoffice/fonts/Font-%0.ttf");
-
-    // The fonts are named Font-0, Font-1, and so on in order to dynamically
-    // load fonts from resources given a font weight enum value.
-    return baseString.arg(QString::number(weight));
-}
-
-bool OfficeFont::indexExists(int index)
-{
-    QMutexLocker locker(&g_mutex);
-
-    return g_indices.contains(index);
-}
-
-bool OfficeFont::fontExists(int key)
-{
-    QMutexLocker locker(&g_mutex);
-
-    return g_fonts.contains(key);
 }

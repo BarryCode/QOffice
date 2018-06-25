@@ -31,9 +31,52 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeWindow
+/// \ingroup Widget
+///
 /// \brief This class defines a window in a modern look and feel.
-/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \author Nicolas Kogler
 /// \date September 24, 2017
+///
+/// While having functionality that is typical to windows, such as resize, drag,
+/// window buttons and title text, the OfficeWindow also contains two menus. One
+/// menu is called the "label menu" and is located on the left hand side of the
+/// window. It contains items that function as hyperlinks. One can connect to
+/// the signals they emit and do anything they like. The other menu is called
+/// the "quick menu" and is located on the right hand side of the window. It
+/// contains items that function as clickable image-buttons. One can connect to
+/// the signals they emit and do anything they like. Both of these menus are
+/// capable of showing tooltips for every item. The following example shows how
+/// to set up a simple OfficeWindow with some menu items.
+///
+/// \code
+/// #include <QOfficeWindow>
+/// #include <QApplication>
+///
+/// int main(int argc, char *argv[])
+/// {
+///     QApplication a(argc, argv);
+///     OfficeWindow w;
+///
+///     w.setWindowTitle("QOffice example");
+///     w.labelMenu()->addLabelItem(0, "Item1", "This is a dummy item.");
+///     w.quickMenu()->addQuickItem(0, QPixmap(""), "This is a dummy item.");
+///     w.show();
+///
+///     QObject::connect(w.labelMenu(), &OfficeWindowMenu::itemClicked, [&](int id)
+///         {
+///             qDebug() << "Item with id" << id << "was clicked.";
+///         });
+///     QObject::connect(w.labelMenu(), &OfficeWindowMenu::helpRequested, [&](int id)
+///         {
+///             qDebug() << "Help was requested from item with id" << id << ".";
+///         });
+///
+///     return a.exec();
+/// }
+/// \endcode
+///
+/// Now try to click the item or request help when its tooltip is shown by
+/// pressing F1 or clicking the help text link.
 ///
 ////////////////////////////////////////////////////////////////////////////////
 class QOFFICE_WIDGET_API OfficeWindow : public QWidget, public OfficeWidget
@@ -241,17 +284,11 @@ protected:
 
 private:
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Functions
-    ////////////////////////////////////////////////////////////////////////////
     void generateDropShadow();
     void updateResizeRectangles();
     void updateResizeWidgets();
     void updateLayoutPadding();
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Members
-    ////////////////////////////////////////////////////////////////////////////
     priv::ResizeArea* m_resizeTopLeft;
     priv::ResizeArea* m_resizeTopRight;
     priv::ResizeArea* m_resizeBottomLeft;
@@ -267,9 +304,6 @@ private:
     QRect             m_clientRectangle;
     bool              m_tooltipVisible;
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Metadata
-    ////////////////////////////////////////////////////////////////////////////
     Q_OBJECT
     Q_PROPERTY(bool Resizable READ canResize WRITE setResizable)
     Q_PROPERTY(bool CloseButton READ hasCloseButton WRITE setCloseButtonVisible)
@@ -286,50 +320,3 @@ OffEnumOperators(OfficeWindow::Flags)
 OffEnumOperators(OfficeWindow::ResizeDirection)
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeWindow
-/// \ingroup Widget
-///
-/// While having functionality that is typical to windows, such as resize, drag,
-/// window buttons and title text, the OfficeWindow also contains two menus. One
-/// menu is called the "label menu" and is located on the left hand side of the
-/// window. It contains items that function as hyperlinks. One can connect to
-/// the signals they emit and do anything they like. The other menu is called
-/// the "quick menu" and is located on the right hand side of the window. It
-/// contains items that function as clickable image-buttons. One can connect to
-/// the signals they emit and do anything they like. Both of these menus are
-/// capable of showing tooltips for every item. The following example shows how
-/// to set up a simple OfficeWindow with some menu items.
-///
-/// \code
-/// #include <QOfficeWindow>
-/// #include <QApplication>
-///
-/// int main(int argc, char *argv[])
-/// {
-///     QApplication a(argc, argv);
-///     OfficeWindow w;
-///
-///     w.setWindowTitle("QOffice example");
-///     w.labelMenu()->addLabelItem(0, "Item1", "This is a dummy item.");
-///     w.quickMenu()->addQuickItem(0, QPixmap(""), "This is a dummy item.");
-///     w.show();
-///
-///     QObject::connect(w.labelMenu(), &OfficeWindowMenu::itemClicked, [&](int id)
-///         {
-///             qDebug() << "Item with id" << id << "was clicked.";
-///         });
-///     QObject::connect(w.labelMenu(), &OfficeWindowMenu::helpRequested, [&](int id)
-///         {
-///             qDebug() << "Help was requested from item with id" << id << ".";
-///         });
-///
-///     return a.exec();
-/// }
-/// \endcode
-///
-/// Now try to click on the item or request help when its tooltip is shown by
-/// pressing F1 or clicking the help text link.
-///
-////////////////////////////////////////////////////////////////////////////////

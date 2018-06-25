@@ -32,9 +32,9 @@
 #include <QMouseEvent>
 #include <QPainter>
 
-OffAnonymous(QOFFICE_CONSTEXPR int c_collapsedHeight = 30)
-OffAnonymous(QOFFICE_CONSTEXPR int c_expandedHeight = 120)
-OffAnonymous(QOFFICE_CONSTEXPR Qt::Alignment c_flags = Qt::AlignLeft | Qt::AlignTop | Qt::AlignHCenter)
+static QOFFICE_CONSTEXPR int c_collapsedHeight = 30;
+static QOFFICE_CONSTEXPR int c_expandedHeight = 120;
+static QOFFICE_CONSTEXPR Qt::Alignment c_flags = Qt::AlignLeft | Qt::AlignTop | Qt::AlignHCenter;
 
 OfficeMenu::OfficeMenu(QWidget* parent)
     : QWidget(parent)

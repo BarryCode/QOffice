@@ -28,13 +28,49 @@
 
 class OfficeTooltip;
 class OfficeWindow;
+
 namespace priv { class Titlebar; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeWindowMenu
+/// \ingroup Widget
+///
 /// \brief Defines a menu on the window title bar.
-/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \author Nicolas Kogler
 /// \date September 27, 2017
+///
+/// QOffice has two types of window menus: The LabelMenu and the QuickMenu. The
+/// label menu is located on the right-hand side of the window and simply shows
+/// a clickable text (hand cursor on hover). The quick menu is located on the
+/// left-hand side of the window and shows an image, but no text (normal cursor
+/// on hover).
+///
+/// \code
+/// const int idItem1 = 0;
+/// const int idItem2 = 0;
+///
+/// m_labelMenu = new OfficeWindowMenu(window, OfficeWindowMenu::LabelMenu);
+/// m_labelMenu->addLabelItem(idItem1, "Item1", "This item does this.");
+/// m_labelMenu->addLabelItem(idItem2, "Item2", "This item does that.");
+/// m_labelMenu->connect(m_labelMenu, &OfficeWindowMenu::itemClicked, this, [...]);
+/// \endcode
+///
+/// The OfficeWindowMenu::itemClicked signal will be emitted whenever the user
+/// clicks on a window menu item. The id of the item will be provided:
+///
+/// \code
+/// void itemClickedSlot(int id)
+/// {
+///     if (id == idItem1)
+///     {
+///         // do something
+///     }
+///     else if (id == idItem2)
+///     {
+///         // do something
+///     }
+/// }
+/// \endcode
 ///
 ////////////////////////////////////////////////////////////////////////////////
 class QOFFICE_WIDGET_API OfficeWindowMenu : public QWidget
@@ -139,13 +175,10 @@ private slots:
 
 private:
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Members
-    ////////////////////////////////////////////////////////////////////////////
-    Type                     m_type;    ///< Defines the type of the menu.
-    QList<priv::WindowItem*> m_items;   ///< Holds all window items.
-    OfficeWindow*            m_parent;  ///< Defines the parent office window.
-    OfficeTooltip*           m_tooltip; ///< Defines the tooltip for all items.
+    Type                     m_type;
+    QList<priv::WindowItem*> m_items;
+    OfficeWindow*            m_parent;
+    OfficeTooltip*           m_tooltip;
 
     friend class priv::WindowItem;
     friend class OfficeWindow;
@@ -154,42 +187,3 @@ private:
 };
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeWindowMenu
-/// \ingroup Widget
-///
-/// QOffice has two types of window menus: The LabelMenu and the QuickMenu. The
-/// label menu is located on the right-hand side of the window and simply shows
-/// a clickable text (hand cursor on hover). The quick menu is located on the
-/// left-hand side of the window and shows an image, but no text (normal cursor
-/// on hover).
-///
-/// \code
-/// const int idItem1 = 0;
-/// const int idItem2 = 0;
-///
-/// m_labelMenu = new OfficeWindowMenu(window, OfficeWindowMenu::LabelMenu);
-/// m_labelMenu->addLabelItem(idItem1, "Item1", "This item does this.");
-/// m_labelMenu->addLabelItem(idItem2, "Item2", "This item does that.");
-/// m_labelMenu->connect(m_labelMenu, &OfficeWindowMenu::itemClicked, this, [...]);
-/// \endcode
-///
-/// The OfficeWindowMenu::itemClicked signal will be emitted whenever the user
-/// clicks on a window menu item. The id of the item will be provided:
-///
-/// \code
-/// void itemClickedSlot(int id)
-/// {
-///     if (id == idItem1)
-///     {
-///         // do something
-///     }
-///     else if (id == idItem2)
-///     {
-///         // do something
-///     }
-/// }
-/// \endcode
-///
-////////////////////////////////////////////////////////////////////////////////

@@ -3,7 +3,7 @@
 // QOffice - The office framework for Qt
 // Copyright (C) 2016-2018 Nicolas Kogler
 //
-// This file is part of the WIDGET module.
+// This file is part of the Widget module.
 //
 // QOffice is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -29,9 +29,20 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeLineEdit
+/// \ingroup Widget
+///
 /// \brief Defines a single-line textbox in the office style.
-/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \author Nicolas Kogler
 /// \date October 8, 2017
+///
+/// The OfficeLineEdit does, in addition to the redesign, offer you various
+/// formats that the input text has to match. Whenever the text is about to
+/// change (keyPressEvent), the format is checked against the text. If it does
+/// not accept the new text, the event is ignored and nothing happens.
+///
+/// \code
+/// m_officeLineEdit->setFormat(OfficeLineEdit::HexOnly);
+/// \endcode
 ///
 ////////////////////////////////////////////////////////////////////////////////
 class QOFFICE_WIDGET_API OfficeLineEdit : public QLineEdit
@@ -105,32 +116,11 @@ private slots:
 
 private:
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Members
-    ////////////////////////////////////////////////////////////////////////////
     Format m_format;    ///< Defines the format of this textbox.
     QString m_previous; ///< Defines the previous text.
     bool m_hasTyped;    ///< Determines whether the user has typed anything.
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Metadata
-    ////////////////////////////////////////////////////////////////////////////
     Q_OBJECT
 };
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeLineEdit
-/// \ingroup Widget
-///
-/// The OfficeLineEdit does, in addition to the redesign, offer you various
-/// formats that the input text has to match. Whenever the text is about to
-/// change (keyPressEvent), the format is checked against the text. If it does
-/// not accept the new text, the event is ignored and nothing happens.
-///
-/// \code
-/// m_officeLineEdit->setFormat(OfficeLineEdit::HexOnly);
-/// \endcode
-///
-////////////////////////////////////////////////////////////////////////////////

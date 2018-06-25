@@ -29,10 +29,10 @@
 #include <QPainter>
 #include <QtEvents>
 
-OffAnonymous(QOFFICE_CONSTEXPR int c_titlePaddingX = 24)
-OffAnonymous(QOFFICE_CONSTEXPR int c_titlePaddingY = 10)
-OffAnonymous(QOFFICE_CONSTEXPR int c_windowButtonX = 10)
-OffAnonymous(QOFFICE_CONSTEXPR int c_windowButtonY = 8)
+static QOFFICE_CONSTEXPR int c_titlePaddingX = 24;
+static QOFFICE_CONSTEXPR int c_titlePaddingY = 10;
+static QOFFICE_CONSTEXPR int c_windowButtonX = 10;
+static QOFFICE_CONSTEXPR int c_windowButtonY = 8;
 
 priv::Titlebar::Titlebar(OfficeWindow* window)
     : QWidget(window)

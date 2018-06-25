@@ -28,9 +28,30 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficePalette
+/// \ingroup Design
+///
 /// \brief Holds all palette entries QOffice uses.
-/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \author Nicolas Kogler
 /// \date September 23, 2017
+///
+/// Every QOffice-widget should use the functionality of this class in their
+/// QWidget::paintEvent method. Use as follows:
+///
+/// \code
+/// void paintEvent(QPaintEvent*)
+/// {
+///     QPainter painter(this);
+///     const QColor& backColor = OfficePalette::color(OfficePalette::Background);
+///     painter.fillRect(rect(), backColor);
+/// }
+/// \endcode
+///
+/// You must not use dynamic methods to retrieve a color from OfficePalette,
+/// since OfficePalette::color throws exceptions. You want to avoid them at
+/// all costs in QWidget::paintEvent (it might even crash the Qt Designer!).
+///
+/// If you really need to use a dynamic OfficePalette::PaletteRole, use the
+/// OfficePalette::isValid function in order to validate the value beforehand.
 ///
 ////////////////////////////////////////////////////////////////////////////////
 class QOFFICE_DESIGN_API OfficePalette
@@ -84,28 +105,3 @@ public:
 };
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficePalette
-/// \ingroup Design
-///
-/// Every QOffice-widget should use the functionality of this class in their
-/// QWidget::paintEvent method. Use as follows:
-///
-/// \code
-/// void paintEvent(QPaintEvent*)
-/// {
-///     QPainter painter(this);
-///     const QColor& backColor = OfficePalette::color(OfficePalette::Background);
-///     painter.fillRect(rect(), backColor);
-/// }
-/// \endcode
-///
-/// You must not use dynamic methods to retrieve a color from OfficePalette,
-/// since OfficePalette::color throws exceptions. You want to avoid them at
-/// all costs in QWidget::paintEvent (it might even crash the Qt Designer!).
-///
-/// If you really need to use a dynamic OfficePalette::PaletteRole, use the
-/// OfficePalette::isValid function in order to validate the value beforehand.
-///
-////////////////////////////////////////////////////////////////////////////////

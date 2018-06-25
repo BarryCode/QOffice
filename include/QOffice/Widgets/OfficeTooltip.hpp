@@ -31,9 +31,30 @@ class OfficeWindow;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeTooltip
-/// \brief OfficeTooltipdesc
+/// \ingroup Widget
+///
+/// \brief Defines an office-style tooltip.
 /// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
 /// \date September 30, 2017
+///
+/// This class shows modern tooltips and allows one to customize the title, the
+/// body text and the help text along with the help icon and help trigger key. A
+/// default help icon is already provided, but it can be changed, if desired.
+/// One should use it as follows:
+///
+/// \code
+/// m_tooltip->connect(m_tooltip, &OfficeTooltip::helpRequested, this, [...]);
+/// m_tooltip->setTitle("Open");
+/// m_tooltip->setText("Opens an existing file with read-write access.");
+/// m_tooltip->setHelpText("Press F1 to receive help.");
+/// m_tooltip->setHelpKey(Qt::Key_F1);
+/// m_tooltip->setHelpEnabled(true);
+/// m_tooltip->setDuration(5000); // in msec
+/// m_tooltip->show();
+/// \endcode
+///
+/// The helpRequested signal is emitted once the help key was pressed or the
+/// help text (that acts as a hyperlink) was clicked.
 ///
 ////////////////////////////////////////////////////////////////////////////////
 class QOFFICE_WIDGET_API OfficeTooltip : public QWidget
@@ -197,17 +218,11 @@ public slots:
 
 private:
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Functions
-    ////////////////////////////////////////////////////////////////////////////
     void updateRectangles();
     void generateDropShadow();
     qreal opacity() const;
     void setOpacity(qreal opacity);
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Members
-    ////////////////////////////////////////////////////////////////////////////
     QTimer*             m_timer;
     QTimer*             m_waitTimer;
     QPropertyAnimation* m_showAnimation;
@@ -232,36 +247,9 @@ private:
     bool                m_isHelpEnabled;
     bool                m_isLinkHovered;
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Metadata
-    ////////////////////////////////////////////////////////////////////////////
     Q_OBJECT
     Q_PROPERTY(qreal Opacity READ opacity WRITE setOpacity)
 };
 
 #endif
 
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeTooltip
-/// \ingroup Widget
-///
-/// This class shows modern tooltips and allows one to customize the title, the
-/// body text and the help text along with the help icon and help trigger key. A
-/// default help icon is already provided, but it can be changed, if desired.
-/// One should use it as follows:
-///
-/// \code
-/// m_tooltip->connect(m_tooltip, &OfficeTooltip::helpRequested, this, [...]);
-/// m_tooltip->setTitle("Open");
-/// m_tooltip->setText("Opens an existing file with read-write access.");
-/// m_tooltip->setHelpText("Press F1 to receive help.");
-/// m_tooltip->setHelpKey(Qt::Key_F1);
-/// m_tooltip->setHelpEnabled(true);
-/// m_tooltip->setDuration(5000); // in msec
-/// m_tooltip->show();
-/// \endcode
-///
-/// The helpRequested signal is emitted once the help key was pressed or the
-/// help text (that acts like a hyperlink) was clicked.
-///
-////////////////////////////////////////////////////////////////////////////////

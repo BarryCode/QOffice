@@ -29,9 +29,33 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeFont
+/// \ingroup Design
+///
 /// \brief Caches all fonts used by the QOffice framework.
 /// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
 /// \date September 23, 2017
+///
+/// Currently, QOffice makes use of the OpenSans font for normal UI typography
+/// and the DroidSans font for widgets that need a typewriter font. In order to
+/// receive different standardized font weights and sizes on the fly, one can
+/// use this class.
+///
+/// In order to have maximum flexibility but reasonable performance at the same
+/// time, QOffice caches the fonts in a QMap<uint,QFont>. Whenever a font is
+/// requested, QOffice determines whether there already is a cache entry for it.
+/// If not, a new QFont is constructed and populated into the map, while the key
+/// is built using the font size and weight in a fancy way.
+///
+/// The front-end way to use it is as follows:
+///
+/// \code
+/// void paintEvent(QPaintEvent*)
+/// {
+///     QPainter painter(this);
+///     painter.setFont(OfficeFont::font(OfficeFont::Light, OfficeFont::Title));
+///     painter.drawText(...);
+/// }
+/// \endcode
 ///
 ////////////////////////////////////////////////////////////////////////////////
 class QOFFICE_DESIGN_API OfficeFont
@@ -95,44 +119,6 @@ public:
     ///
     ////////////////////////////////////////////////////////////////////////////
     static bool isValid(int weight);
-
-private:
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Functions
-    ////////////////////////////////////////////////////////////////////////////
-    static uint generateKey(int, float);
-    static QString fontPath(int);
-    static bool indexExists(int);
-    static bool fontExists(int);
 };
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeFont
-/// \ingroup Design
-///
-/// Currently, QOffice makes use of the OpenSans font for normal UI typography
-/// and the DroidSans font for widgets that need a typewriter font. In order to
-/// receive different standardized font weights and sizes on the fly, one can
-/// use this class.
-///
-/// In order to have maximum flexibility but reasonable performance at the same
-/// time, QOffice caches the fonts in a QMap<uint,QFont>. Whenever a font is
-/// requested, QOffice determines whether there already is a cache entry for it.
-/// If not, a new QFont is constructed and populated into the map, while the key
-/// is built using the font size and weight in a fancy way.
-///
-/// The front-end way to use it is as follows:
-///
-/// \code
-/// void paintEvent(QPaintEvent*)
-/// {
-///     QPainter painter(this);
-///     painter.setFont(OfficeFont::font(OfficeFont::Light, OfficeFont::Title));
-///     painter.drawText(...);
-/// }
-/// \endcode
-///
-////////////////////////////////////////////////////////////////////////////////

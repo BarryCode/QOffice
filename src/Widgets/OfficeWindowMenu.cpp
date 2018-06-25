@@ -28,7 +28,7 @@
 #include <QHBoxLayout>
 #include <QtEvents>
 
-OffAnonymous(QOFFICE_CONSTEXPR int c_menuHeight = 28)
+static QOFFICE_CONSTEXPR int c_menuHeight = 28;
 
 OfficeWindowMenu::OfficeWindowMenu(priv::Titlebar* parent, Type type)
     : QWidget(parent),

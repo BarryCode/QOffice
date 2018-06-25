@@ -32,12 +32,12 @@
 #include <QPainter>
 #include <QScreen>
 
-OffAnonymous(QOFFICE_CONSTEXPR int c_margin  = c_shadowPadding + 10)
-OffAnonymous(QOFFICE_CONSTEXPR int c_padding = c_margin * 2)
-OffAnonymous(QOFFICE_CONSTEXPR int c_bodyMargin = 10)
-OffAnonymous(QOFFICE_CONSTEXPR int c_iconMargin = 8)
-OffAnonymous(QOFFICE_CONSTEXPR int c_helpMargin = 7)
-OffAnonymous(QOFFICE_CONSTEXPR int c_separator  = 9)
+static QOFFICE_CONSTEXPR int c_margin  = c_shadowPadding + 10;
+static QOFFICE_CONSTEXPR int c_padding = c_margin * 2;
+static QOFFICE_CONSTEXPR int c_bodyMargin = 10;
+static QOFFICE_CONSTEXPR int c_iconMargin = 8;
+static QOFFICE_CONSTEXPR int c_helpMargin = 7;
+static QOFFICE_CONSTEXPR int c_separator  = 9;
 
 OfficeTooltip::OfficeTooltip()
     : QWidget(nullptr)

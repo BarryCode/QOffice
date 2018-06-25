@@ -33,9 +33,44 @@ class QWidget;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeMenuItem
-/// \brief OfficeMenuItemdesc
-/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \ingroup Widget
+///
+/// \brief Defines a generic office menu item.
+/// \author Nicolas Kogler
 /// \date September 30, 2017
+///
+/// The problem we face once again with menu items is that of multiple
+/// inheritance. To have the biggest possible reusability, we need to inherit
+/// from any QWidget-type and an interface to emit item events simutaneously.
+/// The solution is to declare a must-inherit function that returns a pointer
+/// to the widget that is to be drawn. The following example is a full-fledged
+/// example on how to use OfficeMenuItem:
+///
+/// \code
+/// class OfficeMenuCustomItem : public QPushButton, public OfficeMenuItem
+/// {
+/// public:
+///
+///     OfficeMenuCustomItem(const QString& text) : QPushButton(text)
+///     {
+///         // Translates QPushButton clicks into item events.
+///         connect(this, &QPushButton::clicked, [&]()
+///             {
+///                 emitItemEvent(new OfficeMenuEvent(
+///                     this, OfficeMenuItem::ButtonClick
+///                     );
+///             });
+///     }
+///
+///     QWidget* widget() const override { return this; }
+/// };
+/// \endcode
+///
+/// This simple example displays a QPushButton in the panel and forwards the
+/// click event on it to the OfficeMenu::itemEvent signal through emitItemEvent.
+///
+/// Most of the items also directly allow you to connect slots to signals. Take
+/// a look at the documentation of the item in question.
 ///
 ////////////////////////////////////////////////////////////////////////////////
 class QOFFICE_WIDGET_API OfficeMenuItem
@@ -97,52 +132,8 @@ protected:
 
 private:
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Members
-    ////////////////////////////////////////////////////////////////////////////
-    OfficeMenuPanel* m_parent; ///< Defines the parent panel.
-    int              m_id;     ///< Defines the unique ID.
+    OfficeMenuPanel* m_parent;
+    int              m_id;
 };
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeMenuItem
-/// \ingroup Widget
-///
-/// The problem we face once again with menu items is that of multiple
-/// inheritance. To have the biggest possible reusability, we need to inherit
-/// from any QWidget-type and an interface to emit item events simutaneously.
-/// The solution is to declare a must-inherit function that returns a pointer
-/// to the widget that is to be drawn. The following example is a full-fledged
-/// example on how to use OfficeMenuItem:
-///
-/// \code
-/// class OfficeMenuCustomItem : public QPushButton, public OfficeMenuItem
-/// {
-/// public:
-///
-///     OfficeMenuCustomItem(const QString& text) : QPushButton(text)
-///     {
-///         // Translates QPushButton clicks into item events.
-///         connect(this, &QPushButton::clicked, [&]()
-///             {
-///                 emitItemEvent(new OfficeMenuEvent(
-///                     this, OfficeMenuItem::ButtonClick
-///                     );
-///             });
-///     }
-///
-///     QWidget* widget() const override { return this; }
-/// };
-/// \endcode
-///
-/// This simple example displays a QPushButton in the panel and forwards the
-/// click event on it to the OfficeMenu::itemEvent signal through emitItemEvent.
-///
-/// Most of the items also directly allow you to connect slots to signals. Take
-/// a look at the documentation of the item in question.
-///
-/// \endcode
-///
-////////////////////////////////////////////////////////////////////////////////

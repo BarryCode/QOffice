@@ -73,17 +73,14 @@
     QOFFICE_CONSTEXPR inline flags operator &  (flags l,flags r) { return (flags) (static_cast<int>(l) & static_cast<int>(r)); } \
     QOFFICE_CONSTEXPR inline flags operator ^  (flags l,flags r) { return (flags) (static_cast<int>(l) ^ static_cast<int>(r)); } \
     QOFFICE_CONSTEXPR inline flags operator ~  (flags f)         { return (flags) (static_cast<int>(f)); } \
-    QOFFICE_CONSTEXPR inline void  operator |= (flags& l,flags r) { l = l | r; } \
-    QOFFICE_CONSTEXPR inline void  operator &= (flags& l,flags r) { l = l & r; } \
-    QOFFICE_CONSTEXPR inline void  operator ^= (flags& l,flags r) { l = l ^ r; }
+    inline flags& operator |= (flags& l,flags r) { l = l | r; return l; } \
+    inline flags& operator &= (flags& l,flags r) { l = l & r; return l; } \
+    inline flags& operator ^= (flags& l,flags r) { l = l ^ r; return l; }
 
 #define OffHasFlag(value,flag)    (value & flag) != 0
 #define OffHasNotFlag(value,flag) (value & flag) == 0
 #define OffAddFlag(value,flag)    (value |= flag)
 #define OffRemoveFlag(value,flag) (value &= ~flag)
-
-// Snippets put into the anonymous namespace.
-#define OffAnonymous(...) namespace { __VA_ARGS__; }
 
 // Easy to use constructor macroes.
 #define OffDeclareCtor(type) type();

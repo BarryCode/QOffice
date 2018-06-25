@@ -29,9 +29,20 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeTextbox
+/// \ingroup Widget
+///
 /// \brief Defines a textbox in the office style.
-/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \author Nicolas Kogler
 /// \date October 4, 2017
+///
+/// The OfficeTextbox does, in addition to the redesign, offer you various
+/// formats that the input text has to match. Whenever the text is about to
+/// change (keyPressEvent), the format is checked against the text. If it does
+/// not accept the new text, the event is ignored and nothing happens.
+///
+/// \code
+/// m_officeTextBox->setFormat(OfficeTextbox::HexOnly);
+/// \endcode
 ///
 ////////////////////////////////////////////////////////////////////////////////
 class QOFFICE_WIDGET_API OfficeTextbox : public QTextEdit
@@ -105,32 +116,11 @@ private slots:
 
 private:
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Members
-    ////////////////////////////////////////////////////////////////////////////
-    Format m_format;    ///< Defines the format of this textbox.
-    QString m_previous; ///< Defines the previous text.
-    bool m_hasTyped;    ///< Determines whether the user has typed anything.
+    Format m_format;
+    QString m_previous;
+    bool m_hasTyped;
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Metadata
-    ////////////////////////////////////////////////////////////////////////////
     Q_OBJECT
 };
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeTextbox
-/// \ingroup Widget
-///
-/// The OfficeTextbox does, in addition to the redesign, offer you various
-/// formats that the input text has to match. Whenever the text is about to
-/// change (keyPressEvent), the format is checked against the text. If it does
-/// not accept the new text, the event is ignored and nothing happens.
-///
-/// \code
-/// m_officeTextBox->setFormat(OfficeTextbox::HexOnly);
-/// \endcode
-///
-////////////////////////////////////////////////////////////////////////////////

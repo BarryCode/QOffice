@@ -33,10 +33,10 @@
 #include <QMouseEvent>
 #include <QPainter>
 
-OffAnonymous(QOFFICE_CONSTEXPR int c_headerHeight = 30)
-OffAnonymous(QOFFICE_CONSTEXPR int c_panelHeight  = 90)
-OffAnonymous(QOFFICE_CONSTEXPR int c_textPadding  = 30)
-OffAnonymous(QOFFICE_CONSTEXPR int c_space = 10000)
+static QOFFICE_CONSTEXPR int c_headerHeight = 30;
+static QOFFICE_CONSTEXPR int c_panelHeight  = 90;
+static QOFFICE_CONSTEXPR int c_textPadding  = 30;
+static QOFFICE_CONSTEXPR int c_space = 10000;
 
 OfficeMenuHeader::OfficeMenuHeader(OfficeMenu* parent)
     : QWidget(parent)

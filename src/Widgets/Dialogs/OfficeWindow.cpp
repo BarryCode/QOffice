@@ -29,17 +29,16 @@
 #include <QPainter>
 #include <QtEvents>
 
-OffAnonymous(OfficeWindow* g_activeWindow = nullptr)
-OffAnonymous(QOFFICE_CONSTEXPR int c_titleHeight = 28)
-
-OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_topLeft = OfficeWindow::ResizeTop | OfficeWindow::ResizeLeft)
-OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_topRight = OfficeWindow::ResizeTop | OfficeWindow::ResizeRight)
-OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_bottomLeft = OfficeWindow::ResizeBottom | OfficeWindow::ResizeLeft)
-OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_bottomRight = OfficeWindow::ResizeBottom | OfficeWindow::ResizeRight)
-OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_top = OfficeWindow::ResizeTop)
-OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_left = OfficeWindow::ResizeLeft)
-OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_bottom = OfficeWindow::ResizeBottom)
-OffAnonymous(QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_right = OfficeWindow::ResizeRight)
+static OfficeWindow* g_activeWindow = nullptr;
+static QOFFICE_CONSTEXPR int c_titleHeight = 28;
+static QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_topLeft = OfficeWindow::ResizeTop | OfficeWindow::ResizeLeft;
+static QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_topRight = OfficeWindow::ResizeTop | OfficeWindow::ResizeRight;
+static QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_bottomLeft = OfficeWindow::ResizeBottom | OfficeWindow::ResizeLeft;
+static QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_bottomRight = OfficeWindow::ResizeBottom | OfficeWindow::ResizeRight;
+static QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_top = OfficeWindow::ResizeTop;
+static QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_left = OfficeWindow::ResizeLeft;
+static QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_bottom = OfficeWindow::ResizeBottom;
+static QOFFICE_CONSTEXPR OfficeWindow::ResizeDirection c_right = OfficeWindow::ResizeRight;
 
 OfficeWindow::OfficeWindow(QWidget* parent)
     : QWidget(parent)
@@ -285,6 +284,8 @@ bool OfficeWindow::event(QEvent* event)
 
     case QEvent::WindowDeactivate:
         focusOutEvent(nullptr);
+        break;
+    default:
         break;
     }
 

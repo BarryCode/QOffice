@@ -34,9 +34,35 @@ class QGridLayout;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeMenuPanel
+/// \ingroup Widget
+///
 /// \brief Defines a panel that contains items of various kinds.
-/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \author Nicolas Kogler
 /// \date September 30, 2017
+///
+/// An ::OfficeMenuPanel can hold multiple items of various types, even items
+/// designed by the library user. All that needs to be done is to sublass
+/// ::OfficeMenuItem and QWidget, override OfficeMenuItem::widget to return
+/// the "this" pointer and to add it through the OfficeMenuPanel::insertItem
+/// overloads. The insertItem overloads are capable of specifying the positions
+/// of the items within the panel, they can even span across multiple cells.
+///
+/// \code
+/// m_buttonItem = new OfficeMenuButtonItem("Button");
+/// m_dropdnItem = new OfficeMenuDropdownItem("Dropdown", { "Item1", "Item2" });
+///
+/// m_firstPanel->insertItem(id1, m_buttonItem, 0, 0);
+/// m_firstPanel->insertItem(id2, m_dropdnItem, 0, 1);
+/// \endcode
+///
+/// Using the code above yields a panel that looks like this:<br><br>
+///
+/// |      0            1       |<br>
+/// |---------------------------|<br>
+/// |               Dropdown    |<br>
+/// |    Button        v        |  0<br>
+/// |                           |<br>
+/// |---------------------------|<br>
 ///
 ////////////////////////////////////////////////////////////////////////////////
 class QOFFICE_WIDGET_API OfficeMenuPanel : public QWidget
@@ -165,18 +191,12 @@ protected:
 
 private:
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Members
-    ////////////////////////////////////////////////////////////////////////////
-    QGridLayout*           m_layout; ///< Defines the grid layout of the panel.
-    OfficeMenuHeader*      m_parent; ///< Defines the parent menu header.
-    QList<OfficeMenuItem*> m_items;  ///< Holds all menu items in the panel.
-    QString                m_text;   ///< Defines the text at the panel bottom.
-    int                    m_id;     ///< Defines the unique ID.
+    QGridLayout*           m_layout;
+    OfficeMenuHeader*      m_parent;
+    QList<OfficeMenuItem*> m_items;
+    QString                m_text;
+    int                    m_id;
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Metadata
-    ////////////////////////////////////////////////////////////////////////////
     Q_OBJECT
 
     friend class OfficeMenu;
@@ -184,33 +204,3 @@ private:
 };
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeMenuPanel
-/// \ingroup Widget
-///
-/// An ::OfficeMenuPanel can hold multiple items of various types, even items
-/// designed by the library user. All that needs to be done is to sublass
-/// ::OfficeMenuItem and QWidget, override OfficeMenuItem::widget to return
-/// the "this" pointer and to add it through the OfficeMenuPanel::insertItem
-/// overloads. The insertItem overloads are capable of specifying the positions
-/// of the items within the panel, they can even span across multiple cells.
-///
-/// \code
-/// m_buttonItem = new OfficeMenuButtonItem("Button");
-/// m_dropdnItem = new OfficeMenuDropdownItem("Dropdown", { "Item1", "Item2" });
-///
-/// m_firstPanel->insertItem(id1, m_buttonItem, 0, 0);
-/// m_firstPanel->insertItem(id2, m_dropdnItem, 0, 1);
-/// \endcode
-///
-/// Using the code above yields a panel that looks like this:<br><br>
-///
-/// |      0            1       |<br>
-/// |---------------------------|<br>
-/// |               Dropdown    |<br>
-/// |    Button        v        |  0<br>
-/// |                           |<br>
-/// |---------------------------|<br>
-///
-////////////////////////////////////////////////////////////////////////////////

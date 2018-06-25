@@ -28,9 +28,31 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeWidget
+/// \ingroup Widget
+///
 /// \brief The base class for all QOffice widgets.
-/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \author Nicolas Kogler
 /// \date September 22, 2017
+///
+/// Why does OfficeWidget not subclass QWidget? The reason is pretty obvious
+/// once one decides to write more advanced widgets. If OfficeWidget devires
+/// from QWidget, one would not be able to inherit the functionality of e.g.
+/// QTreeView, meaning they need to reimplement everything from scratch. The
+/// correct way to use OfficeWidget is as follows:
+///
+/// \code
+/// class OfficeListView : public QListView, public OfficeWidget
+/// {
+/// protected:
+///
+///     void paintEvent(QPaintEvent*) override
+///     {
+///         const QColor& accentColor = OfficeAccent::get(m_accent);
+///
+///         // draw something using the accent color.
+///     }
+/// };
+/// \endcode
 ///
 ////////////////////////////////////////////////////////////////////////////////
 class QOFFICE_WIDGET_API OfficeWidget
@@ -71,36 +93,7 @@ protected:
 
 private:
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Members
-    ////////////////////////////////////////////////////////////////////////////
-    Office::Accent m_accent; ///< Holds the current accent of the office widget.
+    Office::Accent m_accent;
 };
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeWidget
-/// \ingroup Widget
-///
-/// Why does OfficeWidget not subclass QWidget? The reason is pretty obvious
-/// once one decides to write more advanced widgets. If OfficeWidget devires
-/// from QWidget, one would not be able to inherit the functionality of e.g.
-/// QTreeView, meaning they need to reimplement everything from scratch. The
-/// correct way to use OfficeWidget is as follows:
-///
-/// \code
-/// class OfficeListView : public QListView, public OfficeWidget
-/// {
-/// protected:
-///
-///     void paintEvent(QPaintEvent*) override
-///     {
-///         const QColor& accentColor = OfficeAccent::get(m_accent);
-///
-///         // draw something using the accent color.
-///     }
-/// };
-/// \endcode
-///
-////////////////////////////////////////////////////////////////////////////////

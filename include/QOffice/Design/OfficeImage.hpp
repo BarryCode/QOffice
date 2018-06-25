@@ -32,9 +32,27 @@ QOFFICE_CONSTEXPR int c_shadowBlur    = -c_shadowSize / 4 + 1;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeImage
+/// \ingroup Design
+///
 /// \brief Provides useful pixel manipulation functions for QImage and QPixmap.
-/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \author Nicolas Kogler
 /// \date September 23, 2017
+///
+/// A way to use the OfficeImage::convertToGrayscale function is as follows:
+///
+/// \code
+/// void setIcon(const QImage& icon)
+/// {
+///     m_iconEnable = icon;
+///     m_iconDisable = OfficeImage::convertToGrayscale(icon);
+/// }
+///
+/// void paintEvent(QPaintEvent*)
+/// {
+///     QPainter painter(this);
+///     painter.drawImage(QPoint(), (enabled()) ? m_iconEnable : m_iconDisable;
+/// }
+/// \endcode
 ///
 ////////////////////////////////////////////////////////////////////////////////
 class QOFFICE_DESIGN_API OfficeImage
@@ -76,25 +94,3 @@ public:
 };
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeImage
-/// \ingroup Design
-///
-/// A way to use the OfficeImage::convertToGrayscale function is as follows:
-///
-/// \code
-/// void setIcon(const QImage& icon)
-/// {
-///     m_iconEnable = icon;
-///     m_iconDisable = OfficeImage::convertToGrayscale(icon);
-/// }
-///
-/// void paintEvent(QPaintEvent*)
-/// {
-///     QPainter painter(this);
-///     painter.drawImage(QPoint(), (enabled()) ? m_iconEnable : m_iconDisable;
-/// }
-/// \endcode
-///
-////////////////////////////////////////////////////////////////////////////////

@@ -23,7 +23,7 @@
 #include <QOffice/Design/OfficePalette.hpp>
 #include <QColor>
 
-OffAnonymous(QColor g_palette[OfficePalette::MaximumRole] =
+static QColor g_palette[OfficePalette::MaximumRole] =
 {
     QColor(0xf1f1f1),
     QColor(0x666666),
@@ -37,7 +37,7 @@ OffAnonymous(QColor g_palette[OfficePalette::MaximumRole] =
     QColor(0xc5c5c5),
     QColor(0xaeaeae),
     QColor(0x969696)
-})
+};
 
 const QColor& OfficePalette::color(PaletteRole role)
 {

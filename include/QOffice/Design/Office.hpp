@@ -31,6 +31,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class Office
+/// \ingroup Core
+///
 /// \brief Holds all enums visible to the Qt designer.
 /// \author Nicolas Kogler
 /// \date September 24, 2017

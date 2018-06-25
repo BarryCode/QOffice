@@ -44,7 +44,6 @@ public:
         ButtonSpecial
     };
 
-
     OffDefaultDtor(Titlebar)
     OffDisableCopy(Titlebar)
     OffDisableMove(Titlebar)
@@ -62,10 +61,7 @@ protected:
 
 private:
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Functions
-    ////////////////////////////////////////////////////////////////////////////
-    void updateRectangles(); // drag rect too
+    void updateRectangles();
     void updateVisibleTitle();
     bool mouseMoveDrag(const QPoint&);
     bool mouseMoveSpecial(const QPoint&);
@@ -76,9 +72,6 @@ private:
     bool mouseReleaseAction(const QPoint&);
     QRect centerRectangle(const QPixmap&, const QRect&);
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Members
-    ////////////////////////////////////////////////////////////////////////////
     OfficeWindow*     m_window;
     OfficeWindowMenu* m_windowLabelMenu;
     OfficeWindowMenu* m_windowQuickMenu;
@@ -97,10 +90,9 @@ private:
     QRect             m_maximizeRectangle;
     QRect             m_minimizeRectangle;
 
-    friend class OfficeWindow;
-    friend class OfficeWindowMenu;
+    friend class ::OfficeWindow;
+    friend class ::OfficeWindowMenu;
     friend class priv::ResizeArea;
-
 };
 }
 

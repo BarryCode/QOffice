@@ -29,9 +29,23 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class OfficeAccent
+/// \ingroup Design
+///
 /// \brief Holds all the color values of the available accents.
-/// \author Nicolas Kogler (nicolas.kogler@hotmail.com)
+/// \author Nicolas Kogler
 /// \date September 23, 2017
+///
+/// Every QOffice-widget should use the functionality of this class in their
+/// QWidget::paintEvent method. Use as follows:
+///
+/// \code
+/// void paintEvent(QPaintEvent*)
+/// {
+///     QPainter painter(this);
+///     const QColor& accentColor = OfficeAccent::color(accent());
+///     painter.fillRect(rect(), accentColor);
+/// }
+/// \endcode
 ///
 ////////////////////////////////////////////////////////////////////////////////
 class QOFFICE_DESIGN_API OfficeAccent
@@ -131,21 +145,3 @@ public:
 };
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-/// \class OfficeAccent
-/// \ingroup Design
-///
-/// Every QOffice-widget should use the functionality of this class in their
-/// QWidget::paintEvent method. Use as follows:
-///
-/// \code
-/// void paintEvent(QPaintEvent*)
-/// {
-///     QPainter painter(this);
-///     const QColor& accentColor = OfficeAccent::color(accent());
-///     painter.fillRect(rect(), accentColor);
-/// }
-/// \endcode
-///
-////////////////////////////////////////////////////////////////////////////////
