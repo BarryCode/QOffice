@@ -26,6 +26,10 @@ set(WIDGET_SOURCES
 )
 
 set(WIDGET_HEADERS
+    ${QOFFICE_INCLUDE_ROOT}/QOffice/Widgets/OfficeLineEdit.hpp
+    ${QOFFICE_INCLUDE_ROOT}/QOffice/Widgets/OfficeMenu.hpp
+    ${QOFFICE_INCLUDE_ROOT}/QOffice/Widgets/OfficeMenuEvent.hpp
+    ${QOFFICE_INCLUDE_ROOT}/QOffice/Widgets/OfficeMenuHeader.hpp
     ${QOFFICE_INCLUDE_ROOT}/QOffice/Widgets/OfficeMenuItem.hpp
     ${QOFFICE_INCLUDE_ROOT}/QOffice/Widgets/OfficeMenuPanel.hpp
     ${QOFFICE_INCLUDE_ROOT}/QOffice/Widgets/OfficeMenuPanelBar.hpp
@@ -47,32 +51,38 @@ qt5_add_resources(WIDGET_RESOURCES
     ${QOFFICE_RESOURCE_ROOT}/qoffice_stylesheets.qrc
 )
 
-add_library("${QOFFICE_LIBRARY}-widget"
+add_library(${QOFFICE_LIBRARY}-widget
     ${QOFFICE_LIBRARY_TYPE}
     ${WIDGET_SOURCES}
     ${WIDGET_HEADERS}
     ${WIDGET_RESOURCES}
 )
 
-target_include_directories("${QOFFICE_LIBRARY}-widget"
+target_include_directories(${QOFFICE_LIBRARY}-widget
     PUBLIC
         $<BUILD_INTERFACE:${QOFFICE_INCLUDE_ROOT}>
         $<INSTALL_INTERFACE:../../include>
 )
 
-target_compile_features("${QOFFICE_LIBRARY}-widget"
+target_compile_features(${QOFFICE_LIBRARY}-widget
     PRIVATE
         ${QOFFICE_COMPILE_FEATURES}
 )
 
-target_link_libraries("${QOFFICE_LIBRARY}-widget"
+target_compile_definitions(${QOFFICE_LIBRARY}-design
+    PRIVATE
+        ${QOFFICE_COMPILE_DEFINITIONS}
+)
+
+target_link_libraries(${QOFFICE_LIBRARY}-widget
+    ${QOFFICE_LIBRARY}-design
     Qt5::Core
     Qt5::Gui
     Qt5::Widgets
 )
 
 install(
-    TARGETS "${QOFFICE_LIBRARY}-widget"
+    TARGETS ${QOFFICE_LIBRARY}-widget
     EXPORT qoffice-targets
     RUNTIME DESTINATION bin
     ARCHIVE DESTINATION lib

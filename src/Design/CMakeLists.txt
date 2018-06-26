@@ -14,6 +14,7 @@ set(DESIGN_SOURCES
 )
 
 set(DESIGN_HEADERS
+    ${QOFFICE_INCLUDE_ROOT}/QOffice/Config.hpp
     ${QOFFICE_INCLUDE_ROOT}/QOffice/Design/Office.hpp
     ${QOFFICE_INCLUDE_ROOT}/QOffice/Design/OfficeAccent.hpp
     ${QOFFICE_INCLUDE_ROOT}/QOffice/Design/OfficeFont.hpp
@@ -26,32 +27,37 @@ qt5_add_resources(DESIGN_RESOURCES
     ${QOFFICE_RESOURCE_ROOT}/qoffice_images.qrc
 )
 
-add_library("${QOFFICE_LIBRARY}-design"
+add_library(${QOFFICE_LIBRARY}-design
     ${QOFFICE_LIBRARY_TYPE}
     ${DESIGN_SOURCES}
     ${DESIGN_HEADERS}
     ${DESIGN_RESOURCES}
 )
 
-target_include_directories("${QOFFICE_LIBRARY}-design"
+target_include_directories(${QOFFICE_LIBRARY}-design
     PUBLIC
         $<BUILD_INTERFACE:${QOFFICE_INCLUDE_ROOT}>
         $<INSTALL_INTERFACE:../../include>
 )
 
-target_compile_features("${QOFFICE_LIBRARY}-design"
+target_compile_features(${QOFFICE_LIBRARY}-design
     PRIVATE
         ${QOFFICE_COMPILE_FEATURES}
 )
 
-target_link_libraries("${QOFFICE_LIBRARY}-design"
+target_compile_definitions(${QOFFICE_LIBRARY}-design
+    PRIVATE
+        ${QOFFICE_COMPILE_DEFINITIONS}
+)
+
+target_link_libraries(${QOFFICE_LIBRARY}-design
     Qt5::Core
     Qt5::Gui
     Qt5::Widgets
 )
 
 install(
-    TARGETS "${QOFFICE_LIBRARY}-design"
+    TARGETS ${QOFFICE_LIBRARY}-design
     EXPORT qoffice-targets
     RUNTIME DESTINATION bin
     ARCHIVE DESTINATION lib
