@@ -72,8 +72,8 @@ target_compile_features(${QOFFICE_LIBRARY}-widget
 target_compile_definitions(${QOFFICE_LIBRARY}-widget
     PRIVATE
         ${QOFFICE_COMPILE_DEFINITIONS}
-    PUBLIC
-        ${QOFFICE_PUBLIC_COMPILE_DEFINITIONS}
+    INTERFACE
+        ${QOFFICE_INTERFACE_COMPILE_DEFINITIONS}
 )
 
 target_link_libraries(${QOFFICE_LIBRARY}-widget
